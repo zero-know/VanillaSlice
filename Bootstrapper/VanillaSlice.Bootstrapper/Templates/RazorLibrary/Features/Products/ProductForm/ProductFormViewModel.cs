@@ -24,6 +24,6 @@ namespace {{ProjectName}}.Razor.Features.Products
     public decimal? Price { get; set; }
 
     [Required(ErrorMessage = "Select a Product Status")]
-    public ProductStatus? ProductStatus { get; set; }
+    public string? ProductStatus { get; set; }
 }
 }

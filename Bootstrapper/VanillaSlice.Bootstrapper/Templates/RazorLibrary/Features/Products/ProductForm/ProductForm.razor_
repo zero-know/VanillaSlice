@@ -77,14 +77,15 @@
 
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <InputSelect id="Category" class="form-select"
-                                               @bind-Value="SelectedItem.ProductStatus">
-                                        <option value="">Choose status...</option>
-                                        @foreach (var status in ProductStatuses)
-                                        {
-                                            <option value="@status.Value">@status.Text</option>
-                                        }
-                                    </InputSelect>
+                                     <FluentSelect  
+                                        Items=@ProductStatuses
+                                                  TOption="SelectOption<ProductStatus>" 
+                                                  OptionText="@(i => i.Text)"
+                                                  OptionValue="@(i => i.Value.ToString())"
+                                                  OptionSelected="@(i => i.Disabled)"
+                                                  @bind-Value="@SelectedItem.ProductStatus">
+
+                                    </FluentSelect>
                                     <label for="Category">
                                         Product Status <span class="text-danger">*</span>
                                     </label>
