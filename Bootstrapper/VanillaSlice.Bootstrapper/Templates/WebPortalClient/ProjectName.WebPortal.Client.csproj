@@ -12,6 +12,27 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
 	</ItemGroup>
+
+  <!-- UI Framework Packages -->
+  {{#if (eq UIFramework "FluentUI")}}
+  <ItemGroup>
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
+  </ItemGroup>
+  {{/if}}
+
+  {{#if (eq UIFramework "MudBlazor")}}
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="7.8.0" />
+  </ItemGroup>
+  {{/if}}
+
+  {{#if (eq UIFramework "Radzen")}}
+  <ItemGroup>
+    <PackageReference Include="Radzen.Blazor" Version="5.2.12" />
+  </ItemGroup>
+  {{/if}}
+
   <ItemGroup>
     <ProjectReference Include="..\..\{{ProjectName}}.Platform\{{ProjectName}}.Client.Shared\{{ProjectName}}.Client.Shared.csproj" />
     <ProjectReference Include="..\..\{{ProjectName}}.Platform\{{ProjectName}}.Razor\{{ProjectName}}.Razor.csproj" />

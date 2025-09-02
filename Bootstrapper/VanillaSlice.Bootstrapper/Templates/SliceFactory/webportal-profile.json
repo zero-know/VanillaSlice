@@ -5,6 +5,7 @@
       "Name": "{{ProjectName}}",
       "FrameworkNamespaces": "{{RootNamespace}}.Framework",
       "DbContextNamespaces": "{{RootNamespace}}.Server.Data.EF",
+      "UIFramework": "{{UIFramework}}",
       "Projects": [
         {
           "Path": "{{ProjectName}}.Platform\\{{ProjectName}}.ServiceContracts\\Features",

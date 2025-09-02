@@ -7,6 +7,7 @@
 
 @inherits FormBase<__ComponentPrefix__FormViewModel, __ComponentPrefix__FormBusinessModel, __primaryKeyType__, I__ComponentPrefix__FormDataService>
 
+{{#if (eq UIFramework "Bootstrap")}}
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -20,7 +21,7 @@
                     <i class="bi bi-arrow-left me-2"></i>Back to List
                 </a>
             </div>
-            
+
             <!-- Form Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
@@ -42,7 +43,7 @@
                                 <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
                                 <InputText class="form-control" @bind-Value="SelectedItem.Name" placeholder="Enter __componentPrefix__ name" />
                                 <ValidationMessage For="@(() => SelectedItem.Name)" class="text-danger small" />
-                            </div> 
+                            </div>
 
                             <!-- Add more fields as needed -->
                         </div>
@@ -67,8 +68,179 @@
         </div>
     </div>
 </div>
+{{/if}}
 
-@code { 
+{{#if (eq UIFramework "FluentUI")}}
+ 
+<FluentGrid>
+    <FluentGridItem xs="8" sm="4">
+        <StatusMessage Message="@errorMessage" />
+       <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="___ComponentPrefix__Form">
+            <DataAnnotationsValidator />
+            <h2>Use a local account to log in.</h2>
+            <hr />
+            <FluentValidationSummary class="text-danger" role="alert" />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentTextField Name="SelectedItem.Name" @bind-Value="SelectedItem.Name"   Style="width: 100%" />
+                <FluentValidationMessage For="() => SelectedItem.Name" class="text-danger" />
+                
+                  
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" Style="width: 100%">Save</FluentButton>
+                 
+            </FluentStack>
+        </EditForm>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="8">
+        <h3>Use another service to log in.</h3>
+        <hr />
+        <ExternalLoginPicker />
+    </FluentGridItem>
+</FluentGrid>
+ 
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+<div class="__componentPrefix__-form-container">
+    <div class="form-header">
+        <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Primary" />
+        <div class="header-content">
+            <MudText Typo="Typo.h4">@(IsEditMode ? "Edit __ComponentPrefix__" : "Create New __ComponentPrefix__")</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                @(IsEditMode ? "Update __componentPrefix__ information" : "Add a new __componentPrefix__ to your catalog")
+            </MudText>
+        </div>
+        <MudButton Variant="Variant.Outlined"
+                 Color="Color.Default"
+                 Href="/__componentPrefixPlural__">
+            <MudIcon Icon="Icons.Material.Filled.ArrowBack" />
+            Back to List
+        </MudButton>
+    </div>
+
+    <MudCard Class="form-card">
+        <MudCardContent>
+            <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="___ComponentPrefix__Form">
+                <DataAnnotationsValidator />
+
+                <!-- Error Message -->
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <MudAlert Severity="Severity.Error" Class="mb-4">
+                        @ErrorMessage
+                    </MudAlert>
+                }
+
+                <div class="form-grid">
+                    <!-- Name Field -->
+                    <div class="form-field">
+                        <MudTextField @bind-Value="SelectedItem.Name"
+                                    Label="Name"
+                                    Required="true"
+                                    Placeholder="Enter __componentPrefix__ name"
+                                    Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => SelectedItem.Name)" class="validation-message" />
+                    </div>
+
+                    <!-- Add more fields as needed -->
+                </div>
+            </EditForm>
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton Variant="Variant.Outlined"
+                     Color="Color.Default"
+                     Href="/__componentPrefixPlural__">
+                <MudIcon Icon="Icons.Material.Filled.Cancel" />
+                Cancel
+            </MudButton>
+            <MudButton ButtonType="ButtonType.Submit"
+                     Variant="Variant.Filled"
+                     Color="Color.Primary"
+                     Disabled="@IsWorking">
+                @if (IsWorking)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                }
+                else
+                {
+                    <MudIcon Icon="Icons.Material.Filled.Check" />
+                }
+                @(IsEditMode ? "Update __ComponentPrefix__" : "Create __ComponentPrefix__")
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+<div class="__componentPrefix__-form-container">
+    <div class="form-header">
+        <i class="rzi rzi-box" style="font-size: 2rem; color: var(--rz-primary);"></i>
+        <div class="header-content">
+            <RadzenText TextStyle="TextStyle.H4">@(IsEditMode ? "Edit __ComponentPrefix__" : "Create New __ComponentPrefix__")</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                @(IsEditMode ? "Update __componentPrefix__ information" : "Add a new __componentPrefix__ to your catalog")
+            </RadzenText>
+        </div>
+        <RadzenButton ButtonStyle="ButtonStyle.Light"
+                    Click="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__"))">
+            <i class="rzi rzi-arrow-left"></i>
+            Back to List
+        </RadzenButton>
+    </div>
+
+    <RadzenCard Class="form-card">
+        <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="___ComponentPrefix__Form">
+            <DataAnnotationsValidator />
+
+            <!-- Error Message -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-4">
+                    @ErrorMessage
+                </RadzenAlert>
+            }
+
+            <div class="form-grid">
+                <!-- Name Field -->
+                <div class="form-field">
+                    <RadzenLabel Text="Name *" />
+                    <RadzenTextBox @bind-Value="SelectedItem.Name"
+                                 Placeholder="Enter __componentPrefix__ name"
+                                 Style="width: 100%;" />
+                    <ValidationMessage For="@(() => SelectedItem.Name)" class="validation-message" />
+                </div>
+
+                <!-- Add more fields as needed -->
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                            Click="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__"))">
+                    <i class="rzi rzi-times"></i>
+                    Cancel
+                </RadzenButton>
+                <RadzenButton ButtonType="ButtonType.Submit"
+                            ButtonStyle="ButtonStyle.Primary"
+                            Disabled="@IsWorking">
+                    @if (IsWorking)
+                    {
+                        <i class="rzi rzi-spinner rzi-spin"></i>
+                    }
+                    else
+                    {
+                        <i class="rzi rzi-check"></i>
+                    }
+                    @(IsEditMode ? "Update __ComponentPrefix__" : "Create __ComponentPrefix__")
+                </RadzenButton>
+            </div>
+        </EditForm>
+    </RadzenCard>
+</div>
+{{/if}}
+
+@code {
     protected override Task OnSelectedItemInitialized(IServiceScope scope)
     {
         // Initialize any dropdown data or other dependencies here

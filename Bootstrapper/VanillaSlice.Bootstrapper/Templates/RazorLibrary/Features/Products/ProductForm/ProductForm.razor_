@@ -8,9 +8,9 @@
 @using {{ProjectName}}.ServiceContracts.Features.Products
 @using {{ProjectName}}.ServiceContracts.Models
 
-
 @inherits FormBase<ProductFormViewModel, ProductFormBusinessModel, string, IProductFormDataService>
 
+{{#if (eq UIFramework "Bootstrap")}}
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8 col-xl-6">
@@ -37,11 +37,12 @@
 
                         <!-- Form Fields -->
                         <InputText type="hidden" @bind-value="SelectedItem.Id" style="height:0 !important; width:0 !important" />
+
                         <div class="row g-3">
                             <!-- Product Name -->
                             <div class="col-12">
                                 <div class="form-floating">
-                                    <InputText id="Name" class="form-control"  
+                                    <InputText id="Name" class="form-control"
                                               @bind-Value="SelectedItem.Name" placeholder="Enter product name" />
                                     <label for="Name">
                                         Product Name <span class="text-danger">*</span>
@@ -76,14 +77,15 @@
 
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <InputSelect id="Category" class="form-select"
-                                               @bind-Value="SelectedItem.ProductStatus">
-                                        <option value="">Choose status...</option>
-                                        @foreach (var status in ProductStatuses)
-                                        {
-                                            <option value="@status.Value">@status.Text</option>
-                                        }
-                                    </InputSelect>
+                                     <FluentSelect  
+                                        Items=@ProductStatuses
+                                                  TOption="SelectOption<ProductStatus>" 
+                                                  OptionText="@(i => i.Text)"
+                                                  OptionValue="@(i => i.Value.ToString())"
+                                                  OptionSelected="@(i => i.Disabled)"
+                                                  @bind-Value="@SelectedItem.ProductStatus">
+
+                                    </FluentSelect>
                                     <label for="Category">
                                         Product Status <span class="text-danger">*</span>
                                     </label>
@@ -116,10 +118,293 @@
         </div>
     </div>
 </div>
+{{/if}}
+
+{{#if (eq UIFramework "FluentUI")}}
+
+<FluentGrid>
+    <FluentGridItem xs="8" sm="4">
+        <StatusMessage Message="@errorMessage" />
+       <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="ProductForm">
+            <DataAnnotationsValidator />
+            <h2>Use a local account to log in.</h2>
+            <hr />
+            <FluentValidationSummary class="text-danger" role="alert" />
+            <FluentStack Orientation="Orientation.Vertical">
+            <p>Product Name</p>
+                <FluentTextField Name="SelectedItem.Name" @bind-Value="SelectedItem.Name"   Style="width: 100%" />
+                <FluentValidationMessage For="() => SelectedItem.Name" class="text-danger" />
+                
+                  
+                   <!-- Description -->
+                <div class="form-field full-width">
+                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
+                        Description
+                    </FluentLabel>
+                    <FluentTextArea @bind-Value="SelectedItem.Description"
+                                  Placeholder="Enter product description"
+                                  Rows="4" />
+                    <ValidationMessage For="@(() => SelectedItem.Description)" class="validation-message" />
+                    <FluentLabel Typo="Typography.Subject" class="form-help-text">
+                        Optional: Provide a detailed description of the product
+                    </FluentLabel>
+                </div>
+
+                <!-- Price and Status Row -->
+                <div class="form-field">
+                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
+                        Price *
+                    </FluentLabel>
+                    <FluentNumberField @bind-Value="SelectedItem.Price"
+                                     Placeholder="0.00"
+                                     Step="0.01"
+                                     Required="true" />
+                    <ValidationMessage For="@(() => SelectedItem.Price)" class="validation-message" />
+                </div>
+
+                <div class="form-field">
+                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
+                        Product Status *
+                    </FluentLabel>
+                    <FluentSelect @bind-SelectedOption="SelectedItem.ProductStatus" TOption="ProductStatus" Required="true">
+                        <FluentOption Value="">Choose status...</FluentOption>
+                        @foreach (var status in ProductStatuses)
+                        {
+                            <FluentOption Value="@status.Value.ToString()">@status.Text</FluentOption>
+                        }
+                    </FluentSelect>
+                    <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="validation-message" />
+                </div>
+
+
+
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" Style="width: 100%">Save</FluentButton>
+                 
+
+                     <!-- Form Actions -->
+            <div class="form-actions">
+                <FluentButton Appearance="Appearance.Neutral"
+                            OnClick="@(() => NavigationManager.NavigateTo("/products"))">
+                    <FluentIcon Value="@(new Icons.Regular.Size16.Dismiss())" />
+                    Cancel
+                </FluentButton>
+                <FluentButton Type="ButtonType.Submit"
+                            Appearance="Appearance.Accent">
+                    <FluentIcon Value="@(new Icons.Regular.Size16.Checkmark())" />
+                    @(string.IsNullOrEmpty(Id) ? "Create Product" : "Update Product")
+                </FluentButton>
+            </div>
+            </FluentStack>
+        </EditForm>
+    </FluentGridItem>
+    
+</FluentGrid>
+ 
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+<div class="product-form-container">
+    <div class="form-header">
+        <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Primary" />
+        <div class="header-content">
+            <MudText Typo="Typo.h4">@(string.IsNullOrEmpty(Id) ? "Create New Product" : "Edit Product")</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                @(string.IsNullOrEmpty(Id) ? "Add a new product to your catalog" : "Update product information")
+            </MudText>
+        </div>
+    </div>
+
+    <MudCard Class="form-card">
+        <MudCardContent>
+            <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="_ProductForm">
+                <DataAnnotationsValidator />
+
+                <!-- Error Message -->
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <MudAlert Severity="Severity.Error" Class="mb-4">
+                        @ErrorMessage
+                    </MudAlert>
+                }
+
+                <!-- Form Fields -->
+                <InputText type="hidden" @bind-value="SelectedItem.Id" style="height:0 !important; width:0 !important" />
+
+                <div class="form-grid">
+                    <!-- Product Name -->
+                    <div class="form-field">
+                        <MudTextField @bind-Value="SelectedItem.Name"
+                                    Label="Product Name"
+                                    Required="true"
+                                    Placeholder="Enter product name"
+                                    Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => SelectedItem.Name)" class="validation-message" />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-field full-width">
+                        <MudTextField @bind-Value="SelectedItem.Description"
+                                    Label="Description"
+                                    Placeholder="Enter product description"
+                                    Lines="4"
+                                    Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => SelectedItem.Description)" class="validation-message" />
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            Optional: Provide a detailed description of the product
+                        </MudText>
+                    </div>
+
+                    <!-- Price and Status Row -->
+                    <div class="form-field">
+                        <MudNumericField @bind-Value="SelectedItem.Price"
+                                       Label="Price"
+                                       Required="true"
+                                       Placeholder="0.00"
+                                       Step="0.01"
+                                       Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => SelectedItem.Price)" class="validation-message" />
+                    </div>
+
+                    <div class="form-field">
+                        <MudSelect @bind-Value="SelectedItem.ProductStatus"
+                                 Label="Product Status"
+                                 Required="true"
+                                 Variant="Variant.Outlined">
+                            @foreach (var status in ProductStatuses)
+                            {
+                                <MudSelectItem Value="@status.Value">@status.Text</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="validation-message" />
+                    </div>
+                </div>
+            </EditForm>
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton Variant="Variant.Outlined"
+                     Color="Color.Default"
+                     Href="/products">
+                <MudIcon Icon="Icons.Material.Filled.Cancel" />
+                Cancel
+            </MudButton>
+            <MudButton ButtonType="ButtonType.Submit"
+                     Variant="Variant.Filled"
+                     Color="Color.Primary">
+                <MudIcon Icon="Icons.Material.Filled.Check" />
+                @(string.IsNullOrEmpty(Id) ? "Create Product" : "Update Product")
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+
+    <!-- Help Text -->
+    <div class="form-help">
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            <MudIcon Icon="Icons.Material.Filled.Info" Size="Size.Small" />
+            Fields marked with * are required.
+        </MudText>
+    </div>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+<div class="product-form-container">
+    <div class="form-header">
+        <i class="rzi rzi-box" style="font-size: 2rem; color: var(--rz-primary);"></i>
+        <div class="header-content">
+            <RadzenText TextStyle="TextStyle.H4">@(string.IsNullOrEmpty(Id) ? "Create New Product" : "Edit Product")</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                @(string.IsNullOrEmpty(Id) ? "Add a new product to your catalog" : "Update product information")
+            </RadzenText>
+        </div>
+    </div>
+
+    <RadzenCard Class="form-card">
+        <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="_ProductForm">
+            <DataAnnotationsValidator />
+
+            <!-- Error Message -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-4">
+                    @ErrorMessage
+                </RadzenAlert>
+            }
+
+            <!-- Form Fields -->
+            <InputText type="hidden" @bind-value="SelectedItem.Id" style="height:0 !important; width:0 !important" />
+
+            <div class="form-grid">
+                <!-- Product Name -->
+                <div class="form-field">
+                    <RadzenLabel Text="Product Name *" />
+                    <RadzenTextBox @bind-Value="SelectedItem.Name"
+                                 Placeholder="Enter product name"
+                                 Style="width: 100%;" />
+                    <ValidationMessage For="@(() => SelectedItem.Name)" class="validation-message" />
+                </div>
+
+                <!-- Description -->
+                <div class="form-field full-width">
+                    <RadzenLabel Text="Description" />
+                    <RadzenTextArea @bind-Value="SelectedItem.Description"
+                                  Placeholder="Enter product description"
+                                  Rows="4"
+                                  Style="width: 100%;" />
+                    <ValidationMessage For="@(() => SelectedItem.Description)" class="validation-message" />
+                    <div class="form-help-text">Optional: Provide a detailed description of the product</div>
+                </div>
+
+                <!-- Price and Status Row -->
+                <div class="form-field">
+                    <RadzenLabel Text="Price *" />
+                    <RadzenNumeric @bind-Value="SelectedItem.Price"
+                                 Placeholder="0.00"
+                                 Step="0.01"
+                                 Style="width: 100%;" />
+                    <ValidationMessage For="@(() => SelectedItem.Price)" class="validation-message" />
+                </div>
+
+                <div class="form-field">
+                    <RadzenLabel Text="Product Status *" />
+                    <RadzenDropDown @bind-Value="SelectedItem.ProductStatus"
+                                  Data="@ProductStatuses"
+                                  TextProperty="Text"
+                                  ValueProperty="Value"
+                                  Placeholder="Choose status..."
+                                  Style="width: 100%;" />
+                    <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="validation-message" />
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                            Click="@(() => NavigationManager.NavigateTo("/products"))">
+                    <i class="rzi rzi-times"></i>
+                    Cancel
+                </RadzenButton>
+                <RadzenButton ButtonType="ButtonType.Submit"
+                            ButtonStyle="ButtonStyle.Primary">
+                    <i class="rzi rzi-check"></i>
+                    @(string.IsNullOrEmpty(Id) ? "Create Product" : "Update Product")
+                </RadzenButton>
+            </div>
+        </EditForm>
+    </RadzenCard>
+
+    <!-- Help Text -->
+    <div class="form-help">
+        <small class="text-muted">
+            <i class="rzi rzi-info-circle"></i>
+            Fields marked with * are required.
+        </small>
+    </div>
+</div>
+{{/if}}
 
 @code {
-
-    private IEnumerable<Option<ProductStatus>> ProductStatuses = Array.Empty<Option<ProductStatus>>();
+    private IEnumerable<SelectOption<ProductStatus>> ProductStatuses = Array.Empty<SelectOption<ProductStatus>>();
 
     protected override Task OnSelectedItemInitialized(IServiceScope scope)
     {
@@ -135,5 +420,4 @@
         }
         return Task.CompletedTask;
     }
-     
 }

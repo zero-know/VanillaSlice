@@ -416,6 +416,83 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-4">
+                                        <label class="form-label">UI Framework</label>
+                                        <p class="text-muted small mb-3">Choose the UI component library for your application</p>
+                                        <InputRadioGroup @bind-Value="config.UIFramework">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card border-primary @(config.UIFramework == UIFramework.Bootstrap ? "bg-primary bg-opacity-10" : "")">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <InputRadio id="bootstrap" class="form-check-input" Value="@UIFramework.Bootstrap" />
+                                                                <label class="form-check-label" for="bootstrap">
+                                                                    <strong>Bootstrap 5 (Default)</strong>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">
+                                                                Popular CSS framework with responsive design and extensive component library.
+                                                                Lightweight and widely supported.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card border-info @(config.UIFramework == UIFramework.FluentUI ? "bg-info bg-opacity-10" : "")">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <InputRadio id="fluentui" class="form-check-input" Value="@UIFramework.FluentUI" />
+                                                                <label class="form-check-label" for="fluentui">
+                                                                    <strong>Microsoft Fluent UI</strong>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">
+                                                                Microsoft's design system with modern, accessible components.
+                                                                Perfect for enterprise applications.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card border-secondary @(config.UIFramework == UIFramework.MudBlazor ? "bg-secondary bg-opacity-10" : "")" style="opacity: 0.6;">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <InputRadio id="mudblazor" class="form-check-input" Value="@UIFramework.MudBlazor" disabled />
+                                                                <label class="form-check-label" for="mudblazor">
+                                                                    <strong>MudBlazor (Coming Soon)</strong>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">
+                                                                Material Design components for Blazor applications.
+                                                                Rich component set with theming support.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="card border-secondary @(config.UIFramework == UIFramework.Radzen ? "bg-secondary bg-opacity-10" : "")" style="opacity: 0.6;">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <InputRadio id="radzen" class="form-check-input" Value="@UIFramework.Radzen" disabled />
+                                                                <label class="form-check-label" for="radzen">
+                                                                    <strong>Radzen (Coming Soon)</strong>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">
+                                                                Professional Blazor components with advanced data visualization
+                                                                and form controls.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </InputRadioGroup>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }

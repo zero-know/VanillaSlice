@@ -10,3 +10,17 @@
 @using {{ProjectName}}.WebPortal
 @using {{ProjectName}}.WebPortal.Client
 @using {{ProjectName}}.WebPortal.Components
+
+{{#if (eq UIFramework "FluentUI")}}
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+@using MudBlazor
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+@using Radzen
+@using Radzen.Blazor
+{{/if}}
