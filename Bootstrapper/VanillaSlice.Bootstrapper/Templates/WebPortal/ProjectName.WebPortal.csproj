@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>{{UserSecretsId}}</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\{{ProjectName}}.Platform\{{ProjectName}}.Server.DataServices\{{ProjectName}}.Server.DataServices.csproj" />
+    <ProjectReference Include="..\..\{{ProjectName}}.ServiceDefaults\{{ProjectName}}.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\{{ProjectName}}.WebPortal.Client\{{ProjectName}}.WebPortal.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8" />
+  </ItemGroup>
+
+</Project>

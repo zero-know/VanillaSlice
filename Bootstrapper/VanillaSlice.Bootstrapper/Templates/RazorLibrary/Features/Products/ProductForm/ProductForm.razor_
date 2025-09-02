@@ -1,0 +1,139 @@
+@page "/products/create"
+@page "/products/edit/{Id}"
+@using Microsoft.Extensions.DependencyInjection
+@using Microsoft.AspNetCore.Components.Forms
+@using {{ProjectName}}.Common.Enums
+@using {{ProjectName}}.Framework
+@using {{ProjectName}}.Razor.Features.Products
+@using {{ProjectName}}.ServiceContracts.Features.Products
+@using {{ProjectName}}.ServiceContracts.Models
+
+
+@inherits FormBase<ProductFormViewModel, ProductFormBusinessModel, string, IProductFormDataService>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-6">
+            <!-- Form Header -->
+            <div class="mb-4">
+                <h2 class="mb-1">@(string.IsNullOrEmpty(Id) ? "Create New Product" : "Edit Product")</h2>
+                <p class="text-muted mb-0">@(string.IsNullOrEmpty(Id) ? "Add a new product to your catalog" : "Update product information")</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="_ProductForm">
+                        <DataAnnotationsValidator />
+
+                        <!-- Error Message -->
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>@ErrorMessage</div>
+                            </div>
+                        }
+
+                        <!-- Form Fields -->
+                        <InputText type="hidden" @bind-value="SelectedItem.Id" style="height:0 !important; width:0 !important" />
+                        <div class="row g-3">
+                            <!-- Product Name -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputText id="Name" class="form-control"  
+                                              @bind-Value="SelectedItem.Name" placeholder="Enter product name" />
+                                    <label for="Name">
+                                        Product Name <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <ValidationMessage For="@(() => SelectedItem.Name)" class="text-danger small mt-1" />
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <InputTextArea id="Description" class="form-control"
+                                                   @bind-Value="SelectedItem.Description" placeholder="Enter product description"
+                                                  style="height: 120px;" />
+                                    <label for="Description">Description</label>
+                                </div>
+                                <ValidationMessage For="@(() => SelectedItem.Description)" class="text-danger small mt-1" />
+                                <div class="form-text">Optional: Provide a detailed description of the product</div>
+                            </div>
+
+                            <!-- Price and Status Row -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputNumber id="Price" class="form-control"
+                                                 @bind-Value="SelectedItem.Price" placeholder="0.00" step="0.01" />
+                                    <label for="Price">
+                                        Price <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <ValidationMessage For="@(() => SelectedItem.Price)" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <InputSelect id="Category" class="form-select"
+                                               @bind-Value="SelectedItem.ProductStatus">
+                                        <option value="">Choose status...</option>
+                                        @foreach (var status in ProductStatuses)
+                                        {
+                                            <option value="@status.Value">@status.Text</option>
+                                        }
+                                    </InputSelect>
+                                    <label for="Category">
+                                        Product Status <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="text-danger small mt-1" />
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                            <a class="btn btn-outline-secondary px-4" href="/products">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-dark px-4">
+                                <i class="bi bi-check-circle me-2"></i>
+                                @(string.IsNullOrEmpty(Id) ? "Create Product" : "Update Product")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Fields marked with <span class="text-danger">*</span> are required.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private IEnumerable<Option<ProductStatus>> ProductStatuses = Array.Empty<Option<ProductStatus>>();
+
+    protected override Task OnSelectedItemInitialized(IServiceScope scope)
+    {
+        ProductStatuses = OptionList.FromEnum<ProductStatus>();
+        return Task.CompletedTask;
+    }
+
+    public override Task OnAfterSaveAsync(string key)
+    {
+        if (!string.IsNullOrEmpty(key))
+        {
+            NavigationManager.NavigateTo("/products");
+        }
+        return Task.CompletedTask;
+    }
+     
+}

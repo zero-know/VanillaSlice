@@ -1,0 +1,26 @@
+@if (!string.IsNullOrEmpty(Message))
+{
+    var statusMessageClass = Message.StartsWith("Error") ? "danger" : "success";
+    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
+        @Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Message { get; set; }
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Message ??= HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+        if (!string.IsNullOrEmpty(Message))
+        {
+            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+        }
+    }
+}

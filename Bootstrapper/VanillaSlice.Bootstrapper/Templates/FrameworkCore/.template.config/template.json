@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ZKnowledge Framework Team",
+  "classifications": ["Framework", "Core", "Blazor"],
+  "identity": "ZKnowledge.Framework.Core.Template",
+  "name": "ZKnowledge Framework Core Template",
+  "shortName": "zkframework-core",
+  "sourceName": "{{ProjectName}}.Framework",
+  "preferNameDirectory": false,
+  "symbols": {
+    "RootNamespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "{{ProjectName}}.Framework",
+      "replaces": "{{RootNamespace}}",
+      "description": "The root namespace for the framework"
+    },
+    "ProjectName": {
+      "type": "parameter", 
+      "datatype": "string",
+      "defaultValue": "MyProject",
+      "replaces": "{{ProjectName}}",
+      "description": "The name of the project"
+    },
+    "TargetFramework": {
+      "type": "parameter",
+      "datatype": "string", 
+      "defaultValue": "net9.0",
+      "replaces": "{{TargetFramework}}",
+      "description": "The target framework version"
+    },
+    "IncludeDatabase": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether to include database-related components"
+    },
+    "IncludeAuthentication": {
+      "type": "parameter",
+      "datatype": "bool", 
+      "defaultValue": "true",
+      "description": "Whether to include authentication components"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!IncludeDatabase)",
+          "exclude": [
+            "**/Database/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeAuthentication)",
+          "exclude": [
+            "**/Auth/**"
+          ]
+        }
+      ]
+    }
+  ]
+}

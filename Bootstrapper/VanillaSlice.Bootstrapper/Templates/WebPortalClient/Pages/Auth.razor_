@@ -1,0 +1,21 @@
+@page "/auth"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Auth</PageTitle>
+
+<h1>Authentication</h1>
+
+<p>This component demonstrates authentication state.</p>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hello, @context.User.Identity?.Name!</p>
+        <p>You are authenticated.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authenticated.</p>
+        <p><a href="Account/Login">Login</a></p>
+    </NotAuthorized>
+</AuthorizeView>

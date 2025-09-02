@@ -1,0 +1,280 @@
+@using {{RootNamespace}}.SliceFactory.Models
+@using {{RootNamespace}}.SliceFactory.Services
+
+<div class="feature-tree-container">
+    @if (TreeNodes != null && TreeNodes.Any())
+    {
+        <div class="tree-view">
+            @foreach (var node in TreeNodes)
+            {
+                <div class="tree-node">
+                    @RenderTreeNode(node, 0)
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-folder2-open fs-1"></i>
+            <p class="mt-2">No features found. Create your first feature to get started!</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<FeatureTreeNode>? TreeNodes { get; set; }
+    [Parameter] public EventCallback<FeatureTreeNode> OnNodeClick { get; set; }
+    [Parameter] public EventCallback<Feature> OnFeatureEdit { get; set; }
+    [Parameter] public EventCallback<Feature> OnFeatureDelete { get; set; }
+    [Parameter] public EventCallback<FeatureTreeNode> OnFeatureCreate { get; set; }
+
+    private RenderFragment RenderTreeNode(FeatureTreeNode node, int level) => __builder =>
+    {
+        var indentClass = $"tree-indent-{Math.Min(level, 5)}";
+        var nodeClass = $"tree-node-item {GetNodeTypeClass(node.Type)}";
+
+        <div class="@nodeClass">
+            <div class="@indentClass tree-node-content" @onclick="() => ToggleNode(node)">
+                <span class="tree-node-icon">
+                    @if (node.HasChildren)
+                    {
+                        <i class="bi @(node.IsExpanded ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-dot"></i>
+                    }
+                </span>
+
+                <span class="tree-node-type-icon">
+                    @GetNodeIcon(node)
+                </span>
+
+                <span class="tree-node-label" @onclick="() => OnNodeClickHandler(node)" @onclick:stopPropagation="true">
+                    @node.Name
+                </span>
+
+                <!-- Action buttons for different node types -->
+                <div class="tree-node-actions" @onclick:stopPropagation="true">
+                    @if (node.Type == "Module" || node.Type == "Feature" || node.Type == "Project")
+                    {
+                        <button class="btn btn-sm btn-outline-success me-1"
+                                @onclick="() => OnFeatureCreate.InvokeAsync(node)"
+                                title="Create Feature Here">
+                            <i class="bi bi-plus-circle"></i>
+                        </button>
+                    }
+
+                    @if (node.Type == "Feature" && node.Feature != null)
+                    {
+                        <button class="btn btn-sm btn-outline-primary me-1"
+                                @onclick="() => OnFeatureEdit.InvokeAsync(node.Feature)"
+                                title="Edit Feature">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => OnFeatureDelete.InvokeAsync(node.Feature)"
+                                title="Delete Feature">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    }
+                </div>
+
+                @if (node.Type == "File" && node.File != null)
+                {
+                    <div class="tree-node-info">
+                        <small class="text-muted">
+                            @FormatFileSize(node.File.FileSize) •
+                            @node.File.CreatedAt.ToString("MMM dd, yyyy")
+                            @if (!node.File.Exists)
+                            {
+                                <span class="text-warning ms-1" title="File no longer exists on disk">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </span>
+                            }
+                        </small>
+                    </div>
+                }
+            </div>
+
+            @if (node.IsExpanded && node.HasChildren)
+            {
+                <div class="tree-node-children">
+                    @foreach (var child in node.Children)
+                    {
+                        @RenderTreeNode(child, level + 1)
+                    }
+                </div>
+            }
+        </div>
+    };
+
+    private async Task ToggleNode(FeatureTreeNode node)
+    {
+        if (node.HasChildren)
+        {
+            node.IsExpanded = !node.IsExpanded;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnNodeClickHandler(FeatureTreeNode node)
+    {
+        await OnNodeClick.InvokeAsync(node);
+    }
+
+    private string GetNodeTypeClass(string nodeType)
+    {
+        return nodeType.ToLower() switch
+        {
+            "module" => "tree-node-module",
+            "feature" => "tree-node-feature",
+            "projecttype" => "tree-node-project",
+            "file" => "tree-node-file",
+            _ => ""
+        };
+    }
+
+    private RenderFragment GetNodeIcon(FeatureTreeNode node) => __builder =>
+    {
+        var iconClass = node.Type.ToLower() switch
+        {
+            "module" => "bi-folder-fill text-primary",
+            "feature" => "bi-layers-fill text-success",
+            "projecttype" => "bi-box-fill text-info",
+            "file" => GetFileIcon(node.File?.FileName ?? ""),
+            _ => "bi-circle-fill text-secondary"
+        };
+
+        <i class="bi @iconClass"></i>
+    };
+
+    private string GetFileIcon(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLower();
+        return extension switch
+        {
+            ".razor" => "bi-file-earmark-code text-danger",
+            ".cs" => "bi-file-earmark-code text-warning",
+            ".js" => "bi-file-earmark-code text-info",
+            ".css" => "bi-file-earmark-code text-primary",
+            _ => "bi-file-earmark text-secondary"
+        };
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
+        return $"{bytes / (1024 * 1024):F1} MB";
+    }
+}
+
+<style>
+    .feature-tree-container {
+        background-color: #fff;
+        min-height: 200px;
+    }
+
+    .tree-view {
+        padding: 0.5rem;
+    }
+
+    .tree-node-item {
+        margin-bottom: 2px;
+    }
+
+    .tree-node-content {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+        .tree-node-content:hover {
+            background-color: #f8f9fa;
+        }
+
+    .tree-node-module .tree-node-content {
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+    .tree-node-feature .tree-node-content {
+        font-weight: 500;
+        color: #198754;
+    }
+
+    .tree-node-project .tree-node-content {
+        color: #0dcaf0;
+    }
+
+    .tree-node-file .tree-node-content {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .tree-node-icon {
+        width: 16px;
+        margin-right: 0.25rem;
+        font-size: 0.8rem;
+    }
+
+    .tree-node-type-icon {
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .tree-node-label {
+        flex-grow: 1;
+        cursor: pointer;
+    }
+
+    .tree-node-actions {
+        margin-left: auto;
+        opacity: 0;
+        transition: opacity 0.15s ease-in-out;
+    }
+
+    .tree-node-content:hover .tree-node-actions {
+        opacity: 1;
+    }
+
+    .tree-node-info {
+        margin-left: auto;
+        font-size: 0.75rem;
+    }
+
+    .tree-node-children {
+        margin-left: 1rem;
+        border-left: 1px solid #dee2e6;
+        padding-left: 0.5rem;
+    }
+
+    .tree-indent-0 {
+        margin-left: 0;
+    }
+
+    .tree-indent-1 {
+        margin-left: 1rem;
+    }
+
+    .tree-indent-2 {
+        margin-left: 2rem;
+    }
+
+    .tree-indent-3 {
+        margin-left: 3rem;
+    }
+
+    .tree-indent-4 {
+        margin-left: 4rem;
+    }
+
+    .tree-indent-5 {
+        margin-left: 5rem;
+    }
+</style>

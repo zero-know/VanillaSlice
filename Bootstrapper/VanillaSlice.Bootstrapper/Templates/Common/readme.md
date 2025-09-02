@@ -1,0 +1,1 @@
+This project contains the common code for the {{ProjectName}} solution. It is a class library that is referenced by all other projects. Most suitable candidates are Enums, which will be used across the solution including efcore entities. If we keep enums with entities, it cannot be referred to UI razor and client shared projects.

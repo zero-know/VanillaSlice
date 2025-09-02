@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-CodeUtils.Bootstrapper-2d3cf984-7964-4f6f-83e8-eb6124c128a6</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.TemplateEngine.Edge" Version="8.0.100" />
+		<PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="8.0.100" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Exclude template files from compilation -->
+		<Compile Remove="Templates\**\*" />
+	  
+		<!-- Include all template files as embedded resources for the template engine -->
+		<Fakes Include="Templates\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Fakes>
+	</ItemGroup>
+ 
+</Project>

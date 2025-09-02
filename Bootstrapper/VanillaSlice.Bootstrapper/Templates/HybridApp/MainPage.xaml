@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="{{ProjectName}}.HybridApp.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:components="clr-namespace:{{ProjectName}}.HybridApp.Components"
+    xmlns:local="clr-namespace:{{ProjectName}}.HybridApp">
+
+    <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
+        <BlazorWebView.RootComponents>
+            <RootComponent ComponentType="{x:Type components:Routes}" Selector="#app" />
+        </BlazorWebView.RootComponents>
+    </BlazorWebView>
+
+</ContentPage>

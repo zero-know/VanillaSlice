@@ -1,0 +1,86 @@
+@page "/__componentPrefixPlural__/create"
+@page "/__componentPrefixPlural__/edit/{Id}"
+@using Microsoft.Extensions.DependencyInjection
+@using Microsoft.AspNetCore.Components.Forms
+@using {{RootNamespace}}.Framework
+@using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__
+
+@inherits FormBase<__ComponentPrefix__FormViewModel, __ComponentPrefix__FormBusinessModel, __primaryKeyType__, I__ComponentPrefix__FormDataService>
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">@(IsEditMode ? "Edit __ComponentPrefix__" : "Create New __ComponentPrefix__")</h2>
+                    <p class="text-muted mb-0">@(IsEditMode ? "Update __componentPrefix__ information" : "Add a new __componentPrefix__ to your catalog")</p>
+                </div>
+                <a class="btn btn-outline-secondary" href="/__componentPrefixPlural__">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+            
+            <!-- Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="___ComponentPrefix__Form">
+                        <DataAnnotationsValidator />
+
+                        <!-- Error Message -->
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>@ErrorMessage</div>
+                            </div>
+                        }
+
+                        <div class="row g-3">
+                            <!-- Name Field -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="SelectedItem.Name" placeholder="Enter __componentPrefix__ name" />
+                                <ValidationMessage For="@(() => SelectedItem.Name)" class="text-danger small" />
+                            </div> 
+
+                            <!-- Add more fields as needed -->
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a class="btn btn-outline-secondary" href="/__componentPrefixPlural__">Cancel</a>
+                            <button type="submit" class="btn btn-dark" disabled="@IsWorking">
+                                @if (IsWorking)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                }
+                                <i class="bi bi-check-circle me-2"></i>
+                                @(IsEditMode ? "Update __ComponentPrefix__" : "Create __ComponentPrefix__")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code { 
+    protected override Task OnSelectedItemInitialized(IServiceScope scope)
+    {
+        // Initialize any dropdown data or other dependencies here
+        return Task.CompletedTask;
+    }
+
+    public override Task OnAfterSaveAsync(__primaryKeyType__ key)
+    {
+        if (key != null)
+        {
+            NavigationManager.NavigateTo("/__componentPrefixPlural__");
+        }
+        return Task.CompletedTask;
+    }
+}

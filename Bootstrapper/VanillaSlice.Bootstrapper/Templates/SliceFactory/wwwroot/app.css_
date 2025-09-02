@@ -1,0 +1,170 @@
+/* SliceFactory Styles - Dark Theme */
+
+/* File Preview Styles */
+.file-preview-container {
+    height: 100%;
+}
+
+.file-preview-content {
+    padding: 1rem;
+}
+
+.project-group {
+    border: 1px solid #495057;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.project-header {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    padding: 1rem;
+    border-bottom: 1px solid #495057;
+    color: #fff;
+}
+
+.project-icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #212529;
+    color: #fff;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.files-list {
+    padding: 0.5rem;
+}
+
+.file-item {
+    border: 1px solid #495057;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.file-header {
+    border-bottom: 1px solid #495057;
+}
+
+.code-preview {
+    background: #f8f9fa;
+    border: none;
+    padding: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0;
+}
+
+/* Placement Guidance Styles */
+.placement-guidance-container {
+    height: 100%;
+}
+
+.placement-guidance-content {
+    height: 100%;
+}
+
+.guidance-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff3cd;
+    border-radius: 50%;
+}
+
+.recommendation-item {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.recommendation-header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.recommendation-point {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.summary-stats {
+    border: 1px solid #e9ecef;
+}
+
+.stat-item {
+    padding: 0.5rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.stat-label {
+    margin-top: 0.25rem;
+}
+
+/* Preview Tabs */
+.preview-tabs .nav-tabs {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.preview-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.preview-tabs .nav-link.active {
+    background: none;
+    border-bottom-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.preview-tabs .nav-link:hover {
+    border-bottom-color: #0d6efd;
+    color: #0d6efd;
+}
+
+/* General UI Enhancements */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.btn {
+    font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Error UI */
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

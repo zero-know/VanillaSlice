@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ZKnowledge Framework",
+  "classifications": ["Library", "Common", "Shared"],
+  "identity": "ZKnowledge.Common.Template",
+  "name": "ZKnowledge Common Library Template",
+  "shortName": "zkn-common",
+  "sourceName": "{{ProjectName}}.Common",
+  "preferNameDirectory": true,
+  "symbols": {
+    "RootNamespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "{{ProjectName}}.Common",
+      "replaces": "{{RootNamespace}}",
+      "description": "The root namespace for the common project"
+    },
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyProject",
+      "replaces": "{{ProjectName}}",
+      "description": "The name of the project"
+    },
+    "TargetFramework": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "net9.0",
+      "replaces": "{{TargetFramework}}",
+      "description": "The target framework for the project"
+    },
+    "IncludeSampleData": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include sample enums (ProductStatus, ProductType)"
+    }
+  }
+}

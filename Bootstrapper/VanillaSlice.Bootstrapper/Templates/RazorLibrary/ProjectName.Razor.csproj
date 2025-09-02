@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\{{ProjectName}}.Base\{{ProjectName}}.Framework\{{ProjectName}}.Framework.csproj" />
+    <ProjectReference Include="..\{{ProjectName}}.ServiceContracts\{{ProjectName}}.ServiceContracts.csproj" />
+  </ItemGroup>
+
+</Project>

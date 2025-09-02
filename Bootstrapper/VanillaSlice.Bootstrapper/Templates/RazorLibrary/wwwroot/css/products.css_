@@ -1,0 +1,176 @@
+/* Product Components Enhanced Styles */
+
+/* Product Listing Enhancements */
+.product-card {
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.product-card .card-title {
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.3;
+}
+
+.product-card .badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 0.5rem;
+}
+
+.product-card .btn-outline-primary:hover {
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+/* Product Form Enhancements */
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-floating > .form-control.is-invalid,
+.form-floating > .form-select.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
+.form-floating > .form-control.is-valid,
+.form-floating > .form-select.is-valid {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* Enhanced Button Styles */
+.btn {
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(33, 37, 41, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    box-shadow: 0 4px 8px rgba(33, 37, 41, 0.4);
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+.btn-outline-secondary {
+    border-width: 2px;
+}
+
+/* Icon Enhancements */
+.bi {
+    vertical-align: -0.125em;
+}
+
+/* Empty State Styling */
+.display-1 {
+    font-size: 4rem;
+    opacity: 0.6;
+}
+
+/* Alert Enhancements */
+.alert {
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+    color: #721c24;
+}
+
+/* Card Enhancements */
+.card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.card.shadow-sm {
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Form Text Enhancements */
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .product-card:hover {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .display-1 {
+        font-size: 3rem;
+    }
+}
+
+/* Loading States */
+.btn:disabled {
+    opacity: 0.6;
+    transform: none !important;
+}
+
+/* Focus States for Accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+/* Custom Badge Colors */
+.badge.bg-success {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+}
+
+.badge.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%) !important;
+}
+
+/* Text Truncation for Long Content */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

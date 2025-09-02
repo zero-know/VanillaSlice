@@ -1,0 +1,203 @@
+/* Project Wizard Enhanced Styles */
+
+/* Step Indicators */
+.step-indicator {
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.step-indicator.bg-success {
+    background-color: #198754 !important;
+}
+
+.step-indicator.bg-primary {
+    background-color: #212529 !important;
+}
+
+/* Step Navigation */
+.step-nav-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.list-group-item-action:hover .step-nav-indicator {
+    transform: scale(1.1);
+}
+
+.list-group-item-action.active .step-nav-indicator {
+    box-shadow: 0 0 0 3px rgba(33, 37, 41, 0.25);
+}
+
+/* Override Bootstrap's default blue active state for list-group items */
+.list-group-item-action.active {
+    background-color: #495057 !important;
+    border-color: #495057 !important;
+    color: #fff !important;
+}
+
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.list-group-item-action.active:hover {
+    background-color: #343a40 !important;
+    color: #fff !important;
+}
+
+/* Section Groups */
+.section-group {
+    border-left: 4px solid #e9ecef;
+    padding-left: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.section-group:hover {
+    border-left-color: #212529;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+/* Step Header */
+.step-header-icon {
+    font-size: 2rem;
+    opacity: 0.9;
+}
+
+/* Form Enhancements */
+.form-control.is-valid {
+    border-color: #198754;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.38 1.38'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4M7.2 4.6l-1.4 1.4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Card Enhancements */
+.card.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    transition: box-shadow 0.3s ease;
+}
+
+.card.shadow-sm:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Tooltip Enhancements */
+.tooltip {
+    font-size: 0.875rem;
+}
+
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+}
+
+/* Button Enhancements */
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-lg:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Configuration Preview Enhancements */
+.card-header.bg-light {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .step-indicator {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.8rem;
+    }
+    
+    .section-group {
+        border-left: none;
+        border-top: 3px solid #e9ecef;
+        padding-left: 0;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .section-group:hover {
+        border-top-color: #212529;
+        border-left-color: transparent;
+    }
+}
+
+/* Animation for step transitions */
+@keyframes slideInRight {
+    from {
+        opacity: 0; 
+    }
+    to {
+        opacity: 1; 
+    }
+}
+
+.card {
+    animation: slideInRight 0.4s ease-out;
+}
+
+/* Loading state enhancements */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Success/Error message styling */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Platform selection cards */
+.card.border-primary {
+    transition: all 0.3s ease;
+}
+
+.card.border-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 37, 41, 0.15);
+}
+
+.card.bg-primary.bg-opacity-10 {
+    background-color: rgba(33, 37, 41, 0.1) !important;
+    border-color: #212529 !important;
+    border-width: 2px !important;
+}

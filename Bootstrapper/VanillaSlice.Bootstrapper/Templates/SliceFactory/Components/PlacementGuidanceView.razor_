@@ -1,0 +1,369 @@
+@using {{RootNamespace}}.SliceFactory.Models
+@using {{RootNamespace}}.SliceFactory.Services
+
+<div class="placement-guidance-container">
+    @if (IsLoading)
+    {
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Analyzing placement...</span>
+            </div>
+            <p class="mt-2 text-muted">Analyzing feature placement...</p>
+        </div>
+    }
+    else if (Guidance != null)
+    {
+        <!-- Conflict Alerts -->
+        @if (Guidance.HasConflicts)
+        {
+            <div class="conflicts-section mb-4">
+                @foreach (var conflict in Guidance.Conflicts)
+                {
+                    <div class="alert @GetAlertClass(conflict.Severity) d-flex align-items-start" role="alert">
+                        <i class="bi @GetConflictIcon(conflict.Type) me-2 mt-1"></i>
+                        <div class="flex-grow-1">
+                            <strong>@conflict.Message</strong>
+                            @if (!string.IsNullOrEmpty(conflict.Details))
+                            {
+                                <div class="small text-muted mt-1">@conflict.Details</div>
+                            }
+                            @if (conflict.Suggestions.Any())
+                            {
+                                <div class="mt-2">
+                                    <small class="text-muted">Suggestions:</small>
+                                    <ul class="small mb-0 mt-1">
+                                        @foreach (var suggestion in conflict.Suggestions)
+                                        {
+                                            <li>@suggestion</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Namespace Hierarchy -->
+        <div class="namespace-section mb-4">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-diagram-3 me-2"></i>Namespace Structure
+            </h6>
+            <div class="namespace-tree">
+                @RenderNamespaceHierarchy(Guidance.NamespaceStructure)
+            </div>
+        </div>
+
+        <!-- File Placement Preview -->
+        <div class="files-section mb-4">
+            <h6 class="text-primary mb-3">
+                <i class="bi bi-files me-2"></i>Files to be Created
+                <span class="badge bg-secondary ms-2">@Guidance.NewFiles.Count</span>
+            </h6>
+
+            @foreach (var projectGroup in Guidance.NewFiles.GroupBy(f => f.ProjectType))
+            {
+                <div class="project-group mb-3">
+                    <div class="project-header">
+                        <i class="bi bi-box-fill me-2 text-info"></i>
+                        <strong>@projectGroup.Key</strong>
+                        <small class="text-muted ms-2">(@projectGroup.Count() files)</small>
+                    </div>
+
+                    @foreach (var sliceGroup in projectGroup.GroupBy(f => f.SliceType))
+                    {
+                        <div class="slice-group ms-3 mt-2">
+                            <div class="slice-header">
+                                <span class="badge bg-secondary me-2">@sliceGroup.Key</span>
+                                <small class="text-muted">@sliceGroup.Count() files</small>
+                            </div>
+
+                            @foreach (var file in sliceGroup)
+                            {
+                                <div class="file-item ms-3 mt-1">
+                                    <i class="bi @GetFileIcon(file.FileName) me-2"></i>
+                                    <span class="file-name">@file.FileName</span>
+                                    @if (IsFileConflicted(file))
+                                    {
+                                        <i class="bi bi-exclamation-triangle text-warning ms-2" title="Potential conflict"></i>
+                                    }
+                                    <small class="text-muted ms-auto">@FormatFileSize(file.Content.Length)</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Existing Files that will be affected -->
+        @if (Guidance.ExistingFiles.Any())
+        {
+            <div class="existing-files-section mb-4">
+                <h6 class="text-warning mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Existing Files
+                    <span class="badge bg-warning text-dark ms-2">@Guidance.ExistingFiles.Count</span>
+                </h6>
+
+                @foreach (var existingFile in Guidance.ExistingFiles)
+                {
+                    <div class="existing-file-item">
+                        <i class="bi @GetFileIcon(existingFile.FileName) me-2"></i>
+                        <span class="file-name">@existingFile.FileName</span>
+                        @if (existingFile.WillBeOverwritten)
+                        {
+                            <span class="badge bg-danger ms-2">Will be overwritten</span>
+                        }
+                        <small class="text-muted ms-auto">
+                            @FormatFileSize(existingFile.FileSize) • @existingFile.LastModified.ToString("MMM dd, yyyy")
+                        </small>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Suggestions -->
+        @if (Guidance.Suggestions.Any())
+        {
+            <div class="suggestions-section">
+                <h6 class="text-success mb-3">
+                    <i class="bi bi-lightbulb me-2"></i>Recommendations
+                </h6>
+
+                @foreach (var suggestion in Guidance.Suggestions)
+                {
+                    <div class="suggestion-item">
+                        <div class="suggestion-header">
+                            <i class="bi @GetSuggestionIcon(suggestion.Type) me-2"></i>
+                            <strong>@suggestion.Title</strong>
+                        </div>
+                        <div class="suggestion-content">
+                            <p class="mb-1">@suggestion.Description</p>
+                            <small class="text-muted">@suggestion.RecommendedAction</small>
+                            @if (suggestion.Parameters.Any())
+                            {
+                                <div class="suggestion-params mt-2">
+                                    @foreach (var param in suggestion.Parameters)
+                                    {
+                                        <div class="param-item">
+                                            <code class="small">@param.Value</code>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-info-circle fs-1"></i>
+            <p class="mt-2">No placement guidance available</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public PlacementGuidance? Guidance { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+
+    private RenderFragment RenderNamespaceHierarchy(NamespaceHierarchy hierarchy) => __builder =>
+    {
+        <div class="namespace-root">
+            <div class="namespace-item root">
+                <i class="bi bi-house-fill me-2"></i>
+                <strong>@hierarchy.RootNamespace</strong>
+            </div>
+            @foreach (var node in hierarchy.Nodes)
+            {
+                @RenderNamespaceNode(node, 1)
+            }
+        </div>
+    };
+
+    private RenderFragment RenderNamespaceNode(NamespaceNode node, int level) => __builder =>
+    {
+        var indentClass = $"ms-{level * 3}";
+        var nodeClass = node.IsNew ? "namespace-item new" : "namespace-item";
+        if (node.HasConflict) nodeClass += " conflict";
+
+        <div class="@nodeClass @indentClass">
+            <i class="bi @GetNamespaceIcon(node.Type) me-2"></i>
+            <span>@node.Name</span>
+            @if (node.IsNew)
+            {
+                <span class="badge bg-success ms-2">New</span>
+            }
+            @if (node.HasConflict)
+            {
+                <i class="bi bi-exclamation-triangle text-warning ms-2"></i>
+            }
+            @if (node.ExistingFeatureCount > 0)
+            {
+                <small class="text-muted ms-2">(@node.ExistingFeatureCount features)</small>
+            }
+        </div>
+
+        @foreach (var child in node.Children)
+        {
+            @RenderNamespaceNode(child, level + 1)
+        }
+    };
+
+    private string GetAlertClass(ConflictSeverity severity) => severity switch
+    {
+        ConflictSeverity.Error => "alert-danger",
+        ConflictSeverity.Warning => "alert-warning",
+        ConflictSeverity.Info => "alert-info",
+        _ => "alert-secondary"
+    };
+
+    private string GetConflictIcon(ConflictType type) => type switch
+    {
+        ConflictType.DuplicateFeatureName => "bi-exclamation-triangle-fill",
+        ConflictType.FileOverwrite => "bi-file-earmark-x",
+        ConflictType.NamespaceConflict => "bi-diagram-3",
+        ConflictType.NamingConvention => "bi-pencil-square",
+        ConflictType.DirectoryStructure => "bi-folder-x",
+        _ => "bi-info-circle"
+    };
+
+    private string GetNamespaceIcon(NodeType type) => type switch
+    {
+        NodeType.Module => "bi-folder-fill",
+        NodeType.Feature => "bi-gear-fill",
+        NodeType.Project => "bi-box-fill",
+        NodeType.File => "bi-file-earmark",
+        NodeType.Directory => "bi-folder",
+        _ => "bi-circle"
+    };
+
+    private string GetSuggestionIcon(SuggestionType type) => type switch
+    {
+        SuggestionType.AlternativeName => "bi-pencil",
+        SuggestionType.AlternativeNamespace => "bi-diagram-3",
+        SuggestionType.AlternativeLocation => "bi-geo-alt",
+        SuggestionType.NamingConvention => "bi-check-circle",
+        SuggestionType.BestPractice => "bi-star",
+        _ => "bi-lightbulb"
+    };
+
+    private string GetFileIcon(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLower();
+        return extension switch
+        {
+            ".razor" => "bi-file-earmark-code text-danger",
+            ".cs" => "bi-file-earmark-code text-warning",
+            ".js" => "bi-file-earmark-code text-info",
+            ".css" => "bi-file-earmark-code text-primary",
+            _ => "bi-file-earmark text-secondary"
+        };
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
+        return $"{bytes / (1024 * 1024):F1} MB";
+    }
+
+    private bool IsFileConflicted(FeatureFilePreview file)
+    {
+        return Guidance?.Conflicts.Any(c => c.FilePath == file.FilePath) ?? false;
+    }
+}
+
+<style>
+    .placement-guidance-container {
+        padding: 1rem;
+    }
+
+    .conflicts-section .alert {
+        border-left: 4px solid;
+        margin-bottom: 0.5rem;
+    }
+
+    .namespace-tree {
+        background-color: #f8f9fa;
+        border-radius: 0.375rem;
+        padding: 1rem;
+    }
+
+    .namespace-item {
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+        .namespace-item.new {
+            color: #198754;
+            font-weight: 500;
+        }
+
+        .namespace-item.conflict {
+            color: #dc3545;
+        }
+
+    .project-group {
+        border-left: 3px solid #0dcaf0;
+        padding-left: 0.75rem;
+    }
+
+    .project-header {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .slice-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .slice-header {
+        margin-bottom: 0.25rem;
+    }
+
+    .file-item, .existing-file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .file-name {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+    }
+
+    .existing-file-item {
+        background-color: #fff3cd;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .suggestion-item {
+        background-color: #d1e7dd;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .suggestion-header {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .suggestion-params {
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+    }
+
+    .param-item {
+        margin-bottom: 0.25rem;
+    }
+</style>

@@ -1,0 +1,502 @@
+@page "/features"
+@using {{RootNamespace}}.SliceFactory.Models
+@using {{RootNamespace}}.SliceFactory.Services
+@inject FeatureManagementService FeatureService
+@inject IJSRuntime JSRuntime
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-diagram-3 me-2"></i>Features Manager
+                    </h2>
+                    <p class="text-muted mb-0">Manage and organize your generated code features</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary me-2" @onclick="RefreshFeatures">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                    <a href="/" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Create New Feature
+                    </a>
+                </div>
+            </div>
+
+            @if (IsLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading features...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading your features...</p>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    <!-- Tree View Column -->
+                    <div class="col-lg-7">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-folder-fill me-2"></i>Feature Hierarchy
+                                </h5>
+                                <small class="text-muted">
+                                    @if (TreeNodes != null)
+                                    {
+                                        <text>@TreeNodes.Count modules</text>
+                                    }
+                                </small>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 700px; overflow-y: auto;">
+                                <FeatureTreeView TreeNodes="@TreeNodes"
+                                               OnNodeClick="OnNodeClick"
+                                               OnFeatureEdit="OnFeatureEdit"
+                                               OnFeatureDelete="OnFeatureDelete"
+                                               OnFeatureCreate="OnFeatureCreate" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Column -->
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm border-0 h-100" style="border-left: 3px solid #e9ecef !important;">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>Details
+                                </h5>
+                            </div>
+                            <div class="card-body" style="max-height: 700px; overflow-y: auto;">
+                                @if (SelectedFeature != null)
+                                {
+                                    <div class="feature-details">
+                                        <h6 class="text-primary mb-3">@SelectedFeature.ComponentPrefix</h6>
+                                        
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Module Namespace</label>
+                                            <p class="mb-1">@SelectedFeature.ModuleNamespace</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Project Namespace</label>
+                                            <p class="mb-1">@SelectedFeature.ProjectNamespace</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Primary Key Type</label>
+                                            <p class="mb-1">@SelectedFeature.PrimaryKeyType</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Base Path</label>
+                                            <p class="mb-1"><code>@SelectedFeature.BasePath</code></p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Directory</label>
+                                            <p class="mb-1"><code>@SelectedFeature.DirectoryName</code></p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Generated Components</label>
+                                            <div class="d-flex gap-2">
+                                                @if (SelectedFeature.HasForm)
+                                                {
+                                                    <span class="badge bg-success">Form</span>
+                                                }
+                                                @if (SelectedFeature.HasListing)
+                                                {
+                                                    <span class="badge bg-info">Listing</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Statistics</label>
+                                            <ul class="list-unstyled mb-0">
+                                                <li><i class="bi bi-files me-1"></i>@SelectedFeature.Files.Count files generated</li>
+                                                <li><i class="bi bi-box me-1"></i>@SelectedFeature.Projects.Count project types</li>
+                                                <li><i class="bi bi-calendar me-1"></i>Created @SelectedFeature.CreatedAt.ToString("MMM dd, yyyy")</li>
+                                                @if (SelectedFeature.UpdatedAt.HasValue)
+                                                {
+                                                    <li><i class="bi bi-pencil me-1"></i>Updated @SelectedFeature.UpdatedAt.Value.ToString("MMM dd, yyyy")</li>
+                                                }
+                                            </ul>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-primary" @onclick="() => OnFeatureEdit(SelectedFeature)">
+                                                <i class="bi bi-pencil me-1"></i>Edit Feature
+                                            </button>
+                                            <button class="btn btn-outline-danger" @onclick="() => OnFeatureDelete(SelectedFeature)">
+                                                <i class="bi bi-trash me-1"></i>Delete Feature
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else if (SelectedFile != null)
+                                {
+                                    <div class="file-details">
+                                        <h6 class="text-info mb-3">@SelectedFile.FileName</h6>
+                                        
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Project Type</label>
+                                            <p class="mb-1">@SelectedFile.ProjectType</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Slice Type</label>
+                                            <p class="mb-1">@SelectedFile.SliceType</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">File Path</label>
+                                            <p class="mb-1"><code>@SelectedFile.FilePath</code></p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">File Size</label>
+                                            <p class="mb-1">@FormatFileSize(SelectedFile.FileSize)</p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Status</label>
+                                            <p class="mb-1">
+                                                @if (SelectedFile.Exists)
+                                                {
+                                                    <span class="badge bg-success">Exists</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Missing</span>
+                                                }
+                                            </p>
+                                        </div>
+
+                                        <div class="detail-group mb-3">
+                                            <label class="form-label fw-semibold">Created</label>
+                                            <p class="mb-1">@SelectedFile.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+                                        </div>
+
+                                        @if (SelectedFile.Exists)
+                                        {
+                                            <div class="d-grid">
+                                                <button class="btn btn-outline-primary" @onclick="() => OpenFileInExplorer(SelectedFile.FilePath)">
+                                                    <i class="bi bi-folder2-open me-1"></i>Open in Explorer
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted py-4">
+                                        <i class="bi bi-info-circle fs-1"></i>
+                                        <p class="mt-2">Select a feature or file to view details</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+@if (ShowDeleteModal && FeatureToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                        Delete Feature
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the feature <strong>@FeatureToDelete.ComponentPrefix</strong>?</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @bind="DeleteFiles" id="deleteFiles">
+                        <label class="form-check-label" for="deleteFiles">
+                            Also delete generated files from disk
+                        </label>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        This action cannot be undone.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                        <i class="bi bi-trash me-1"></i>Delete Feature
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private List<FeatureTreeNode>? TreeNodes;
+    private Feature? SelectedFeature;
+    private FeatureFile? SelectedFile;
+    private bool IsLoading = true;
+    private bool ShowDeleteModal = false;
+    private Feature? FeatureToDelete;
+    private bool DeleteFiles = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFeatures();
+    }
+
+    private async Task LoadFeatures()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            TreeNodes = await FeatureService.GetFeatureTreeAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle error - could show a toast or error message
+            Console.WriteLine($"Error loading features: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshFeatures()
+    {
+        SelectedFeature = null;
+        SelectedFile = null;
+        await LoadFeatures();
+    }
+
+    private async Task OnNodeClick(FeatureTreeNode node)
+    {
+        SelectedFile = null;
+        SelectedFeature = null;
+
+        if (node.Type == "Feature" && node.Feature != null)
+        {
+            SelectedFeature = node.Feature;
+        }
+        else if (node.Type == "File" && node.File != null)
+        {
+            SelectedFile = node.File;
+            SelectedFeature = node.Feature;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnFeatureEdit(Feature feature)
+    {
+        // Navigate to edit mode - could be implemented as a modal or separate page
+        // For now, navigate back to main page with feature data
+        await JSRuntime.InvokeVoidAsync("alert", $"Edit feature: {feature.ComponentPrefix}");
+    }
+
+    private async Task OnFeatureDelete(Feature feature)
+    {
+        FeatureToDelete = feature;
+        DeleteFiles = false;
+        ShowDeleteModal = true;
+        StateHasChanged();
+    }
+
+    private async Task OnFeatureCreate(FeatureTreeNode node)
+    {
+        // Navigate to main page with intelligent pre-population based on selected node
+        var queryParams = new Dictionary<string, string>();
+
+        // Extract context information from the selected node
+        var contextInfo = ExtractNodeContext(node);
+
+        // Add context parameters for intelligent form pre-population
+        queryParams.Add("createContext", "true");
+        queryParams.Add("contextType", node.Type);
+        queryParams.Add("contextName", node.Name);
+
+        if (!string.IsNullOrEmpty(contextInfo.ModuleNamespace))
+            queryParams.Add("moduleNamespace", contextInfo.ModuleNamespace);
+
+        if (!string.IsNullOrEmpty(contextInfo.ProjectNamespace))
+            queryParams.Add("projectNamespace", contextInfo.ProjectNamespace);
+
+        if (!string.IsNullOrEmpty(contextInfo.SuggestedPrefix))
+            queryParams.Add("suggestedPrefix", contextInfo.SuggestedPrefix);
+
+        // BasePath is now automatically detected, no need to pass it
+
+        // Build query string
+        var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+
+        // Navigate to main page with context
+        NavigationManager.NavigateTo($"/?{queryString}");
+    }
+
+    private void CancelDelete()
+    {
+        ShowDeleteModal = false;
+        FeatureToDelete = null;
+        DeleteFiles = false;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (FeatureToDelete != null)
+        {
+            try
+            {
+                await FeatureService.DeleteFeatureAsync(FeatureToDelete.Id, DeleteFiles);
+
+                // Clear selection if deleted feature was selected
+                if (SelectedFeature?.Id == FeatureToDelete.Id)
+                {
+                    SelectedFeature = null;
+                    SelectedFile = null;
+                }
+
+                ShowDeleteModal = false;
+                FeatureToDelete = null;
+                DeleteFiles = false;
+
+                await LoadFeatures();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting feature: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task OpenFileInExplorer(string filePath)
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"File location: {filePath}");
+                // In a real implementation, you might use a platform-specific method to open the file explorer
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error opening file location: {ex.Message}");
+        }
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
+        return $"{bytes / (1024 * 1024):F1} MB";
+    }
+
+    private NodeContextInfo ExtractNodeContext(FeatureTreeNode node)
+    {
+        var context = new NodeContextInfo();
+
+        switch (node.Type)
+        {
+            case "Module":
+                context.ModuleNamespace = node.Name;
+                context.ProjectNamespace = node.Name;
+                context.SuggestedPrefix = GeneratePrefixFromNamespace(node.Name);
+                // BasePath is now automatically detected
+                break;
+
+            case "Feature":
+                if (node.Feature != null)
+                {
+                    context.ModuleNamespace = node.Feature.ModuleNamespace;
+                    context.ProjectNamespace = node.Feature.ProjectNamespace;
+                    context.SuggestedPrefix = GenerateSiblingPrefix(node.Feature.ComponentPrefix);
+                    // BasePath is now automatically detected
+                }
+                break;
+
+            case "Project":
+                // Find parent feature
+                var parentFeature = FindParentFeature(node);
+                if (parentFeature != null)
+                {
+                    context.ModuleNamespace = parentFeature.ModuleNamespace;
+                    context.ProjectNamespace = parentFeature.ProjectNamespace;
+                    context.SuggestedPrefix = GenerateSiblingPrefix(parentFeature.ComponentPrefix);
+                    // BasePath is now automatically detected
+                }
+                break;
+        }
+
+        return context;
+    }
+
+    private string GeneratePrefixFromNamespace(string namespaceName)
+    {
+        // Extract meaningful parts from namespace for prefix suggestion
+        var parts = namespaceName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        return parts.LastOrDefault() ?? "New";
+    }
+
+    private string GenerateSiblingPrefix(string existingPrefix)
+    {
+        // Generate a sibling prefix by adding a number or variation
+        return $"{existingPrefix}2"; // Simple implementation, could be more sophisticated
+    }
+
+    private string GetModuleBasePath(FeatureTreeNode moduleNode)
+    {
+        // Extract base path from module context
+        // This would typically come from the first feature in the module
+        var firstFeature = FindFirstFeatureInModule(moduleNode);
+        return firstFeature?.BasePath ?? "";
+    }
+
+    private Feature? FindParentFeature(FeatureTreeNode projectNode)
+    {
+        // Navigate up the tree to find the parent feature
+        // This is a simplified implementation
+        return projectNode.Feature;
+    }
+
+    private Feature? FindFirstFeatureInModule(FeatureTreeNode moduleNode)
+    {
+        // Find the first feature in this module to extract base path
+        if (moduleNode.Children != null)
+        {
+            foreach (var child in moduleNode.Children)
+            {
+                if (child.Type == "Feature" && child.Feature != null)
+                    return child.Feature;
+            }
+        }
+        return null;
+    }
+
+    private class NodeContextInfo
+    {
+        public string ModuleNamespace { get; set; } = "";
+        public string ProjectNamespace { get; set; } = "";
+        public string SuggestedPrefix { get; set; } = "";
+    }
+}

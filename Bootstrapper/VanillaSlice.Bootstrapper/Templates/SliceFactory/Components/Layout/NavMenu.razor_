@@ -1,0 +1,25 @@
+<div class="top-row ps-3 navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">{{ProjectName}}.SliceFactory</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable bg-dark" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-code-slash" aria-hidden="true"></span> Generator
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="features">
+                <span class="bi bi-diagram-3" aria-hidden="true"></span> Features Manager
+            </NavLink>
+        </div>
+
+        @* ##MenuItem## *@
+    </nav>
+</div>

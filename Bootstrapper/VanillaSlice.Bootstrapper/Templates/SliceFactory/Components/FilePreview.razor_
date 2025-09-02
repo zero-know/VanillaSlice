@@ -1,0 +1,127 @@
+@using {{RootNamespace}}.SliceFactory.Models
+@using {{RootNamespace}}.SliceFactory.Services
+<div class="file-preview-container">
+    @if (IsLoading)
+    {
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading preview...</span>
+            </div>
+            <p class="mt-2 text-muted">Generating file preview...</p>
+        </div>
+    }
+    else if (PreviewFiles != null && PreviewFiles.Any())
+    {
+        <div class="preview-header mb-3">
+            <h5 class="mb-1">
+                <i class="bi bi-eye me-2"></i>Files to be Generated
+            </h5>
+            <p class="text-muted mb-0">
+                @PreviewFiles.Count files will be created across @PreviewFiles.GroupBy(f => f.ProjectType).Count() project types
+            </p>
+        </div>
+
+        <div class="preview-content mt-3">
+            <div class="list-preview">
+                @foreach (var projectGroup in PreviewFiles.GroupBy(f => f.ProjectType))
+                {
+                    <div class="project-group mb-4">
+                        <h6 class="text-primary mb-2">
+                            <i class="bi bi-box-fill me-2"></i>@projectGroup.Key
+                        </h6>
+                        <div class="file-list">
+                            @foreach (var sliceGroup in projectGroup.GroupBy(f => f.SliceType))
+                            {
+                                <div class="slice-group mb-3">
+                                    <div class="slice-header">
+                                        <span class="badge bg-secondary me-2">@sliceGroup.Key</span>
+                                        <small class="text-muted">@sliceGroup.Count() files</small>
+                                    </div>
+                                    @foreach (var file in sliceGroup)
+                                    {
+                                        <div class="file-item">
+                                            <i class="bi @GetFileIcon(file.FileName) me-2"></i>
+                                            <span class="file-name">@file.FileName</span>
+                                            <small class="text-muted ms-auto">@FormatFileSize(file.Content.Length)</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else if (!IsLoading)
+    {
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-file-x fs-1"></i>
+            <p class="mt-2">No files to preview. Check your configuration and try again.</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<FeatureFilePreview>? PreviewFiles { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+
+
+
+
+    private string GetFileIcon(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLower();
+        return extension switch
+        {
+            ".razor" => "bi-file-earmark-code text-danger",
+            ".cs" => "bi-file-earmark-code text-warning",
+            ".js" => "bi-file-earmark-code text-info",
+            ".css" => "bi-file-earmark-code text-primary",
+            _ => "bi-file-earmark text-secondary"
+        };
+    }
+
+    private string FormatFileSize(int bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
+        return $"{bytes / (1024 * 1024):F1} MB";
+    }
+
+
+}
+
+<style>
+    .file-preview-container {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background-color: #fff;
+    }
+
+    .preview-header {
+        padding: 1rem 1rem 0;
+    }
+
+    .preview-content {
+        padding: 1rem;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    .slice-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .project-group {
+        border-left: 3px solid #0d6efd;
+        padding-left: 1rem;
+    }
+</style>
