@@ -53,7 +53,8 @@ namespace VanillaSlice.Bootstrapper.Services
                     ["TargetFramework"] = "net9.0",
                     ["RenderingMode"] = config.RenderingMode.ToString(),
                     ["IncludeAuthentication"] = config.IncludeAuthentication,
-                    ["UserSecretsId"] = Guid.NewGuid().ToString()
+                    ["UserSecretsId"] = Guid.NewGuid().ToString(),
+                    ["UIFramework"] = config.UIFramework.ToString()
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -81,7 +82,8 @@ namespace VanillaSlice.Bootstrapper.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.WebPortal.Client",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = "net9.0",
+                    ["UIFramework"] = config.UIFramework.ToString()
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(

@@ -137,7 +137,8 @@ namespace VanillaSlice.Bootstrapper.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.Razor",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = "net9.0",
+                    ["UIFramework"] = config.UIFramework.ToString()
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(

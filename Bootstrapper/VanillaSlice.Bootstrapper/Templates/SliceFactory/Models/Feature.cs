@@ -40,6 +40,9 @@ public class Feature
     public bool HasForm { get; set; }
     public bool HasListing { get; set; }
 
+    [MaxLength(50)]
+    public string UIFramework { get; set; } = "Bootstrap";
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 

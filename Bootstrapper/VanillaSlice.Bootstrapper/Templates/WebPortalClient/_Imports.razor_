@@ -8,3 +8,7 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
 @using {{ProjectName}}.WebPortal.Client
+{{#if (eq UIFramework "FluentUI")}}
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+{{/if}}

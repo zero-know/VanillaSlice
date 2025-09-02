@@ -41,6 +41,9 @@ namespace VanillaSlice.Bootstrapper.Models
         public DatabaseProvider DatabaseProvider { get; set; } = DatabaseProvider.SqlServer;
         public string ConnectionStringName { get; set; } = "DefaultConnection";
 
+        // UI Framework Selection
+        public UIFramework UIFramework { get; set; } = UIFramework.Bootstrap;
+
         // Advanced Options
         public bool UseAspireOrchestration { get; set; } = false;
         public bool IncludeDockerSupport { get; set; } = false;
@@ -105,6 +108,24 @@ namespace VanillaSlice.Bootstrapper.Models
 
         [Display(Name = "No Database")]
         None = 4
+    }
+
+    public enum UIFramework
+    {
+        [Display(Name = "Bootstrap 5 (Default)")]
+        Bootstrap = 1,
+
+        [Display(Name = "Microsoft Fluent UI")]
+        FluentUI = 2,
+
+        [Display(Name = "MudBlazor (Material Design)")]
+        MudBlazor = 3,
+
+        [Display(Name = "Radzen Blazor Components")]
+        Radzen = 4,
+
+        [Display(Name = "Tailwind CSS")]
+        TailwindCSS = 5
     }
 
     public class ProjectGenerationResult

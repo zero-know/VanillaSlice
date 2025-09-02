@@ -6,6 +6,9 @@ using {{ProjectName}}.Server.Data;
 using {{ProjectName}}.Server.DataServices.Extensions;
 using {{ProjectName}}.WebPortal.Components;
 using {{ProjectName}}.WebPortal.Components.Account;
+{{#if (eq UIFramework "FluentUI")}}
+using Microsoft.FluentUI.AspNetCore.Components;
+{{/if}}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,19 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization();
+
+// UI Framework Services
+{{#if (eq UIFramework "FluentUI")}}
+builder.Services.AddFluentUIComponents();
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+builder.Services.AddMudServices();
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+builder.Services.AddRadzenComponents();
+{{/if}}
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

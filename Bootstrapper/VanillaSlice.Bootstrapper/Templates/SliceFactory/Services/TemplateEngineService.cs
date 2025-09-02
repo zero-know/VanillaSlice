@@ -53,6 +53,10 @@ public class TemplateEngineService
     {
         var result = template;
 
+        // First, process conditional blocks
+        result = ProcessConditionalBlocks(result, parameters);
+
+        // Then, process simple placeholders
         foreach (var parameter in parameters)
         {
             var placeholder = $"__{parameter.Key}__";
@@ -62,15 +66,77 @@ public class TemplateEngineService
         return result;
     }
 
+    private string ProcessConditionalBlocks(string content, Dictionary<string, object> parameters)
+    {
+        var processedContent = content;
+
+        // Process {{#if (eq UIFramework "FluentUI")}}...{{/if}} blocks
+        var ifPattern = @"\{\{#if\s+\(eq\s+(\w+)\s+""([^""]+)""\)\}\}(.*?)\{\{/if\}\}";
+        var regex = new System.Text.RegularExpressions.Regex(ifPattern,
+            System.Text.RegularExpressions.RegexOptions.Singleline |
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        processedContent = regex.Replace(processedContent, match =>
+        {
+            var parameterName = match.Groups[1].Value;
+            var expectedValue = match.Groups[2].Value;
+            var blockContent = match.Groups[3].Value;
+
+            // Check if the parameter exists and matches the expected value
+            if (parameters.TryGetValue(parameterName, out var actualValue))
+            {
+                var actualValueStr = actualValue?.ToString() ?? string.Empty;
+                if (string.Equals(actualValueStr, expectedValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    return blockContent; // Include the content
+                }
+            }
+
+            return string.Empty; // Exclude the content
+        });
+
+        // Process {{#unless (eq UIFramework "Bootstrap")}}...{{/unless}} blocks
+        var unlessPattern = @"\{\{#unless\s+\(eq\s+(\w+)\s+""([^""]+)""\)\}\}(.*?)\{\{/unless\}\}";
+        var unlessRegex = new System.Text.RegularExpressions.Regex(unlessPattern,
+            System.Text.RegularExpressions.RegexOptions.Singleline |
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        processedContent = unlessRegex.Replace(processedContent, match =>
+        {
+            var parameterName = match.Groups[1].Value;
+            var expectedValue = match.Groups[2].Value;
+            var blockContent = match.Groups[3].Value;
+
+            // Check if the parameter exists and does NOT match the expected value
+            if (parameters.TryGetValue(parameterName, out var actualValue))
+            {
+                var actualValueStr = actualValue?.ToString() ?? string.Empty;
+                if (!string.Equals(actualValueStr, expectedValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    return blockContent; // Include the content
+                }
+            }
+            else
+            {
+                return blockContent; // Include if parameter doesn't exist
+            }
+
+            return string.Empty; // Exclude the content
+        });
+
+        return processedContent;
+    }
+
     public Dictionary<string, object> CreateParameterDictionary(
         string componentPrefix,
         string moduleNamespace,
         string projectNamespace,
-        string primaryKeyType)
+        string primaryKeyType,
+        string? uiFramework = null)
     {
         var pluralizedPrefix = _pluralizationService.Pluralize(componentPrefix);
 
-        return new Dictionary<string, object>
+        var parameters = new Dictionary<string, object>
         {
             ["ComponentPrefix"] = componentPrefix,
             ["componentPrefix"] = componentPrefix.ToLowerInvariant(),
@@ -80,5 +146,13 @@ public class TemplateEngineService
             ["projectNamespace"] = projectNamespace,
             ["primaryKeyType"] = primaryKeyType
         };
+
+        // Add UIFramework parameter if provided
+        if (!string.IsNullOrEmpty(uiFramework))
+        {
+            parameters["UIFramework"] = uiFramework;
+        }
+
+        return parameters;
     }
 }

@@ -364,10 +364,4 @@ appsettings.json
 appsettings.profiles.json
 appsettings.sampleprofiles.json
 Properties/launchSettings.json
-/src/ReferenceStructures/Template1/ZKnowledge.Enterprise.WebPortal/ZKnowledge.Enterprise.WebPortal/wwwroot/lib/bootstrap/dist
-/src/ZKnowledge.CodeUtils.Bootstrapper/CodeUtils.Bootstrapper/wwwroot/lib/bootstrap/dist
-/src/ReferenceStructures/Template1/ZKnowledge.Enterprise.WebAPI/appsettings.Development.json
-/src/ReferenceStructures/Template1/ZKnowledge.Enterprise.Base/ZKnowledge.Enterprise.SliceFactory/temp.local.json
-/src/ReferenceStructures/Template1/ZKnowledge.Enterprise.Base/ZKnowledge.Enterprise.SliceFactory/DataFiles
-/src/ReferenceStructures/Template1/ZKnowledge.Enterprise.SliceFactory/DataFiles
-/src/VanillaSlice.Bootstrapper/VanillaSlice.Bootstrapper/appsettings.Development.json
+/Bootstrapper/VanillaSlice.Bootstrapper/.config/dotnet-tools.json

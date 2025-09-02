@@ -160,7 +160,8 @@ public partial class Index
                 hasForm: M.GenerateForm,
                 hasListing: M.GenerateListing,
                 projects: wooqlawProfile.Projects.ToList(),
-                profileConfiguration: JsonSerializer.Serialize(wooqlawProfile)
+                profileConfiguration: JsonSerializer.Serialize(wooqlawProfile),
+                uiFramework: wooqlawProfile.UIFramework ?? "Bootstrap"
             );
 
             // Show success message or redirect to features manager
@@ -336,6 +337,8 @@ public class CodeProfile
     public string FrameworkNamespaces { get; set; }
 
     public string DbContextNamespaces { get; set; }
+
+    public string UIFramework { get; set; } = "Bootstrap";
 
     public List<Project>? Projects { get; set; }
 

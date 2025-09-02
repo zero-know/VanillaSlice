@@ -6,6 +6,7 @@
 
 <div class="container-fluid">
     <!-- Page Header -->
+    {{#if (eq UIFramework "Bootstrap")}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Product Catalog</h2>
@@ -15,11 +16,56 @@
             <i class="bi bi-plus-circle me-2"></i>Add New Product
         </a>
     </div>
+    {{/if}}
+
+    {{#if (eq UIFramework "FluentUI")}}
+    <div class="page-header">
+        <div class="header-content">
+            <FluentLabel Typo="Typography.H2">Product Catalog</FluentLabel>
+            <FluentLabel Typo="Typography.Body">Manage your product inventory</FluentLabel>
+        </div>
+        <FluentButton Appearance="Appearance.Accent"
+                    OnClick="@(() => NavigationManager.NavigateTo("/products/create"))">
+            <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
+            Add New Product
+        </FluentButton>
+    </div>
+    {{/if}}
+
+    {{#if (eq UIFramework "MudBlazor")}}
+    <div class="page-header">
+        <div class="header-content">
+            <MudText Typo="Typo.h4">Product Catalog</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Manage your product inventory</MudText>
+        </div>
+        <MudButton Variant="Variant.Filled"
+                 Color="Color.Primary"
+                 Href="/products/create">
+            <MudIcon Icon="Icons.Material.Filled.Add" />
+            Add New Product
+        </MudButton>
+    </div>
+    {{/if}}
+
+    {{#if (eq UIFramework "Radzen")}}
+    <div class="page-header">
+        <div class="header-content">
+            <RadzenText TextStyle="TextStyle.H4">Product Catalog</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">Manage your product inventory</RadzenText>
+        </div>
+        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                    Click="@(() => NavigationManager.NavigateTo("/products/create"))">
+            <i class="rzi rzi-plus"></i>
+            Add New Product
+        </RadzenButton>
+    </div>
+    {{/if}}
 
     @if (ItemsLoaded)
     {
         if (Items?.Any() == true)
         {
+            {{#if (eq UIFramework "Bootstrap")}}
             <div class="row g-4">
                 @foreach (var item in Items)
                 {
@@ -47,7 +93,102 @@
                                         <em>No description available</em>
                                     }
                                 </p>
+            {{/if}}
 
+            {{#if (eq UIFramework "FluentUI")}}
+            <div class="product-grid">
+                @foreach (var item in Items)
+                {
+                    <FluentCard Class="product-card">
+                        <div class="card-header">
+                            <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
+                            <FluentBadge Appearance="@GetFluentStatusAppearance(item.ProductStatus)">
+                                @item.ProductStatus.ToString()
+                            </FluentBadge>
+                        </div>
+
+                        <div class="card-price">
+                            <FluentLabel Typo="Typography.H5" Class="price-text">@item.Price.ToString("C")</FluentLabel>
+                        </div>
+
+                        <div class="card-description">
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <FluentLabel Typo="Typography.Body">
+                                    @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                </FluentLabel>
+                            }
+                            else
+                            {
+                                <FluentLabel Typo="Typography.Body" Class="text-muted">No description available</FluentLabel>
+                            }
+                        </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "MudBlazor")}}
+            <div class="product-grid">
+                @foreach (var item in Items)
+                {
+                    <MudCard Class="product-card">
+                        <MudCardContent>
+                            <div class="card-header">
+                                <MudText Typo="Typo.h6" Class="card-title">@item.Name</MudText>
+                                <MudChip Color="@GetMudStatusColor(item.ProductStatus)" Size="Size.Small">
+                                    @item.ProductStatus.ToString()
+                                </MudChip>
+                            </div>
+
+                            <div class="card-price">
+                                <MudText Typo="Typo.h5" Class="price-text">@item.Price.ToString("C")</MudText>
+                            </div>
+
+                            <div class="card-description">
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                    </MudText>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        <em>No description available</em>
+                                    </MudText>
+                                }
+                            </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "Radzen")}}
+            <div class="product-grid">
+                @foreach (var item in Items)
+                {
+                    <RadzenCard Class="product-card">
+                        <div class="card-header">
+                            <RadzenText TextStyle="TextStyle.H6" Class="card-title">@item.Name</RadzenText>
+                            <RadzenBadge BadgeStyle="@GetRadzenStatusStyle(item.ProductStatus)" Text="@item.ProductStatus.ToString()" />
+                        </div>
+
+                        <div class="card-price">
+                            <RadzenText TextStyle="TextStyle.H5" Class="price-text">@item.Price.ToString("C")</RadzenText>
+                        </div>
+
+                        <div class="card-description">
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                </RadzenText>
+                            }
+                            else
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    <em>No description available</em>
+                                </RadzenText>
+                            }
+                        </div>
+            {{/if}}
+
+                        {{#if (eq UIFramework "Bootstrap")}}
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">
@@ -64,10 +205,69 @@
                     </div>
                 }
             </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "FluentUI")}}
+                        <div class="card-actions">
+                            <FluentLabel Typo="Typography.Caption" Class="date-text">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
+                                @item.CreatedAt.ToString("MMM dd, yyyy")
+                            </FluentLabel>
+                            <FluentButton Appearance="Appearance.Outline"
+                                        Size="ButtonSize.Small"
+                                        OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{item.Id}"))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
+                                Edit
+                            </FluentButton>
+                        </div>
+                    </FluentCard>
+                }
+            </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "MudBlazor")}}
+                        </MudCardContent>
+                        <MudCardActions>
+                            <div class="card-actions">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                    <MudIcon Icon="Icons.Material.Filled.CalendarToday" Size="Size.Small" />
+                                    @item.CreatedAt.ToString("MMM dd, yyyy")
+                                </MudText>
+                                <MudButton Variant="Variant.Outlined"
+                                         Size="Size.Small"
+                                         Href="@($"/products/edit/{item.Id}")">
+                                    <MudIcon Icon="Icons.Material.Filled.Edit" />
+                                    Edit
+                                </MudButton>
+                            </div>
+                        </MudCardActions>
+                    </MudCard>
+                }
+            </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "Radzen")}}
+                        <div class="card-actions">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
+                                <i class="rzi rzi-calendar"></i>
+                                @item.CreatedAt.ToString("MMM dd, yyyy")
+                            </RadzenText>
+                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                        Size="ButtonSize.Small"
+                                        Click="@(() => NavigationManager.NavigateTo($"/products/edit/{item.Id}"))">
+                                <i class="rzi rzi-pencil"></i>
+                                Edit
+                            </RadzenButton>
+                        </div>
+                    </RadzenCard>
+                }
+            </div>
+            {{/if}}
         }
         else
         {
             <!-- Empty State -->
+            {{#if (eq UIFramework "Bootstrap")}}
             <div class="text-center py-5">
                 <div class="mb-4">
                     <i class="bi bi-box-seam display-1 text-muted"></i>
@@ -78,20 +278,91 @@
                     <i class="bi bi-plus-circle me-2"></i>Create Your First Product
                 </a>
             </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "FluentUI")}}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.Box())" />
+                </div>
+                <FluentLabel Typo="Typography.H4" Class="empty-title">No Products Found</FluentLabel>
+                <FluentLabel Typo="Typography.Body" Class="empty-description">Get started by creating your first product.</FluentLabel>
+                <FluentButton Appearance="Appearance.Accent"
+                            OnClick="@(() => NavigationManager.NavigateTo("/products/create"))">
+                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
+                    Create Your First Product
+                </FluentButton>
+            </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "MudBlazor")}}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" />
+                </div>
+                <MudText Typo="Typo.h4" Class="empty-title">No Products Found</MudText>
+                <MudText Typo="Typo.body1" Class="empty-description">Get started by creating your first product.</MudText>
+                <MudButton Variant="Variant.Filled"
+                         Color="Color.Primary"
+                         Href="/products/create">
+                    <MudIcon Icon="Icons.Material.Filled.Add" />
+                    Create Your First Product
+                </MudButton>
+            </div>
+            {{/if}}
+
+            {{#if (eq UIFramework "Radzen")}}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="rzi rzi-box" style="font-size: 4rem; color: #999;"></i>
+                </div>
+                <RadzenText TextStyle="TextStyle.H4" Class="empty-title">No Products Found</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Class="empty-description">Get started by creating your first product.</RadzenText>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                            Click="@(() => NavigationManager.NavigateTo("/products/create"))">
+                    <i class="rzi rzi-plus"></i>
+                    Create Your First Product
+                </RadzenButton>
+            </div>
+            {{/if}}
         }
     }
     @if (!ItemsLoaded || IsWorking)
     {
+        {{#if (eq UIFramework "Bootstrap")}}
         <div class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
             <div class="text-center">
-                <div class="shimmer-text mb-3">Loading…</div>
+                <div class="shimmer-text mb-3">Loadingâ€¦</div>
                 <div class="spinner-border" role="presentation"></div>
             </div>
         </div>
+        {{/if}}
+
+        {{#if (eq UIFramework "FluentUI")}}
+        <div class="loading-container">
+            <FluentProgressRing />
+            <FluentLabel Typo="Typography.Body">Loading products...</FluentLabel>
+        </div>
+        {{/if}}
+
+        {{#if (eq UIFramework "MudBlazor")}}
+        <div class="loading-container">
+            <MudProgressCircular Indeterminate="true" />
+            <MudText Typo="Typo.body1">Loading products...</MudText>
+        </div>
+        {{/if}}
+
+        {{#if (eq UIFramework "Radzen")}}
+        <div class="loading-container">
+            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" />
+            <RadzenText TextStyle="TextStyle.Body1">Loading products...</RadzenText>
+        </div>
+        {{/if}}
     }
 </div>
 
 @code {
+    {{#if (eq UIFramework "Bootstrap")}}
     private string GetStatusBadgeClass({{ProjectName}}.Common.Enums.ProductStatus status)
     {
         return status switch
@@ -102,4 +373,44 @@
             _ => "bg-secondary"
         };
     }
+    {{/if}}
+
+    {{#if (eq UIFramework "FluentUI")}}
+    private Appearance GetFluentStatusAppearance({{ProjectName}}.Common.Enums.ProductStatus status)
+    {
+        return status switch
+        {
+            {{ProjectName}}.Common.Enums.ProductStatus.Active => Appearance.Accent,
+            {{ProjectName}}.Common.Enums.ProductStatus.Inactive => Appearance.Neutral,
+            {{ProjectName}}.Common.Enums.ProductStatus.Discontinued => Appearance.Lightweight,
+            _ => Appearance.Neutral
+        };
+    }
+    {{/if}}
+
+    {{#if (eq UIFramework "MudBlazor")}}
+    private Color GetMudStatusColor({{ProjectName}}.Common.Enums.ProductStatus status)
+    {
+        return status switch
+        {
+            {{ProjectName}}.Common.Enums.ProductStatus.Active => Color.Success,
+            {{ProjectName}}.Common.Enums.ProductStatus.Inactive => Color.Default,
+            {{ProjectName}}.Common.Enums.ProductStatus.Discontinued => Color.Error,
+            _ => Color.Default
+        };
+    }
+    {{/if}}
+
+    {{#if (eq UIFramework "Radzen")}}
+    private BadgeStyle GetRadzenStatusStyle({{ProjectName}}.Common.Enums.ProductStatus status)
+    {
+        return status switch
+        {
+            {{ProjectName}}.Common.Enums.ProductStatus.Active => BadgeStyle.Success,
+            {{ProjectName}}.Common.Enums.ProductStatus.Inactive => BadgeStyle.Secondary,
+            {{ProjectName}}.Common.Enums.ProductStatus.Discontinued => BadgeStyle.Danger,
+            _ => BadgeStyle.Secondary
+        };
+    }
+    {{/if}}
 }

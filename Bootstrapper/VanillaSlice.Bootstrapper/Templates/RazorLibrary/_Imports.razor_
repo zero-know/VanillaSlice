@@ -1,1 +1,15 @@
 @using Microsoft.AspNetCore.Components.Web
+
+{{#if (eq UIFramework "FluentUI")}}
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+@using MudBlazor
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+@using Radzen
+@using Radzen.Blazor
+{{/if}}

@@ -1,7 +1,7 @@
 @implements IDisposable
-
 @inject NavigationManager NavigationManager
 
+{{#if (eq UIFramework "Bootstrap")}}
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">LOGO</a>
@@ -58,9 +58,96 @@
         </AuthorizeView>
     </nav>
 </div>
+{{/if}}
+
+{{#if (eq UIFramework "FluentUI")}}
+<div class="navmenu">
+    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
+    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
+    <nav class="sitenav" aria-labelledby="main-menu">
+        <FluentNavMenu Id="main-menu" Width="250" Collapsible="true" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
+            <FluentNavLink Href="products" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
+             @* ##MenuItem## *@
+        </FluentNavMenu>
+    </nav>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+<div class="nav-menu">
+    <MudNavMenu>
+        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="Icons.Material.Filled.Home">
+            Home
+        </MudNavLink>
+        <MudNavLink Href="products" Icon="Icons.Material.Filled.Inventory">
+            Products
+        </MudNavLink>
+
+        @* ##MenuItem## *@
+
+        <MudDivider Class="my-2" />
+
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="Account/Manage" Icon="Icons.Material.Filled.Person">
+                    @context.User.Identity?.Name
+                </MudNavLink>
+                <MudButton Variant="Variant.Text"
+                         StartIcon="Icons.Material.Filled.Logout"
+                         OnClick="@(() => LogoutForm.Submit())"
+                         Style="width: 100%; justify-content: flex-start;">
+                    Logout
+                </MudButton>
+                <form @ref="LogoutForm" action="Account/Logout" method="post" style="display: none;">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                </form>
+            </Authorized>
+            <NotAuthorized>
+                <MudNavLink Href="Account/Register" Icon="Icons.Material.Filled.PersonAdd">
+                    Register
+                </MudNavLink>
+                <MudNavLink Href="Account/Login" Icon="Icons.Material.Filled.Login">
+                    Login
+                </MudNavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudNavMenu>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+<div class="nav-menu">
+    <RadzenPanelMenu>
+        <RadzenPanelMenuItem Text="Home" Path="" Icon="home" />
+        <RadzenPanelMenuItem Text="Products" Path="products" Icon="inventory" />
+
+        @* ##MenuItem## *@
+
+        <AuthorizeView>
+            <Authorized>
+                <RadzenPanelMenuItem Text="@context.User.Identity?.Name" Path="Account/Manage" Icon="person" />
+                <RadzenPanelMenuItem Text="Logout" Icon="logout">
+                    <form @ref="LogoutForm" action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Logout" ButtonStyle="ButtonStyle.Light" />
+                    </form>
+                </RadzenPanelMenuItem>
+            </Authorized>
+            <NotAuthorized>
+                <RadzenPanelMenuItem Text="Register" Path="Account/Register" Icon="person_add" />
+                <RadzenPanelMenuItem Text="Login" Path="Account/Login" Icon="login" />
+            </NotAuthorized>
+        </AuthorizeView>
+    </RadzenPanelMenu>
+</div>
+{{/if}}
 
 @code {
     private string? currentUrl;
+    private ElementReference LogoutForm;
 
     protected override void OnInitialized()
     {

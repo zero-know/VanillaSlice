@@ -76,7 +76,8 @@ public class FeatureManagementService
         bool hasForm,
         bool hasListing,
         List<Project> projects,
-        string? profileConfiguration = null)
+        string? profileConfiguration = null,
+        string uiFramework = "Bootstrap")
     {
         // Check if feature already exists
         var existingFeature = await _context.Features
@@ -98,6 +99,7 @@ public class FeatureManagementService
             DirectoryName = directoryName,
             HasForm = hasForm,
             HasListing = hasListing,
+            UIFramework = uiFramework,
             ProfileConfiguration = profileConfiguration,
             CreatedAt = DateTime.UtcNow
         };
@@ -336,7 +338,8 @@ public class FeatureManagementService
             feature.ComponentPrefix,
             feature.ModuleNamespace,
             feature.ProjectNamespace,
-            feature.PrimaryKeyType);
+            feature.PrimaryKeyType,
+            feature.UIFramework);
 
         foreach (var project in projects)
         {
