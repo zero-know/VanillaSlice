@@ -17,9 +17,9 @@
 		<Compile Remove="Templates\**\*" />
 	  
 		<!-- Include all template files as embedded resources for the template engine -->
-		<Fakes Include="Templates\**\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Fakes>
+		<EmbeddedResource Include="Templates\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</EmbeddedResource>
 	</ItemGroup>
- 
+  
 </Project>
