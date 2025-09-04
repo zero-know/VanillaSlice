@@ -44,7 +44,7 @@
                 </div>
             </Authorized>
             <NotAuthorized>
-                <div class="nav-item px-3">
+                @*<div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Register">
                         <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
                     </NavLink>
@@ -53,7 +53,7 @@
                     <NavLink class="nav-link" href="Account/Login">
                         <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
                     </NavLink>
-                </div>
+                </div>*@
             </NotAuthorized>
         </AuthorizeView>
     </nav>
@@ -67,7 +67,7 @@
     <nav class="sitenav" aria-labelledby="main-menu">
         <FluentNavMenu Id="main-menu" Width="250" Collapsible="true" Title="Navigation menu" CustomToggle="true">
             <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-            <FluentNavLink Href="products" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
+            <FluentNavLink Href="products" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Products</FluentNavLink>
              @* ##MenuItem## *@
         </FluentNavMenu>
     </nav>
@@ -105,12 +105,12 @@
                 </form>
             </Authorized>
             <NotAuthorized>
-                <MudNavLink Href="Account/Register" Icon="Icons.Material.Filled.PersonAdd">
+               @* <MudNavLink Href="Account/Register" Icon="Icons.Material.Filled.PersonAdd">
                     Register
                 </MudNavLink>
                 <MudNavLink Href="Account/Login" Icon="Icons.Material.Filled.Login">
                     Login
-                </MudNavLink>
+                </MudNavLink>*@
             </NotAuthorized>
         </AuthorizeView>
     </MudNavMenu>
