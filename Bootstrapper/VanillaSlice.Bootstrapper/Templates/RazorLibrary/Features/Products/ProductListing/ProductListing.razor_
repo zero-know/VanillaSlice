@@ -209,7 +209,7 @@
 
             {{#if (eq UIFramework "FluentUI")}}
                         <div class="card-actions">
-                            <FluentLabel Typo="Typography.Caption" Class="date-text">
+                            <FluentLabel Typo="Typography.Subject" Class="date-text">
                                 <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
                                 @item.CreatedAt.ToString("MMM dd, yyyy")
                             </FluentLabel>

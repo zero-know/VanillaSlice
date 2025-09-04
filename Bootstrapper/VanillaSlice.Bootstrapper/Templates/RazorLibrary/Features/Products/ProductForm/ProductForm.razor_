@@ -77,15 +77,14 @@
 
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                     <FluentSelect  
-                                        Items=@ProductStatuses
-                                                  TOption="SelectOption<ProductStatus>" 
-                                                  OptionText="@(i => i.Text)"
-                                                  OptionValue="@(i => i.Value.ToString())"
-                                                  OptionSelected="@(i => i.Disabled)"
-                                                  @bind-Value="@SelectedItem.ProductStatus">
-
-                                    </FluentSelect>
+                                     <InputSelect id="Category" class="form-select"
+                                               @bind-Value="SelectedItem.ProductStatus">
+                                        <option value="">Choose status...</option>
+                                        @foreach (var status in ProductStatuses)
+                                        {
+                                            <option value="@status.Value">@status.Text</option>
+                                        }
+                                    </InputSelect>
                                     <label for="Category">
                                         Product Status <span class="text-danger">*</span>
                                     </label>
@@ -124,7 +123,7 @@
 
 <FluentGrid>
     <FluentGridItem xs="8" sm="4">
-        <StatusMessage Message="@errorMessage" />
+        @*<StatusMessage Message="@errorMessage" />*@
        <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="ProductForm">
             <DataAnnotationsValidator />
             <h2>Use a local account to log in.</h2>
@@ -166,13 +165,15 @@
                     <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
                         Product Status *
                     </FluentLabel>
-                    <FluentSelect @bind-SelectedOption="SelectedItem.ProductStatus" TOption="ProductStatus" Required="true">
-                        <FluentOption Value="">Choose status...</FluentOption>
-                        @foreach (var status in ProductStatuses)
-                        {
-                            <FluentOption Value="@status.Value.ToString()">@status.Text</FluentOption>
-                        }
-                    </FluentSelect>
+                     <FluentSelect  
+                            Items=@ProductStatuses
+                                        TOption="SelectOption<ProductStatus>" 
+                                        OptionText="@(i => i.Text)"
+                                        OptionValue="@(i => i.Value.ToString())"
+                                        OptionSelected="@(i => i.Disabled)"
+                                        @bind-Value="@SelectedItem.ProductStatus">
+
+                        </FluentSelect>
                     <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="validation-message" />
                 </div>
 
