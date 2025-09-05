@@ -1,0 +1,294 @@
+@using VanillaSlice.Bootstrapper.Models
+@if (IsVisible && GenerationResult != null && GenerationResult.Success)
+{
+    <div class="success-popup-overlay" @onclick="HandleOverlayClick">
+        <div class="success-popup-container" @onclick:stopPropagation="true">
+            <div class="success-popup-content">
+                <!-- Header -->
+                <div class="success-popup-header">
+                    <div class="d-flex align-items-center">
+                        <div class="success-icon me-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">🎉 Project Generated Successfully!</h3>
+                            <p class="mb-0 opacity-75">Your complete Blazor solution is ready</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="success-popup-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="text-success mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Project Summary
+                            </h5>
+                            <div class="project-details">
+                                <div class="detail-row">
+                                    <strong>Project Name:</strong>
+                                    <span>@Config?.ProjectName</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Files Generated:</strong>
+                                    <span>@GenerationResult.GeneratedFiles.Count files</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Root Namespace:</strong>
+                                    <span>@Config?.RootNamespace</span>
+                                </div>
+                            </div>
+
+                            <h6 class="text-success mt-4 mb-2">
+                                <i class="bi bi-list-check me-2"></i>Generated Components:
+                            </h6>
+                            <ul class="generated-features-list">
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Complete Framework.Core with ListingBase/FormBase</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Functional SourceGenerator project</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>BaseHttpClient implementations</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Working Sample Product CRUD</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Platform projects with DbContext</li>
+                                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Ready-to-use project structure</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="download-status">
+                                    <i class="bi bi-download fs-1 text-primary"></i>
+                                    <h6 class="mt-2">Download Status</h6>
+                                    <p class="mb-0 small">Your project zip file has been automatically downloaded!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitHub Rating Section -->
+                <div class="github-rating-section">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-github fs-3 me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Enjoying VanillaSlice?</h6>
+                                    <p class="mb-0 small text-muted">Help us grow by rating our repository on GitHub!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-outline-dark btn-sm me-2" @onclick="RateOnGitHub">
+                                <i class="bi bi-star me-1"></i>Rate on GitHub
+                            </button>
+                            <button type="button" class="btn btn-link btn-sm text-muted" @onclick="SkipRating">
+                                Maybe later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="success-popup-footer">
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="Close">
+                            <i class="bi bi-x-circle me-2"></i>Close
+                        </button>
+                        <button type="button" class="btn btn-primary" @onclick="StartNewProject">
+                            <i class="bi bi-plus-circle me-2"></i>Start New Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .success-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .success-popup-container {
+        max-width: 800px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideIn 0.4s ease-out;
+    }
+
+    .success-popup-content {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .success-popup-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .success-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+    }
+
+    .success-popup-body {
+        padding: 2rem;
+    }
+
+    .project-details {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .generated-features-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .generated-features-list li {
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .download-status {
+        background: #e7f3ff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 2px dashed #007bff;
+    }
+
+    .github-rating-section {
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        padding: 1.5rem 2rem;
+    }
+
+    .success-popup-footer {
+        padding: 1.5rem 2rem;
+        background: #f8f9fa;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Mobile responsiveness */
+    @@media (max-width: 768px) {
+        .success-popup-container {
+            width: 95vw;
+            max-height: 95vh;
+        }
+
+        .success-popup-header,
+        .success-popup-body,
+        .success-popup-footer,
+        .github-rating-section {
+            padding: 1rem;
+        }
+
+        .success-icon {
+            font-size: 2rem;
+        }
+
+        .success-popup-header h3 {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public ProjectConfiguration? Config { get; set; }
+    [Parameter] public ProjectGenerationResult? GenerationResult { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnStartNewProject { get; set; }
+
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task StartNewProject()
+    {
+        IsVisible = false;
+        await OnStartNewProject.InvokeAsync();
+    }
+
+    private async Task RateOnGitHub()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("open", "https://github.com/zero-know/VanillaSlice", "_blank");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error opening GitHub: {ex.Message}");
+        }
+    }
+
+    private async Task SkipRating()
+    {
+        // Simply close the popup without any action
+        await Close();
+    }
+
+    private async Task HandleOverlayClick()
+    {
+        // Allow closing popup by clicking the overlay
+        await Close();
+    }
+}

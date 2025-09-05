@@ -2,6 +2,7 @@
 @using VanillaSlice.Bootstrapper.Models
 @using VanillaSlice.Bootstrapper.Extensions
 @using VanillaSlice.Bootstrapper.Services
+@using VanillaSlice.Bootstrapper.Components
 @using System.ComponentModel.DataAnnotations
 @using System.Linq.Expressions
 @inject IJSRuntime JSRuntime
@@ -803,79 +804,12 @@
     </div>
 </div>
 
-<!-- Success Message Component -->
-@if (showSuccessMessage && generationResult != null && generationResult.Success)
-{
-    <div class="container-fluid mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card shadow-lg border-success">
-                    <div class="card-header bg-success text-white">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <i class="bi bi-check-circle-fill fs-2"></i>
-                            </div>
-                            <div>
-                                <h3 class="mb-0">🎉 Project Generated Successfully!</h3>
-                                <p class="mb-0 opacity-75">Your complete Blazor solution is ready for download</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h5 class="text-success mb-3">
-                                    <i class="bi bi-info-circle me-2"></i>Project Summary
-                                </h5>
-                                <div class="row mb-3">
-                                    <div class="col-sm-4"><strong>Project Name:</strong></div>
-                                    <div class="col-sm-8">@config.ProjectName</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-4"><strong>Files Generated:</strong></div>
-                                    <div class="col-sm-8">@generationResult.GeneratedFiles.Count files</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-4"><strong>Root Namespace:</strong></div>
-                                    <div class="col-sm-8">@config.RootNamespace</div>
-                                </div>
-
-                                <h6 class="text-success mt-4 mb-2">
-                                    <i class="bi bi-list-check me-2"></i>Generated Components:
-                                </h6>
-                                <ul class="list-unstyled">
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Complete Framework.Core with ListingBase/FormBase</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Functional SourceGenerator project</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>BaseHttpClient implementations</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Working Sample Product CRUD</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Platform projects with DbContext</li>
-                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Ready-to-use project structure</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center">
-                                    <div class="alert alert-info">
-                                        <i class="bi bi-download fs-1 text-primary"></i>
-                                        <h6 class="mt-2">Download Status</h6>
-                                        <p class="mb-0 small">Your project zip file has been automatically downloaded!</p>
-                                    </div>
-
-                                    <button type="button" class="btn btn-primary btn-lg mb-3" onclick="@StartNewProject">
-                                        <i class="bi bi-plus-circle me-2"></i>Start New Project
-                                    </button>
-
-                                    <div class="small text-muted">
-                                        Ready to create another project? Click above to start over.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
+<!-- Success Popup Component -->
+<SuccessPopup IsVisible="showSuccessMessage" 
+              Config="config" 
+              GenerationResult="generationResult"
+              OnClose="HandlePopupClose"
+              OnStartNewProject="StartNewProject" />
 
 @code {
     private ProjectConfiguration config = new();
@@ -1104,6 +1038,13 @@
         requireValidation = true;
 
         StateHasChanged();
+    }
+
+    private Task HandlePopupClose()
+    {
+        showSuccessMessage = false;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }
 
