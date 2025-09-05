@@ -120,87 +120,116 @@
 {{/if}}
 
 {{#if (eq UIFramework "FluentUI")}}
+<div class="product-form-container">
+    <!-- Form Header -->
+    <div class="form-header">
+        <FluentIcon Value="@(new Icons.Regular.Size24.Box())" Color="Color.Accent" />
+        <div class="header-content">
+            <FluentLabel Typo="Typography.H4" Class="form-title">
+                @(string.IsNullOrEmpty(Id) ? "Create New Product" : "Edit Product")
+            </FluentLabel>
+            <FluentLabel Typo="Typography.Body" Class="form-subtitle">
+                @(string.IsNullOrEmpty(Id) ? "Fill in the details to create a new product" : "Update product information below")
+            </FluentLabel>
+        </div>
+        <FluentButton Appearance="Appearance.Outline"
+                     IconStart="@(new Icons.Regular.Size16.ArrowLeft())"
+                     OnClick="@(() => NavigationManager.NavigateTo("/products"))">
+            Back to Products
+        </FluentButton>
+    </div>
 
-<FluentGrid>
-    <FluentGridItem xs="8" sm="4">
-        @*<StatusMessage Message="@errorMessage" />*@
-       <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="ProductForm">
-            <DataAnnotationsValidator />
-            <h2>Use a local account to log in.</h2>
-            <hr />
-            <FluentValidationSummary class="text-danger" role="alert" />
-            <FluentStack Orientation="Orientation.Vertical">
-            <p>Product Name</p>
-                <FluentTextField Name="SelectedItem.Name" @bind-Value="SelectedItem.Name"   Style="width: 100%" />
-                <FluentValidationMessage For="() => SelectedItem.Name" class="text-danger" />
-                
-                  
-                   <!-- Description -->
-                <div class="form-field full-width">
-                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
-                        Description
-                    </FluentLabel>
-                    <FluentTextArea @bind-Value="SelectedItem.Description"
-                                  Placeholder="Enter product description"
-                                  Rows="4" />
-                    <ValidationMessage For="@(() => SelectedItem.Description)" class="validation-message" />
-                    <FluentLabel Typo="Typography.Subject" class="form-help-text">
-                        Optional: Provide a detailed description of the product
-                    </FluentLabel>
-                </div>
+    <!-- Main Form Card -->
+     
+    <!-- Main Form Card -->
+    <FluentCard AreaRestricted=false MinimalStyle=true>
+        <FluentLabel Typo="Typography.H5">Product Details</FluentLabel>
+            <!-- Error Message -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <FluentMessageBar Intent="MessageIntent.Error" Class="form-error-message">
+                    @ErrorMessage
+                </FluentMessageBar>
+            }
 
-                <!-- Price and Status Row -->
-                <div class="form-field">
-                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
-                        Price *
-                    </FluentLabel>
-                    <FluentNumberField @bind-Value="SelectedItem.Price"
-                                     Placeholder="0.00"
-                                     Step="0.01"
-                                     Required="true" />
-                    <ValidationMessage For="@(() => SelectedItem.Price)" class="validation-message" />
-                </div>
+            <EditForm Model="@SelectedItem" OnValidSubmit="SaveAsync" FormName="ProductForm">
+                <DataAnnotationsValidator />
 
-                <div class="form-field">
-                    <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">
-                        Product Status *
-                    </FluentLabel>
-                     <FluentSelect  
-                            Items=@ProductStatuses
-                                        TOption="SelectOption<ProductStatus>" 
+                <FluentGrid>
+                    <FluentGridItem xs="12" sm="6">
+                        <div class="form-field">
+                            <FluentLabel For="name-field" Class="field-label">Product Name *</FluentLabel>
+                            <FluentTextField @bind-Value="SelectedItem.Name"
+                                           Id="name-field"
+                                           Placeholder="Enter product name"
+                                           Required="true"
+                                           Class="form-input" />
+                            <FluentValidationMessage For="@(() => SelectedItem.Name)" Class="validation-message" />
+                        </div>
+                    </FluentGridItem>
+
+                    <FluentGridItem xs="12" sm="6">
+                        <div class="form-field">
+                            <FluentLabel For="price-field" Class="field-label">Price *</FluentLabel>
+                            <FluentNumberField @bind-Value="SelectedItem.Price"
+                                             Id="price-field"
+                                             Placeholder="0.00"
+                                             Step="0.01"
+                                             Required="true"
+                                             Class="form-input" />
+                            <FluentValidationMessage For="@(() => SelectedItem.Price)" Class="validation-message" />
+                        </div>
+                    </FluentGridItem>
+
+                    <FluentGridItem xs="12">
+                        <div class="form-field">
+                            <FluentLabel For="description-field" Class="field-label">Description</FluentLabel>
+                            <FluentTextArea @bind-Value="SelectedItem.Description"
+                                          Id="description-field"
+                                          Placeholder="Enter product description"
+                                          Rows="4"
+                                          Class="form-input" />
+                            <FluentValidationMessage For="@(() => SelectedItem.Description)" Class="validation-message" />
+                        </div>
+                    </FluentGridItem>
+
+                    <FluentGridItem xs="12" sm="6">
+                        <div class="form-field">
+                            <FluentLabel For="status-field" Class="field-label">Product Status *</FluentLabel>
+                            <FluentSelect Items="@ProductStatuses"
+                                        TOption="SelectOption<ProductStatus>"
                                         OptionText="@(i => i.Text)"
                                         OptionValue="@(i => i.Value.ToString())"
                                         OptionSelected="@(i => i.Disabled)"
-                                        @bind-Value="@SelectedItem.ProductStatus">
+                                        @bind-Value="@SelectedItem.ProductStatus"
+                                        Id="status-field"
+                                        Class="form-input" />
+                            <FluentValidationMessage For="@(() => SelectedItem.ProductStatus)" Class="validation-message" />
+                        </div>
+                    </FluentGridItem>
 
-                        </FluentSelect>
-                    <ValidationMessage For="@(() => SelectedItem.ProductStatus)" class="validation-message" />
-                </div>
-
-
-
-                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" Style="width: 100%">Save</FluentButton>
-                 
-
-                     <!-- Form Actions -->
-            <div class="form-actions">
-                <FluentButton Appearance="Appearance.Neutral"
-                            OnClick="@(() => NavigationManager.NavigateTo("/products"))">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Dismiss())" />
-                    Cancel
-                </FluentButton>
-                <FluentButton Type="ButtonType.Submit"
-                            Appearance="Appearance.Accent">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Checkmark())" />
-                    @(string.IsNullOrEmpty(Id) ? "Create Product" : "Update Product")
-                </FluentButton>
-            </div>
-            </FluentStack>
-        </EditForm>
-    </FluentGridItem>
-    
-</FluentGrid>
+                <FluentGridItem xs="12">
+                    <div class="form-actions">
+                        <FluentButton Type="ButtonType.Submit"
+                                      Appearance="Appearance.Accent"
+                                      IconStart="@(new Icons.Regular.Size16.Save())"
+                                      Class="save-button">
+                            @(string.IsNullOrEmpty(Id) ? "Create" : "Update") Product
+                        </FluentButton>
+                        <FluentButton Appearance="Appearance.Neutral"
+                                      OnClick="@(() => NavigationManager.NavigateTo("/products"))"
+                                      Class="cancel-button">
+                            Cancel
+                        </FluentButton>
+                    </div>
+                    </FluentGridItem>
+                </FluentGrid>
+            </EditForm>
  
+       
+        
+    </FluentCard>
+</div>
 {{/if}}
 
 {{#if (eq UIFramework "MudBlazor")}}

@@ -19,16 +19,36 @@
     {{/if}}
 
     {{#if (eq UIFramework "FluentUI")}}
-    <div class="page-header">
-        <div class="header-content">
-            <FluentLabel Typo="Typography.H2">__ComponentPrefix__ Catalog</FluentLabel>
-            <FluentLabel Typo="Typography.Body">Manage your __ComponentPrefixPlural__</FluentLabel>
+    <div class="listing-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <FluentLabel Typo="Typography.H2" Class="page-title">__ComponentPrefix__ Catalog</FluentLabel>
+                <FluentLabel Typo="Typography.Body" Class="page-subtitle">Manage your __ComponentPrefixPlural__</FluentLabel>
+            </div>
+            <div class="header-actions">
+                <!-- View Switcher -->
+                <div class="view-switcher">
+                    <FluentButton Appearance="@(isCardView ? Appearance.Accent : Appearance.Neutral)"
+                                Size="ButtonSize.Small"
+                                OnClick="@(() => ToggleView(true))"
+                                Title="Card View">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Grid())" />
+                    </FluentButton>
+                    <FluentButton Appearance="@(!isCardView ? Appearance.Accent : Appearance.Neutral)"
+                                Size="ButtonSize.Small"
+                                OnClick="@(() => ToggleView(false))"
+                                Title="Table View">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Table())" />
+                    </FluentButton>
+                </div>
+                <FluentButton Appearance="Appearance.Accent"
+                            OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
+                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
+                    Add New __ComponentPrefix__
+                </FluentButton>
+            </div>
         </div>
-        <FluentButton Appearance="Appearance.Accent"
-                    OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
-            <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
-            Add New __ComponentPrefix__
-        </FluentButton>
     </div>
     {{/if}}
 
@@ -117,22 +137,73 @@
             {{/if}}
 
             {{#if (eq UIFramework "FluentUI")}}
-            <div class="item-grid">
-                @foreach (var item in Items)
+            <div class="listing-content">
+                @if (isCardView)
                 {
-                    <FluentCard Class="item-card">
-                        <div class="card-header">
-                            <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
-                        </div>
-                        <div class="card-actions">
+                    <!-- Card View -->
+                    <div class="card-grid">
+                        @foreach (var item in Items)
+                        {
+                            <FluentCard Class="item-card">
+                                <div class="card-header-content">
+                                    <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
+                                    <FluentBadge Appearance="Appearance.Accent" Class="status-badge">Active</FluentBadge>
+                                </div>
+
+                                <div class="card-content">
+                                    <FluentLabel Typo="Typography.Body" Class="card-description">
+                                        @(string.IsNullOrEmpty(item.Description) ? "No description available" :
+                                          (item.Description.Length > 120 ? item.Description[..120] + "..." : item.Description))
+                                    </FluentLabel>
+                                    <div class="card-metadata">
+                                        <FluentLabel Typo="Typography.Subject" Class="metadata-item">
+                                            <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
+                                            Created: @DateTime.Now.ToString("MMM dd, yyyy")
+                                        </FluentLabel>
+                                    </div>
+                                </div>
+
+                                <div class="card-actions">
+                                    <FluentButton Appearance="Appearance.Outline"
+                                                Size="ButtonSize.Small"
+                                                OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
+                                        <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
+                                        Edit
+                                    </FluentButton>
+                                    <FluentButton Appearance="Appearance.Outline"
+                                                Size="ButtonSize.Small"
+                                                OnClick="@(() => DeleteItem(item.Id))">
+                                        <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
+                                        Delete
+                                    </FluentButton>
+                                </div>
+                            </FluentCard>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- Table View -->
+                    <FluentDataGrid Items="@Items.AsQueryable()" TGridItem="@__ComponentPrefix__ListingViewModel" Class="data-table">
+                        <PropertyColumn Property="@(item => item.Name)" Title="Name" Sortable="true" />
+                        <PropertyColumn Property="@(item => item.Description)" Title="Description" />
+                        <PropertyColumn Property="@(item => DateTime.Now.ToString("MMM dd, yyyy"))" Title="Created" />
+                        <TemplateColumn Title="Status">
+                            <FluentBadge Appearance="Appearance.Accent">Active</FluentBadge>
+                        </TemplateColumn>
+                        <TemplateColumn Title="Actions" Class="actions-column">
                             <FluentButton Appearance="Appearance.Outline"
                                         Size="ButtonSize.Small"
-                                        OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
+                                        OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{context.Id}"))">
                                 <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
-                                Edit
                             </FluentButton>
-                        </div>
-                    </FluentCard>
+                            <FluentButton Appearance="Appearance.Outline"
+                                        Size="ButtonSize.Small"
+                                        OnClick="@(() => DeleteItem(context.Id))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
+                            </FluentButton>
+                        </TemplateColumn>
+                    </FluentDataGrid>
                 }
             </div>
             {{/if}}
@@ -279,11 +350,18 @@
 </div>
 
 @code {
+    {{#if (eq UIFramework "FluentUI")}}
+    private bool isCardView = true;
+
+    private void ToggleView(bool cardView)
+    {
+        isCardView = cardView;
+        StateHasChanged();
+    }
+    {{/if}}
 
     private Task DeleteItem(string id)
     {
-
         return Task.CompletedTask;
-
     }
 }
