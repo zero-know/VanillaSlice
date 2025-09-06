@@ -4,9 +4,9 @@
 @inherits ListingBase<{{ProjectName}}.Razor.Features.Products.ProductListing.ProductListingViewModel, ProductListingBusinessModel,
                                 {{ProjectName}}.Razor.Features.Products.ProductListing.ProductFilterViewModel, ProductFilterBusinessModel, IProductListingDataService>
 
+{{#if (eq UIFramework "Bootstrap")}}
 <div class="container-fluid">
     <!-- Page Header -->
-    {{#if (eq UIFramework "Bootstrap")}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Product Catalog</h2>
@@ -16,79 +16,45 @@
             <i class="bi bi-plus-circle me-2"></i>Add New Product
         </a>
     </div>
-    {{/if}}
 
-    {{#if (eq UIFramework "FluentUI")}}
-    <div class="listing-container">
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="header-content">
-                <FluentLabel Typo="Typography.H2" Class="page-title">Product Catalog</FluentLabel>
-                <FluentLabel Typo="Typography.Body" Class="page-subtitle">Manage your product inventory</FluentLabel>
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>@Error</div>
+        </div>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
+            <div class="text-center">
+                <div class="shimmer-text mb-3">Loading…</div>
+                <div class="spinner-border" role="presentation"></div>
             </div>
-            <div class="header-actions">
-                <!-- View Switcher -->
-                <div class="view-switcher">
-                    <FluentButton Appearance="@(isCardView ? Appearance.Accent : Appearance.Neutral)"
-                                Size="ButtonSize.Small"
-                                OnClick="@(() => ToggleView(true))"
-                                Title="Card View">
-                        <FluentIcon Value="@(new Icons.Regular.Size16.Grid())" />
-                    </FluentButton>
-                    <FluentButton Appearance="@(!isCardView ? Appearance.Accent : Appearance.Neutral)"
-                                Size="ButtonSize.Small"
-                                OnClick="@(() => ToggleView(false))"
-                                Title="Table View">
-                        <FluentIcon Value="@(new Icons.Regular.Size16.Table())" />
-                    </FluentButton>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-box-seam display-1 text-muted"></i>
                 </div>
-                <FluentButton Appearance="Appearance.Accent"
-                            OnClick="@(() => NavigationManager.NavigateTo("/products/create"))">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
-                    Add New Product
-                </FluentButton>
+                <h4 class="text-muted mb-3">No Products Found</h4>
+                <p class="text-muted mb-4">Get started by creating your first product.</p>
+                <a class="btn btn-dark" href="/products/create">
+                    <i class="bi bi-plus-circle me-2"></i>Create Your First Product
+                </a>
             </div>
-        </div>
-    </div>
-    {{/if}}
+        </If>
 
-    {{#if (eq UIFramework "MudBlazor")}}
-    <div class="page-header">
-        <div class="header-content">
-            <MudText Typo="Typo.h4">Product Catalog</MudText>
-            <MudText Typo="Typo.body2" Class="mud-text-secondary">Manage your product inventory</MudText>
-        </div>
-        <MudButton Variant="Variant.Filled"
-                 Color="Color.Primary"
-                 Href="/products/create">
-            <MudIcon Icon="Icons.Material.Filled.Add" />
-            Add New Product
-        </MudButton>
-    </div>
-    {{/if}}
-
-    {{#if (eq UIFramework "Radzen")}}
-    <div class="page-header">
-        <div class="header-content">
-            <RadzenText TextStyle="TextStyle.H4">Product Catalog</RadzenText>
-            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">Manage your product inventory</RadzenText>
-        </div>
-        <RadzenButton ButtonStyle="ButtonStyle.Primary"
-                    Click="@(() => NavigationManager.NavigateTo("/products/create"))">
-            <i class="rzi rzi-plus"></i>
-            Add New Product
-        </RadzenButton>
-    </div>
-    {{/if}}
-
-    @if (ItemsLoaded)
-    {
-        if (Items?.Any() == true)
-        {
-            {{#if (eq UIFramework "Bootstrap")}}
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
             <div class="row g-4">
-                @foreach (var item in Items)
-                {
+                <ForEach Items="Items" Context="item">
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="card h-100 shadow-sm border-1 product-card">
                             <div class="card-body d-flex flex-column">
@@ -104,167 +70,14 @@
                                 </div>
 
                                 <p class="card-text text-muted flex-grow-1 mb-3">
-                                    @if (!string.IsNullOrEmpty(item.Description))
-                                    {
+                                    <If Condition="!string.IsNullOrEmpty(item.Description)">
                                         @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
-                                    }
-                                    else
-                                    {
+                                    </If>
+                                    <If Condition="string.IsNullOrEmpty(item.Description)">
                                         <em>No description available</em>
-                                    }
+                                    </If>
                                 </p>
-            {{/if}}
 
-            {{#if (eq UIFramework "FluentUI")}}
-            <div class="listing-content">
-                @if (isCardView)
-                {
-                    <!-- Card View -->
-                    <div class="card-grid">
-                        @foreach (var item in Items)
-                        {
-                            <FluentCard Class="item-card">
-                                <div class="card-header-content">
-                                    <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
-                                    <FluentBadge Appearance="@GetFluentStatusAppearance(item.ProductStatus)" Class="status-badge">
-                                        @item.ProductStatus.ToString()
-                                    </FluentBadge>
-                                </div>
-
-                                <div class="card-content">
-                                    <div class="card-price">
-                                        <FluentLabel Typo="Typography.H5" Class="price-text">@item.Price.ToString("C")</FluentLabel>
-                                    </div>
-                                    <FluentLabel Typo="Typography.Body" Class="card-description">
-                                        @if (!string.IsNullOrEmpty(item.Description))
-                                        {
-                                            @(item.Description.Length > 120 ? item.Description[..120] + "..." : item.Description)
-                                        }
-                                        else
-                                        {
-                                            <em>No description available</em>
-                                        }
-                                    </FluentLabel>
-                                    <div class="card-metadata">
-                                        <FluentLabel Typo="Typography.Subject" Class="metadata-item">
-                                            <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
-                                            Created: @item.CreatedAt.ToString("MMM dd, yyyy")
-                                        </FluentLabel>
-                                    </div>
-                                </div>
-
-                                <div class="card-actions">
-                                    <FluentButton Appearance="Appearance.Outline"
-                                                Size="ButtonSize.Small"
-                                                OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{item.Id}"))">
-                                        <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
-                                        Edit
-                                    </FluentButton>
-                                      <FluentButton Appearance="Appearance.Outline"
-                                                Size="ButtonSize.Small"
-                                                OnClick="@(() => DeleteProduct(item.Id))">
-                                        <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
-                                        Delete
-                                    </FluentButton>
-                                </div>
-                            </FluentCard>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <!-- Table View -->
-                    <FluentDataGrid Items="@Items.AsQueryable()" TGridItem="@{{ProjectName}}.Razor.Features.Products.ProductListing.ProductListingViewModel" Class="data-table">
-                        <PropertyColumn Property="@(item => item.Name)" Title="Name" Sortable="true" />
-                        <PropertyColumn Property="@(item => item.Price.ToString("C"))" Title="Price" Sortable="true" />
-                        <PropertyColumn Property="@(item => item.Description)" Title="Description" />
-                        <PropertyColumn Property="@(item => item.CreatedAt.ToString("MMM dd, yyyy"))" Title="Created" />
-                        <TemplateColumn Title="Status">
-                            <FluentBadge Appearance="@GetFluentStatusAppearance(context.ProductStatus)">
-                                @context.ProductStatus.ToString()
-                            </FluentBadge>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Actions" Class="actions-column">
-                            <FluentButton Appearance="Appearance.Outline"
-                                        Size="ButtonSize.Small"
-                                        OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{context.Id}"))">
-                                <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
-                            </FluentButton>
-                            <FluentButton Appearance="Appearance.Outline"
-                                        Size="ButtonSize.Small"
-                                        OnClick="@(() => DeleteProduct(context.Id))">
-                                <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
-                            </FluentButton>
-                        </TemplateColumn>
-                    </FluentDataGrid>
-                }
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "MudBlazor")}}
-            <div class="product-grid">
-                @foreach (var item in Items)
-                {
-                    <MudCard Class="product-card">
-                        <MudCardContent>
-                            <div class="card-header">
-                                <MudText Typo="Typo.h6" Class="card-title">@item.Name</MudText>
-                                <MudChip Color="@GetMudStatusColor(item.ProductStatus)" Size="Size.Small">
-                                    @item.ProductStatus.ToString()
-                                </MudChip>
-                            </div>
-
-                            <div class="card-price">
-                                <MudText Typo="Typo.h5" Class="price-text">@item.Price.ToString("C")</MudText>
-                            </div>
-
-                            <div class="card-description">
-                                @if (!string.IsNullOrEmpty(item.Description))
-                                {
-                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                                        @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
-                                    </MudText>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                                        <em>No description available</em>
-                                    </MudText>
-                                }
-                            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "Radzen")}}
-            <div class="product-grid">
-                @foreach (var item in Items)
-                {
-                    <RadzenCard Class="product-card">
-                        <div class="card-header">
-                            <RadzenText TextStyle="TextStyle.H6" Class="card-title">@item.Name</RadzenText>
-                            <RadzenBadge BadgeStyle="@GetRadzenStatusStyle(item.ProductStatus)" Text="@item.ProductStatus.ToString()" />
-                        </div>
-
-                        <div class="card-price">
-                            <RadzenText TextStyle="TextStyle.H5" Class="price-text">@item.Price.ToString("C")</RadzenText>
-                        </div>
-
-                        <div class="card-description">
-                            @if (!string.IsNullOrEmpty(item.Description))
-                            {
-                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
-                                    @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
-                                </RadzenText>
-                            }
-                            else
-                            {
-                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
-                                    <em>No description available</em>
-                                </RadzenText>
-                            }
-                        </div>
-            {{/if}}
-
-                        {{#if (eq UIFramework "Bootstrap")}}
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">
@@ -279,13 +92,232 @@
                             </div>
                         </div>
                     </div>
-                }
+                </ForEach>
             </div>
-            {{/if}}
+        </If>
+    </If>
+</div>
+{{/if}}
 
+{{#if (eq UIFramework "FluentUI")}}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="listing-container">
+        <div class="page-header">
+            <div class="header-content">
+                <FluentLabel Typo="Typography.H2" Class="page-title">Product Catalog</FluentLabel>
+                <FluentLabel Typo="Typography.Body" Class="page-subtitle">Manage your product inventory</FluentLabel>
+            </div>
+            <div class="header-actions">
+                <!-- View Switcher -->
+                <div class="view-switcher">
+                    <FluentButton Appearance="@(isCardView? Appearance.Accent: Appearance.Neutral)"
+                                  Size="ButtonSize.Small" IconStart="@(new Icons.Regular.Size16.Grid())"
+                                  OnClick="@(() => ToggleView(true))"
+                                  Title="Card View"> 
+                    </FluentButton>
+                    <FluentButton Appearance="@(!isCardView ? Appearance.Accent : Appearance.Neutral)"
+                                  Size="ButtonSize.Small" IconStart="@(new Icons.Regular.Size16.Table())"
+                                  OnClick="@(() => ToggleView(false))"
+                                  Title="Table View"> 
+                    </FluentButton>
+                </div>
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())"
+                              OnClick="@(() => NavigationManager.NavigateTo("/products/create"))">
+                    Add New Product
+                </FluentButton>
+            </div>
+        </div>
+    </div>
 
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <FluentMessageBar Intent="MessageIntent.Error" Class="mb-4">
+            @Error
+        </FluentMessageBar>
+    </If>
 
-            {{#if (eq UIFramework "MudBlazor")}}
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <FluentProgressRing />
+            <FluentLabel Typo="Typography.Body">Loading products...</FluentLabel>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.Box())" />
+                </div>
+                <FluentLabel Typo="Typography.H4" Class="empty-title">No Products Found</FluentLabel>
+                <FluentLabel Typo="Typography.Body" Class="empty-description">Get started by creating your first product.</FluentLabel>
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())"
+                              OnClick="@(() => NavigationManager.NavigateTo("/products/create"))"> 
+                    Create Your First Product
+                </FluentButton>
+            </div>
+        </If>
+
+        <!-- Items Content -->
+        <If Condition="Items.Any()">
+            <div class="listing-content">
+                <!-- Card View -->
+                <If Condition="isCardView">
+                    <div class="card-grid">
+                        <ForEach Items="Items" Context="item">
+                            <FluentCard Class="item-card">
+                                <div class="card-header-content">
+                                    <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
+                                    <FluentBadge Appearance="@GetFluentStatusAppearance(item.ProductStatus)" Class="status-badge">
+                                        @item.ProductStatus.ToString()
+                                    </FluentBadge>
+                                </div>
+
+                                <div class="card-content">
+                                    <div class="card-price">
+                                        <FluentLabel Typo="Typography.H5" Class="price-text">@item.Price.ToString("C")</FluentLabel>
+                                    </div>
+                                    <FluentLabel Typo="Typography.Body" Class="card-description">
+                                        @(item.Description != null && item.Description.Length > 120 ? item.Description[..120] + "..." : item.Description)
+                                    </FluentLabel>
+                                    <div class="card-metadata">
+                                        <FluentLabel Typo="Typography.Subject" Class="metadata-item">
+                                            <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
+                                            Created: @item.CreatedAt.ToString("MMM dd, yyyy")
+                                        </FluentLabel>
+                                    </div>
+                                </div>
+
+                                <div class="card-actions">
+                                    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Edit())"
+                                                  OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{item.Id}"))"> 
+                                        Edit
+                                    </FluentButton>
+                                    <FluentButton Appearance="Appearance.Neutral" IconStart="@(new Icons.Regular.Size16.Delete())"
+                                                  OnClick="@(() => DeleteProduct(item.Id))">
+                                        Delete
+                                    </FluentButton>
+                                </div>
+                            </FluentCard>
+                        </ForEach> 
+                    </div>
+                </If>
+
+                <!-- Table View -->
+                <If Condition="!isCardView">
+                    <FluentDataGrid Items="@Items.AsQueryable()" TGridItem="@{{ProjectName}}.Razor.Features.Products.ProductListing.ProductListingViewModel" Class="data-table">
+                        <PropertyColumn Property="@(item => item.Name)" Title="Name" Sortable="true" />
+                        <PropertyColumn Property="@(item => item.Price.ToString("C"))" Title="Price" Sortable="true" />
+                        <PropertyColumn Property="@(item => item.Description)" Title="Description" />
+                        <PropertyColumn Property="@(item => item.CreatedAt.ToString("MMM dd, yyyy"))" Title="Created" />
+                        <TemplateColumn Title="Status">
+                            <FluentBadge Appearance="@GetFluentStatusAppearance(context.ProductStatus)">
+                                @context.ProductStatus.ToString()
+                            </FluentBadge>
+                        </TemplateColumn>
+                        <TemplateColumn Title="Actions" Class="actions-column">
+                            <FluentButton Appearance="Appearance.Outline"
+                                          Size="ButtonSize.Small"
+                                          OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{context.Id}"))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
+                            </FluentButton>
+                            <FluentButton Appearance="Appearance.Outline"
+                                          Size="ButtonSize.Small"
+                                          OnClick="@(() => DeleteProduct(context.Id))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
+                            </FluentButton>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </If>
+            </div>
+        </If>
+    </If>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <MudText Typo="Typo.h4">Product Catalog</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Manage your product inventory</MudText>
+        </div>
+        <MudButton Variant="Variant.Filled"
+                 Color="Color.Primary"
+                 Href="/products/create">
+            <MudIcon Icon="Icons.Material.Filled.Add" />
+            Add New Product
+        </MudButton>
+    </div>
+
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            @Error
+        </MudAlert>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <MudProgressCircular Indeterminate="true" />
+            <MudText Typo="Typo.body1">Loading products...</MudText>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" />
+                </div>
+                <MudText Typo="Typo.h4" Class="empty-title">No Products Found</MudText>
+                <MudText Typo="Typo.body1" Class="empty-description">Get started by creating your first product.</MudText>
+                <MudButton Variant="Variant.Filled"
+                         Color="Color.Primary"
+                         Href="/products/create">
+                    <MudIcon Icon="Icons.Material.Filled.Add" />
+                    Create Your First Product
+                </MudButton>
+            </div>
+        </If>
+
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
+            <div class="product-grid">
+                <ForEach Items="Items" Context="item">
+                    <MudCard Class="product-card">
+                        <MudCardContent>
+                            <div class="card-header">
+                                <MudText Typo="Typo.h6" Class="card-title">@item.Name</MudText>
+                                <MudChip Color="@GetMudStatusColor(item.ProductStatus)" Size="Size.Small">
+                                    @item.ProductStatus.ToString()
+                                </MudChip>
+                            </div>
+
+                            <div class="card-price">
+                                <MudText Typo="Typo.h5" Class="price-text">@item.Price.ToString("C")</MudText>
+                            </div>
+
+                            <div class="card-description">
+                                <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                    </MudText>
+                                </If>
+                                <If Condition="string.IsNullOrEmpty(item.Description)">
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        <em>No description available</em>
+                                    </MudText>
+                                </If>
+                            </div>
                         </MudCardContent>
                         <MudCardActions>
                             <div class="card-actions">
@@ -302,11 +334,88 @@
                             </div>
                         </MudCardActions>
                     </MudCard>
-                }
+                </ForEach>
             </div>
-            {{/if}}
+        </If>
+    </If>
+</div>
+{{/if}}
 
-            {{#if (eq UIFramework "Radzen")}}
+{{#if (eq UIFramework "Radzen")}}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <RadzenText TextStyle="TextStyle.H4">Product Catalog</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">Manage your product inventory</RadzenText>
+        </div>
+        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                    Click="@(() => NavigationManager.NavigateTo("/products/create"))">
+            <i class="rzi rzi-plus"></i>
+            Add New Product
+        </RadzenButton>
+    </div>
+
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-4">
+            @Error
+        </RadzenAlert>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" />
+            <RadzenText TextStyle="TextStyle.Body1">Loading products...</RadzenText>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="rzi rzi-box" style="font-size: 4rem; color: #999;"></i>
+                </div>
+                <RadzenText TextStyle="TextStyle.H4" Class="empty-title">No Products Found</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Class="empty-description">Get started by creating your first product.</RadzenText>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                            Click="@(() => NavigationManager.NavigateTo("/products/create"))">
+                    <i class="rzi rzi-plus"></i>
+                    Create Your First Product
+                </RadzenButton>
+            </div>
+        </If>
+
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
+            <div class="product-grid">
+                <ForEach Items="Items" Context="item">
+                    <RadzenCard Class="product-card">
+                        <div class="card-header">
+                            <RadzenText TextStyle="TextStyle.H6" Class="card-title">@item.Name</RadzenText>
+                            <RadzenBadge BadgeStyle="@GetRadzenStatusStyle(item.ProductStatus)" Text="@item.ProductStatus.ToString()" />
+                        </div>
+
+                        <div class="card-price">
+                            <RadzenText TextStyle="TextStyle.H5" Class="price-text">@item.Price.ToString("C")</RadzenText>
+                        </div>
+
+                        <div class="card-description">
+                            <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                </RadzenText>
+                            </If>
+                            <If Condition="string.IsNullOrEmpty(item.Description)">
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    <em>No description available</em>
+                                </RadzenText>
+                            </If>
+                        </div>
+
                         <div class="card-actions">
                             <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
                                 <i class="rzi rzi-calendar"></i>
@@ -320,106 +429,12 @@
                             </RadzenButton>
                         </div>
                     </RadzenCard>
-                }
+                </ForEach>
             </div>
-            {{/if}}
-        }
-        else
-        {
-            <!-- Empty State -->
-            {{#if (eq UIFramework "Bootstrap")}}
-            <div class="text-center py-5">
-                <div class="mb-4">
-                    <i class="bi bi-box-seam display-1 text-muted"></i>
-                </div>
-                <h4 class="text-muted mb-3">No Products Found</h4>
-                <p class="text-muted mb-4">Get started by creating your first product.</p>
-                <a class="btn btn-dark" href="/products/create">
-                    <i class="bi bi-plus-circle me-2"></i>Create Your First Product
-                </a>
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "FluentUI")}}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <FluentIcon Value="@(new Icons.Regular.Size48.Box())" />
-                </div>
-                <FluentLabel Typo="Typography.H4" Class="empty-title">No Products Found</FluentLabel>
-                <FluentLabel Typo="Typography.Body" Class="empty-description">Get started by creating your first product.</FluentLabel>
-                <FluentButton Appearance="Appearance.Accent"
-                            OnClick="@(() => NavigationManager.NavigateTo("/products/create"))">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
-                    Create Your First Product
-                </FluentButton>
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "MudBlazor")}}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" />
-                </div>
-                <MudText Typo="Typo.h4" Class="empty-title">No Products Found</MudText>
-                <MudText Typo="Typo.body1" Class="empty-description">Get started by creating your first product.</MudText>
-                <MudButton Variant="Variant.Filled"
-                         Color="Color.Primary"
-                         Href="/products/create">
-                    <MudIcon Icon="Icons.Material.Filled.Add" />
-                    Create Your First Product
-                </MudButton>
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "Radzen")}}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="rzi rzi-box" style="font-size: 4rem; color: #999;"></i>
-                </div>
-                <RadzenText TextStyle="TextStyle.H4" Class="empty-title">No Products Found</RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Class="empty-description">Get started by creating your first product.</RadzenText>
-                <RadzenButton ButtonStyle="ButtonStyle.Primary"
-                            Click="@(() => NavigationManager.NavigateTo("/products/create"))">
-                    <i class="rzi rzi-plus"></i>
-                    Create Your First Product
-                </RadzenButton>
-            </div>
-            {{/if}}
-        }
-    }
-    @if (!ItemsLoaded || IsWorking)
-    {
-        {{#if (eq UIFramework "Bootstrap")}}
-        <div class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
-            <div class="text-center">
-                <div class="shimmer-text mb-3">Loading…</div>
-                <div class="spinner-border" role="presentation"></div>
-            </div>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "FluentUI")}}
-        <div class="loading-container">
-            <FluentProgressRing />
-            <FluentLabel Typo="Typography.Body">Loading products...</FluentLabel>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "MudBlazor")}}
-        <div class="loading-container">
-            <MudProgressCircular Indeterminate="true" />
-            <MudText Typo="Typo.body1">Loading products...</MudText>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "Radzen")}}
-        <div class="loading-container">
-            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" />
-            <RadzenText TextStyle="TextStyle.Body1">Loading products...</RadzenText>
-        </div>
-        {{/if}}
-    }
+        </If>
+    </If>
 </div>
+{{/if}}
 
 @code {
     {{#if (eq UIFramework "Bootstrap")}}

@@ -1,0 +1,12 @@
+﻿@if(Condition)
+{
+    @ChildContent
+}
+
+@code{
+    [Parameter, EditorRequired]
+    public bool Condition { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+}

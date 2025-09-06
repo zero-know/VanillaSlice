@@ -252,9 +252,8 @@ code {
 
 /* Professional FluentUI Listing Styles */
 .listing-container {
-    max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 2rem 0.5rem 2rem;
     background: var(--neutral-layer-1);
 }
 
@@ -262,7 +261,7 @@ code {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--neutral-stroke-divider-rest);
 }
@@ -373,8 +372,8 @@ code {
 /* Table Layout */
 .data-table {
     width: 100%;
-    background: var(--neutral-layer-2);
-    border: 1px solid var(--neutral-stroke-layer-rest);
+    //*background: var(--neutral-layer-2);
+    border: 1px solid var(--neutral-stroke-layer-rest); */
     border-radius: var(--control-corner-radius);
     overflow: hidden;
 }

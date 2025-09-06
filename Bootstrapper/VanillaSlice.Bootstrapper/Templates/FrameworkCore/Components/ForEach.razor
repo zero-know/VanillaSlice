@@ -1,0 +1,14 @@
+﻿@typeparam TItem
+@foreach (var item in Items)
+{
+    @ChildContent(item)
+}
+
+@code {
+
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+    [Parameter]
+    public RenderFragment<TItem> ChildContent { get; set; } = default!;
+    
+}

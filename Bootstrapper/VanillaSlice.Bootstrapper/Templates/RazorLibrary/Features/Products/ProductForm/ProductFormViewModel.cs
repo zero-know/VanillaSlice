@@ -24,6 +24,16 @@ namespace {{ProjectName}}.Razor.Features.Products
     public decimal? Price { get; set; }
 
     [Required(ErrorMessage = "Select a Product Status")]
-    public string? ProductStatus { get; set; }
+    public ProductStatus? ProductStatus { get; set; }
+    
+    public string? ProductStatusStr
+    {
+        get => ProductStatus.ToString();
+        set
+        {
+            ProductStatus = value.ToEnum<ProductStatus>();
+        }
+    }
+
 }
 }

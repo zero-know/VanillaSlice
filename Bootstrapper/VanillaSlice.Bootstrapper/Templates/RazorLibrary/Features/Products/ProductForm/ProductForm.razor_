@@ -200,8 +200,7 @@
                                         TOption="SelectOption<ProductStatus>"
                                         OptionText="@(i => i.Text)"
                                         OptionValue="@(i => i.Value.ToString())"
-                                        OptionSelected="@(i => i.Disabled)"
-                                        @bind-Value="@SelectedItem.ProductStatus"
+                                        @bind-Value="@SelectedItem.ProductStatusStr"
                                         Id="status-field"
                                         Class="form-input" />
                             <FluentValidationMessage For="@(() => SelectedItem.ProductStatus)" Class="validation-message" />
