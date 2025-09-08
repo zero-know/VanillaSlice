@@ -11,6 +11,8 @@ VanillaSlice Bootstrapper is a web-based project generation tool that creates co
 ### ✅ **Core Architecture**
 - **Clean Architecture Implementation** - Proper separation of concerns with dedicated layers
 - **Blazor Web Applications** - Modern web UI with server-side and WebAssembly support
+- **Blazor Hybrid MAUI App** - Hybrid MAUI App from shared razor components
+- **Native MAUI App** - Native MAUI App from Shared backend
 - **Web API Integration** - RESTful API services with OpenAPI documentation
 - **Entity Framework Core** - Database integration with multiple provider support
 - **Aspire Orchestration Support** - Modern cloud-native application orchestration
