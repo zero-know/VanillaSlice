@@ -77,8 +77,8 @@ public class NavigationManagementService
             return;
         }
 
-        var navigationItem = GenerateNavigationItem(feature);
-        await UpdateNavigationFileWithPlaceholderAsync(navMenuPath, navigationItem, feature.ComponentPrefix);
+        var navigationItems = GenerateNavigationItems(feature);
+        await UpdateNavigationFileWithPlaceholderAsync(navMenuPath, navigationItems, feature.ComponentPrefix);
     }
 
     private string GetNavMenuFilePath(Project project, string basePath)
@@ -95,16 +95,33 @@ public class NavigationManagementService
         return string.Empty;
     }
 
-    private string GenerateNavigationItem(Feature feature)
+    private string GenerateNavigationItems(Feature feature)
     {
         var pluralizedRoute = _pluralizationService.Pluralize(feature.ComponentPrefix).ToLowerInvariant();
         var displayName = feature.ComponentPrefix; // Keep singular for display
 
-        return $@"        <div class=""nav-item px-3"">
-            <NavLink class=""nav-link"" href=""{pluralizedRoute}"">
-                <span class=""bi bi-list-nested-nav-menu"" aria-hidden=""true""></span> {displayName}
+        return $@"        
+        {{#if (eq UIFramework "Bootstrap")}}
+        <div class='nav-item px-3'>
+            <NavLink class='nav-link' href='{pluralizedRoute}'>
+                <span class='bi bi-list-nested-nav-menu' aria-hidden='true'></span> {displayName}
             </NavLink>
-        </div>";
+        </div>
+        {{/if}}
+
+        {{#if (eq UIFramework "FluentUI")}}
+        <FluentNavLink Href='{pluralizedRoute}' Icon='@(new Icons.Regular.Size20.NumberSymbolSquare())' IconColor='Color.Accent'>{displayName}</FluentNavLink>
+        {{/if}}
+
+        {{#if (eq UIFramework "MudBlazor")}}
+        <MudNavLink Href='{pluralizedRoute}' Icon='Icons.Material.Filled.Inventory'>
+            {displayName}
+        </MudNavLink>
+        {{/if}}
+
+        {{#if (eq UIFramework "Radzen")}}
+        <RadzenPanelMenuItem Text='{displayName}' Path='{pluralizedRoute}' Icon='inventory' />
+        {{/if}}";
     }
 
     private async Task UpdateWebPortalNavigationAsync(Feature feature)
@@ -117,8 +134,8 @@ public class NavigationManagementService
 
         if (File.Exists(webPortalNavMenuPath))
         {
-            var navigationItem = GenerateNavigationItem(feature);
-            await UpdateNavigationFileWithPlaceholderAsync(webPortalNavMenuPath, navigationItem, feature.ComponentPrefix);
+            var navigationItems = GenerateNavigationItems(feature);
+            await UpdateNavigationFileWithPlaceholderAsync(webPortalNavMenuPath, navigationItems, feature.ComponentPrefix);
         }
         else
         {
@@ -136,8 +153,8 @@ public class NavigationManagementService
 
         if (File.Exists(hybridAppNavMenuPath))
         {
-            var navigationItem = GenerateNavigationItem(feature);
-            await UpdateNavigationFileWithPlaceholderAsync(hybridAppNavMenuPath, navigationItem, feature.ComponentPrefix);
+            var navigationItems = GenerateNavigationItems(feature);
+            await UpdateNavigationFileWithPlaceholderAsync(hybridAppNavMenuPath, navigationItems, feature.ComponentPrefix);
         }
         else
         {
