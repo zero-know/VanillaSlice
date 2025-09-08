@@ -131,19 +131,7 @@
                     </FluentGridItem>
 
                     <!-- Add more fields as needed -->
-                    <FluentGridItem xs="12" sm="6">
-                        <div class="form-field">
-                            <FluentLabel For="status-field" Class="field-label">Status</FluentLabel>
-                            <FluentSelect @bind-Value="SelectedItem.Status"
-                                        Id="status-field"
-                                        Class="form-input">
-                                <FluentOption Value="Active">Active</FluentOption>
-                                <FluentOption Value="Inactive">Inactive</FluentOption>
-                                <FluentOption Value="Pending">Pending</FluentOption>
-                            </FluentSelect>
-                            <FluentValidationMessage For="@(() => SelectedItem.Status)" Class="validation-message" />
-                        </div>
-                    </FluentGridItem>
+              
                       <FluentGridItem xs="12">
                         <div class="form-actions">
                             <FluentButton Type="ButtonType.Submit"

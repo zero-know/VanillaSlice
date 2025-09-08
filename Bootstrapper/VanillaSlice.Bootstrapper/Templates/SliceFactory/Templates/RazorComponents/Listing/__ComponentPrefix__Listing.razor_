@@ -4,9 +4,9 @@
 @inherits ListingBase<__ComponentPrefix__ListingViewModel, __ComponentPrefix__ListingBusinessModel,
                                 __ComponentPrefix__FilterViewModel, __ComponentPrefix__FilterBusinessModel, I__ComponentPrefix__ListingDataService>
 
+{{#if (eq UIFramework "Bootstrap")}}
 <div class="container-fluid">
     <!-- Page Header -->
-    {{#if (eq UIFramework "Bootstrap")}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">__ComponentPrefix__ Catalog</h2>
@@ -16,11 +16,89 @@
             <i class="bi bi-plus-circle me-2"></i>Add New __ComponentPrefix__
         </a>
     </div>
-    {{/if}}
 
-    {{#if (eq UIFramework "FluentUI")}}
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>@Error</div>
+        </div>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
+            <div class="text-center">
+                <div class="shimmer-text mb-3">Loading…</div>
+                <div class="spinner-border" role="presentation"></div>
+            </div>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-box-seam display-1 text-muted"></i>
+                </div>
+                <h4 class="text-muted mb-3">No __ComponentPrefixPlural__ Found</h4>
+                <p class="text-muted mb-4">Get started by creating your first __componentPrefix__.</p>
+                <a class="btn btn-dark" href="/__componentPrefixPlural__/create">
+                    <i class="bi bi-plus-circle me-2"></i>Create Your First __ComponentPrefix__
+                </a>
+            </div>
+        </If>
+
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
+            <div class="row g-4">
+                <ForEach Items="Items" Context="item">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-1 __componentPrefix__-card">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title mb-0 text-truncate" title="@item.Name">@item.Name</h5>
+                                    <span class="badge bg-success ms-2">
+                                        Active
+                                    </span>
+                                </div>
+
+                                <p class="card-text text-muted flex-grow-1 mb-3">
+                                    <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                        @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                    </If>
+                                    <If Condition="string.IsNullOrEmpty(item.Description)">
+                                        <em>No description available</em>
+                                    </If>
+                                </p>
+
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            @DateTime.Now.ToString("MMM dd, yyyy")
+                                        </small>
+                                        <a class="btn btn-outline-dark btn-sm" href="/__componentPrefixPlural__/edit/@item.Id">
+                                            <i class="bi bi-pencil me-1"></i>Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ForEach>
+            </div>
+        </If>
+    </If>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "FluentUI")}}
+<div class="container-fluid">
+    <!-- Page Header -->
     <div class="listing-container">
-        <!-- Page Header -->
         <div class="page-header">
             <div class="header-content">
                 <FluentLabel Typo="Typography.H2" Class="page-title">__ComponentPrefix__ Catalog</FluentLabel>
@@ -29,30 +107,131 @@
             <div class="header-actions">
                 <!-- View Switcher -->
                 <div class="view-switcher">
-                    <FluentButton Appearance="@(isCardView ? Appearance.Accent : Appearance.Neutral)"
-                                Size="ButtonSize.Small"
-                                OnClick="@(() => ToggleView(true))"
-                                Title="Card View">
-                        <FluentIcon Value="@(new Icons.Regular.Size16.Grid())" />
+                    <FluentButton Appearance="@(isCardView? Appearance.Accent: Appearance.Neutral)"
+                                  Size="ButtonSize.Small" IconStart="@(new Icons.Regular.Size16.Grid())"
+                                  OnClick="@(() => ToggleView(true))"
+                                  Title="Card View">
                     </FluentButton>
                     <FluentButton Appearance="@(!isCardView ? Appearance.Accent : Appearance.Neutral)"
-                                Size="ButtonSize.Small"
-                                OnClick="@(() => ToggleView(false))"
-                                Title="Table View">
-                        <FluentIcon Value="@(new Icons.Regular.Size16.Table())" />
+                                  Size="ButtonSize.Small" IconStart="@(new Icons.Regular.Size16.Table())"
+                                  OnClick="@(() => ToggleView(false))"
+                                  Title="Table View">
                     </FluentButton>
                 </div>
-                <FluentButton Appearance="Appearance.Accent"
-                            OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())"
+                              OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
                     Add New __ComponentPrefix__
                 </FluentButton>
             </div>
         </div>
     </div>
-    {{/if}}
 
-    {{#if (eq UIFramework "MudBlazor")}}
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <FluentMessageBar Intent="MessageIntent.Error" Class="mb-4">
+            @Error
+        </FluentMessageBar>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <FluentProgressRing />
+            <FluentLabel Typo="Typography.Body">Loading __componentPrefixPlural__...</FluentLabel>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.Box())" />
+                </div>
+                <FluentLabel Typo="Typography.H4" Class="empty-title">No __ComponentPrefixPlural__ Found</FluentLabel>
+                <FluentLabel Typo="Typography.Body" Class="empty-description">Get started by creating your first __componentPrefix__.</FluentLabel>
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())"
+                              OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
+                    Create Your First __ComponentPrefix__
+                </FluentButton>
+            </div>
+        </If>
+
+        <!-- Items Content -->
+        <If Condition="Items.Any()">
+            <div class="listing-content">
+                <!-- Card View -->
+                <If Condition="isCardView">
+                    <div class="card-grid">
+                        <ForEach Items="Items" Context="item">
+                            <FluentCard Class="item-card">
+                                <div class="card-header-content">
+                                    <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
+                                    <FluentBadge Appearance="Appearance.Accent" Class="status-badge">
+                                        Active
+                                    </FluentBadge>
+                                </div>
+
+                                <div class="card-content">
+                                    <FluentLabel Typo="Typography.Body" Class="card-description">
+                                        @(item.Description != null && item.Description.Length > 120 ? item.Description[..120] + "..." : item.Description)
+                                    </FluentLabel>
+                                    <div class="card-metadata">
+                                        <FluentLabel Typo="Typography.Subject" Class="metadata-item">
+                                            <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
+                                            Created: @DateTime.Now.ToString("MMM dd, yyyy")
+                                        </FluentLabel>
+                                    </div>
+                                </div>
+
+                                <div class="card-actions">
+                                    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Edit())"
+                                                  OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
+                                        Edit
+                                    </FluentButton>
+                                    <FluentButton Appearance="Appearance.Neutral" IconStart="@(new Icons.Regular.Size16.Delete())"
+                                                  OnClick="@(() => Delete__ComponentPrefix__(item.Id))">
+                                        Delete
+                                    </FluentButton>
+                                </div>
+                            </FluentCard>
+                        </ForEach>
+                    </div>
+                </If>
+
+                <!-- Table View -->
+                <If Condition="!isCardView">
+                    <FluentDataGrid Items="@Items.AsQueryable()" TGridItem="@__ComponentPrefix__ListingViewModel" Class="data-table">
+                        <PropertyColumn Property="@(item => item.Name)" Title="Name" Sortable="true" />
+                        <PropertyColumn Property="@(item => item.Description)" Title="Description" />
+                        <PropertyColumn Property="@(item => DateTime.Now.ToString("MMM dd, yyyy"))" Title="Created" />
+                        <TemplateColumn Title="Status">
+                            <FluentBadge Appearance="Appearance.Accent">Active</FluentBadge>
+                        </TemplateColumn>
+                        <TemplateColumn Title="Actions" Class="actions-column">
+                            <FluentButton Appearance="Appearance.Outline"
+                                          Size="ButtonSize.Small"
+                                          OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{context.Id}"))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
+                            </FluentButton>
+                            <FluentButton Appearance="Appearance.Outline"
+                                          Size="ButtonSize.Small"
+                                          OnClick="@(() => Delete__ComponentPrefix__(context.Id))">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
+                            </FluentButton>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </If>
+            </div>
+        </If>
+    </If>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "MudBlazor")}}
+<div class="container-fluid">
+    <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
             <MudText Typo="Typo.h4">__ComponentPrefix__ Catalog</MudText>
@@ -65,225 +244,26 @@
             Add New __ComponentPrefix__
         </MudButton>
     </div>
-    {{/if}}
 
-    {{#if (eq UIFramework "Radzen")}}
-    <div class="page-header">
-        <div class="header-content">
-            <RadzenText TextStyle="TextStyle.H4">__ComponentPrefix__ Catalog</RadzenText>
-            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">Manage your __ComponentPrefixPlural__</RadzenText>
-        </div>
-        <RadzenButton ButtonStyle="ButtonStyle.Primary"
-                    Click="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
-            <i class="rzi rzi-plus"></i>
-            Add New __ComponentPrefix__
-        </RadzenButton>
-    </div>
-    {{/if}}
-    @if(!string.IsNullOrEmpty(Error))
-    {
-        {{#if (eq UIFramework "Bootstrap")}}
-        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <div>@Error</div>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "FluentUI")}}
-        <FluentMessageBar Intent="MessageIntent.Error" Class="mb-4">
-            @Error
-        </FluentMessageBar>
-        {{/if}}
-
-        {{#if (eq UIFramework "MudBlazor")}}
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
         <MudAlert Severity="Severity.Error" Class="mb-4">
             @Error
         </MudAlert>
-        {{/if}}
+    </If>
 
-        {{#if (eq UIFramework "Radzen")}}
-        <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-4">
-            @Error
-        </RadzenAlert>
-        {{/if}}
-    }
-    <!-- Items Grid -->
-   @if (ItemsLoaded)
-    {
-        if (Items?.Any() == true)
-        {
-            {{#if (eq UIFramework "Bootstrap")}}
-            <div class="row g-4">
-                @foreach (var item in Items)
-                {
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-1 product-card">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h5 class="card-title mb-0 text-truncate" title="@item.Name">@item.Name</h5>
-                                </div>
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <a class="btn btn-outline-dark btn-sm" href="/__componentPrefixPlural__/edit/@item.Id">
-                                            <i class="bi bi-pencil me-1"></i>Edit
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-            {{/if}}
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <MudProgressCircular Indeterminate="true" />
+            <MudText Typo="Typo.body1">Loading __componentPrefixPlural__...</MudText>
+        </div>
+    </If>
 
-            {{#if (eq UIFramework "FluentUI")}}
-            <div class="listing-content">
-                @if (isCardView)
-                {
-                    <!-- Card View -->
-                    <div class="card-grid">
-                        @foreach (var item in Items)
-                        {
-                            <FluentCard Class="item-card">
-                                <div class="card-header-content">
-                                    <FluentLabel Typo="Typography.H6" Class="card-title">@item.Name</FluentLabel>
-                                    <FluentBadge Appearance="Appearance.Accent" Class="status-badge">Active</FluentBadge>
-                                </div>
-
-                                <div class="card-content">
-                                    <FluentLabel Typo="Typography.Body" Class="card-description">
-                                        @(string.IsNullOrEmpty(item.Description) ? "No description available" :
-                                          (item.Description.Length > 120 ? item.Description[..120] + "..." : item.Description))
-                                    </FluentLabel>
-                                    <div class="card-metadata">
-                                        <FluentLabel Typo="Typography.Subject" Class="metadata-item">
-                                            <FluentIcon Value="@(new Icons.Regular.Size16.Calendar())" />
-                                            Created: @DateTime.Now.ToString("MMM dd, yyyy")
-                                        </FluentLabel>
-                                    </div>
-                                </div>
-
-                                <div class="card-actions">
-                                    <FluentButton Appearance="Appearance.Outline"
-                                                Size="ButtonSize.Small"
-                                                OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
-                                        <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
-                                        Edit
-                                    </FluentButton>
-                                    <FluentButton Appearance="Appearance.Outline"
-                                                Size="ButtonSize.Small"
-                                                OnClick="@(() => DeleteItem(item.Id))">
-                                        <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
-                                        Delete
-                                    </FluentButton>
-                                </div>
-                            </FluentCard>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <!-- Table View -->
-                    <FluentDataGrid Items="@Items.AsQueryable()" TGridItem="@__ComponentPrefix__ListingViewModel" Class="data-table">
-                        <PropertyColumn Property="@(item => item.Name)" Title="Name" Sortable="true" />
-                        <PropertyColumn Property="@(item => item.Description)" Title="Description" />
-                        <PropertyColumn Property="@(item => DateTime.Now.ToString("MMM dd, yyyy"))" Title="Created" />
-                        <TemplateColumn Title="Status">
-                            <FluentBadge Appearance="Appearance.Accent">Active</FluentBadge>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Actions" Class="actions-column">
-                            <FluentButton Appearance="Appearance.Outline"
-                                        Size="ButtonSize.Small"
-                                        OnClick="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{context.Id}"))">
-                                <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
-                            </FluentButton>
-                            <FluentButton Appearance="Appearance.Outline"
-                                        Size="ButtonSize.Small"
-                                        OnClick="@(() => DeleteItem(context.Id))">
-                                <FluentIcon Value="@(new Icons.Regular.Size16.Delete())" />
-                            </FluentButton>
-                        </TemplateColumn>
-                    </FluentDataGrid>
-                }
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "MudBlazor")}}
-            <div class="item-grid">
-                @foreach (var item in Items)
-                {
-                    <MudCard Class="item-card">
-                        <MudCardContent>
-                            <div class="card-header">
-                                <MudText Typo="Typo.h6" Class="card-title">@item.Name</MudText>
-                            </div>
-                        </MudCardContent>
-                        <MudCardActions>
-                            <MudButton Variant="Variant.Outlined"
-                                     Size="Size.Small"
-                                     Href="@($"/__componentPrefixPlural__/edit/{item.Id}")">
-                                <MudIcon Icon="Icons.Material.Filled.Edit" />
-                                Edit
-                            </MudButton>
-                        </MudCardActions>
-                    </MudCard>
-                }
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "Radzen")}}
-            <div class="item-grid">
-                @foreach (var item in Items)
-                {
-                    <RadzenCard Class="item-card">
-                        <div class="card-header">
-                            <RadzenText TextStyle="TextStyle.H6" Class="card-title">@item.Name</RadzenText>
-                        </div>
-                        <div class="card-actions">
-                            <RadzenButton ButtonStyle="ButtonStyle.Light"
-                                        Size="ButtonSize.Small"
-                                        Click="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
-                                <i class="rzi rzi-pencil"></i>
-                                Edit
-                            </RadzenButton>
-                        </div>
-                    </RadzenCard>
-                }
-            </div>
-            {{/if}}
-        }
-        else
-        {
-            <!-- Empty State -->
-            {{#if (eq UIFramework "Bootstrap")}}
-            <div class="text-center py-5">
-                <div class="mb-4">
-                    <i class="bi bi-box-seam display-1 text-muted"></i>
-                </div>
-                <h4 class="text-muted mb-3">No __ComponentPrefixPlural__ Found</h4>
-                <p class="text-muted mb-4">Get started by creating your first __componentPrefix__.</p>
-                <a class="btn btn-dark" href="/__componentPrefixPlural__/create">
-                    <i class="bi bi-plus-circle me-2"></i>Create Your First __ComponentPrefix__
-                </a>
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "FluentUI")}}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <FluentIcon Value="@(new Icons.Regular.Size48.Box())" />
-                </div>
-                <FluentLabel Typo="Typography.H4" Class="empty-title">No __ComponentPrefixPlural__ Found</FluentLabel>
-                <FluentLabel Typo="Typography.Body" Class="empty-description">Get started by creating your first __componentPrefix__.</FluentLabel>
-                <FluentButton Appearance="Appearance.Accent"
-                            OnClick="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
-                    <FluentIcon Value="@(new Icons.Regular.Size16.Add())" />
-                    Create Your First __ComponentPrefix__
-                </FluentButton>
-            </div>
-            {{/if}}
-
-            {{#if (eq UIFramework "MudBlazor")}}
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
             <div class="empty-state">
                 <div class="empty-icon">
                     <MudIcon Icon="Icons.Material.Filled.Inventory" Size="Size.Large" />
@@ -297,9 +277,90 @@
                     Create Your First __ComponentPrefix__
                 </MudButton>
             </div>
-            {{/if}}
+        </If>
 
-            {{#if (eq UIFramework "Radzen")}}
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
+            <div class="__componentPrefix__-grid">
+                <ForEach Items="Items" Context="item">
+                    <MudCard Class="__componentPrefix__-card">
+                        <MudCardContent>
+                            <div class="card-header">
+                                <MudText Typo="Typo.h6" Class="card-title">@item.Name</MudText>
+                                <MudChip Color="Color.Success" Size="Size.Small">
+                                    Active
+                                </MudChip>
+                            </div>
+
+                            <div class="card-description">
+                                <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                    </MudText>
+                                </If>
+                                <If Condition="string.IsNullOrEmpty(item.Description)">
+                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                        <em>No description available</em>
+                                    </MudText>
+                                </If>
+                            </div>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <div class="card-actions">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                    <MudIcon Icon="Icons.Material.Filled.CalendarToday" Size="Size.Small" />
+                                    @DateTime.Now.ToString("MMM dd, yyyy")
+                                </MudText>
+                                <MudButton Variant="Variant.Outlined"
+                                         Size="Size.Small"
+                                         Href="@($"/__componentPrefixPlural__/edit/{item.Id}")">
+                                    <MudIcon Icon="Icons.Material.Filled.Edit" />
+                                    Edit
+                                </MudButton>
+                            </div>
+                        </MudCardActions>
+                    </MudCard>
+                </ForEach>
+            </div>
+        </If>
+    </If>
+</div>
+{{/if}}
+
+{{#if (eq UIFramework "Radzen")}}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <RadzenText TextStyle="TextStyle.H4">__ComponentPrefix__ Catalog</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">Manage your __ComponentPrefixPlural__</RadzenText>
+        </div>
+        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                    Click="@(() => NavigationManager.NavigateTo("/__componentPrefixPlural__/create"))">
+            <i class="rzi rzi-plus"></i>
+            Add New __ComponentPrefix__
+        </RadzenButton>
+    </div>
+
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-4">
+            @Error
+        </RadzenAlert>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="loading-container">
+            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" />
+            <RadzenText TextStyle="TextStyle.Body1">Loading __componentPrefixPlural__...</RadzenText>
+        </div>
+    </If>
+
+    <!-- Content -->
+    <If Condition="ItemsLoaded">
+        <!-- Empty State -->
+        <If Condition="!Items.Any()">
             <div class="empty-state">
                 <div class="empty-icon">
                     <i class="rzi rzi-box" style="font-size: 4rem; color: #999;"></i>
@@ -312,43 +373,50 @@
                     Create Your First __ComponentPrefix__
                 </RadzenButton>
             </div>
-            {{/if}}
-        }
-    }
-    @if (!ItemsLoaded || IsWorking)
-    {
-        {{#if (eq UIFramework "Bootstrap")}}
-        <div class="loading-overlay" role="status" aria-live="polite" aria-busy="true">
-            <div class="text-center">
-                <div class="shimmer-text mb-3">Loading…</div>
-                <div class="spinner-border" role="presentation"></div>
+        </If>
+
+        <!-- Items Grid -->
+        <If Condition="Items.Any()">
+            <div class="__componentPrefix__-grid">
+                <ForEach Items="Items" Context="item">
+                    <RadzenCard Class="__componentPrefix__-card">
+                        <div class="card-header">
+                            <RadzenText TextStyle="TextStyle.H6" Class="card-title">@item.Name</RadzenText>
+                            <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="Active" />
+                        </div>
+
+                        <div class="card-description">
+                            <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    @(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)
+                                </RadzenText>
+                            </If>
+                            <If Condition="string.IsNullOrEmpty(item.Description)">
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                                    <em>No description available</em>
+                                </RadzenText>
+                            </If>
+                        </div>
+
+                        <div class="card-actions">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
+                                <i class="rzi rzi-calendar"></i>
+                                @DateTime.Now.ToString("MMM dd, yyyy")
+                            </RadzenText>
+                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                        Size="ButtonSize.Small"
+                                        Click="@(() => NavigationManager.NavigateTo($"/__componentPrefixPlural__/edit/{item.Id}"))">
+                                <i class="rzi rzi-pencil"></i>
+                                Edit
+                            </RadzenButton>
+                        </div>
+                    </RadzenCard>
+                </ForEach>
             </div>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "FluentUI")}}
-        <div class="loading-container">
-            <FluentProgressRing />
-            <FluentLabel Typo="Typography.Body">Loading __componentPrefixPlural__...</FluentLabel>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "MudBlazor")}}
-        <div class="loading-container">
-            <MudProgressCircular Indeterminate="true" />
-            <MudText Typo="Typo.body1">Loading __componentPrefixPlural__...</MudText>
-        </div>
-        {{/if}}
-
-        {{#if (eq UIFramework "Radzen")}}
-        <div class="loading-container">
-            <RadzenProgressBar ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" />
-            <RadzenText TextStyle="TextStyle.Body1">Loading __componentPrefixPlural__...</RadzenText>
-        </div>
-        {{/if}}
-    }
+        </If>
+    </If>
 </div>
-
+{{/if}}
 @code {
     {{#if (eq UIFramework "FluentUI")}}
     private bool isCardView = true;
@@ -358,10 +426,11 @@
         isCardView = cardView;
         StateHasChanged();
     }
-    {{/if}}
 
-    private Task DeleteItem(string id)
+    private Task Delete__ComponentPrefix__(string id)
     {
+        // Implement delete logic here
         return Task.CompletedTask;
     }
+    {{/if}}
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZKnowledge.Enterprise.Common.Enums
+namespace {{ProjectName}}.Common.Enums
 {
     public static class EnumExtension
     {
