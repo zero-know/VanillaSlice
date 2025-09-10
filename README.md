@@ -5,17 +5,16 @@ VanillaSlice is a .NET-first framework that blends Clean Architecture with Verti
 
 # VanillaStudio
 
-🚀 A comprehensive .NET project generator that creates enterprise-ready applications with multiple platform support, modern UI frameworks, and integrated services.
+🚀 A comprehensive .NET project generator that creates enterprise-ready applications with multiple platform support, modern UI frameworks, and integrated services. Along with projects, a SliceFactory is generated as per selected options to generated feature slice everytime you need a new featrue.
 
-## Overview
-
-VanillaStudio is a web-based project generation tool that creates complete .NET solution architectures with support for web applications, MAUI mobile apps, and various UI frameworks. It follows clean architecture principles and provides a solid foundation for enterprise applications.
+# SliceFactory
+SliceFactory generates end-to-end feature slices—Listing and Form—each containing Razor/XAML UI, ViewModels, business models, a typed client service (via HttpClient), a server-side controller, and a server-side service with the actual business logic and queries. All code is plain C# and SOLID by default: the factory enforces structure through interfaces and generates safe, empty stubs so you focus on domain logic, not plumbing. Everything comes pre-wired (DI, routing, endpoints). Just add fields/properties to your models and UI, implement the query/commands, and your slice is ready.
 
 ## Key Features
 
 ### ✅ **Platforms Support**
 - **Blazor Web Applications** - Modern web UI with server-side and WebAssembly support
-- **MAUI Hybrid Apps** - Cross-platform mobile applications using platform agnostinc razor components
+- **MAUI Hybrid Apps** - Hybrid mobile applications using shared razor components
 - **MAUI Native Apps** - Native mobile applications using XAML frontend and shared backend (coming soon)
 - **Web API Integration** - RESTful API services with OpenAPI documentation
 - **Entity Framework Core** - Database integration with multiple provider support
