@@ -1,25 +1,27 @@
-# VanillaSlice Bootstrapper
+
+# VanillaSlice Framework
+
+VanillaSlice is a .NET-first framework that blends Clean Architecture with Vertical Slices to enforce SOLID by design. It organizes your app into thin, feature-centric slices that encapsulate everything—UI, contracts, domain logic, and data—so each slice owns its responsibilities end-to-end. With VanillaStudio (bootstrapper) and SliceFactory, you can scaffold CRUD features across Blazor Web and MAUI Hybrid using Bootstrap 5 or Fluent UI out of the box. The result is a maintainable codebase with fewer regressions, faster delivery, and the agility to absorb .NET evolution—ready for team scale and AI co-authoring.
+
+# VanillaStudio
 
 🚀 A comprehensive .NET project generator that creates enterprise-ready applications with multiple platform support, modern UI frameworks, and integrated services.
 
 ## Overview
 
-VanillaSlice Bootstrapper is a web-based project generation tool that creates complete .NET solution architectures with support for web applications, MAUI mobile apps, and various UI frameworks. It follows clean architecture principles and provides a solid foundation for enterprise applications.
+VanillaStudio is a web-based project generation tool that creates complete .NET solution architectures with support for web applications, MAUI mobile apps, and various UI frameworks. It follows clean architecture principles and provides a solid foundation for enterprise applications.
 
 ## Key Features
 
-### ✅ **Core Architecture**
-- **Clean Architecture Implementation** - Proper separation of concerns with dedicated layers
+### ✅ **Platforms Support**
 - **Blazor Web Applications** - Modern web UI with server-side and WebAssembly support
+- **MAUI Hybrid Apps** - Cross-platform mobile applications using platform agnostinc razor components
+- **MAUI Native Apps** - Native mobile applications using XAML frontend and shared backend (coming soon)
 - **Web API Integration** - RESTful API services with OpenAPI documentation
 - **Entity Framework Core** - Database integration with multiple provider support
 - **Aspire Orchestration Support** - Modern cloud-native application orchestration
-- **Docker Support** - Containerization ready configurations
+- **Docker Support** - Containerization ready configurations (coming soon)
 
-### ✅ **Platform Support**
-- **Web Applications** - Full-featured Blazor web portals
-- **Web API Services** - RESTful backend services
-- **Hybrid Apps** - Cross-platform applications
 
 ### ✅ **UI Framework Support**
 - **Bootstrap 5** - ✅ **Fully Implemented** - Default responsive framework
@@ -45,6 +47,7 @@ VanillaSlice Bootstrapper is a web-based project generation tool that creates co
 |---------|--------|-------|
 | **Core Platform** |
 | Web Application | ✅ **Complete** | Blazor Server/WebAssembly hybrid |
+| Hybrid MAUI App | ✅ **Complete** | Hybrid MAUI from shared code base |
 | Web API | ✅ **Complete** | RESTful services with OpenAPI |
 | MAUI Native App | 🔄 **In Progress** | Cross-platform mobile support |
 | **UI Frameworks** |
@@ -72,17 +75,17 @@ VanillaSlice Bootstrapper is a web-based project generation tool that creates co
 - Visual Studio 2022 or VS Code
 - SQL Server (optional - SQLite available for development)
 
-### Running the Bootstrapper
+### Running the VanillaStudio
 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/zero-know/VanillaSlice.git
-   cd VanillaSlice/Bootstrapper
+   cd src
    ```
 
 2. **Run the application:**
    ```bash
-   cd VanillaSlice.Bootstrapper
+   cd VanillaStudio
    dotnet run
    ```
 
