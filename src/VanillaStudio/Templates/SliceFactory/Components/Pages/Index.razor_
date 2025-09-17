@@ -98,6 +98,48 @@
                                             </label>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-check form-check-inline">
+                                            <InputCheckbox class="form-check-input" @bind-Value="M.GenerateSelectList" id="generateSelectList" />
+                                            <label class="form-check-label fw-semibold" for="generateSelectList">
+                                                <i class="bi bi-list-check me-2 text-info"></i>Generate SelectList Slice
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                @if (M.GenerateSelectList)
+                                {
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-12">
+                                            <div class="card border-info">
+                                                <div class="card-header bg-info bg-opacity-10">
+                                                    <h6 class="mb-0 text-info">
+                                                        <i class="bi bi-gear me-2"></i>SelectList Configuration
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-semibold">Select Model Type</label>
+                                                            <InputSelect class="form-select" @bind-Value="M.SelectListModelType">
+                                                                <option value="SelectOption">SelectOption&lt;T&gt;</option>
+                                                                <option value="Custom">Custom Model</option>
+                                                            </InputSelect>
+                                                        </div>
+                                                        @if (M.SelectListModelType == "SelectOption")
+                                                        {
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-semibold">Data Type</label>
+                                                                <InputText class="form-control" @bind-Value="M.SelectListDataType" placeholder="string, int, Guid" />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                                 </div>
                             </div>
                         </div>

@@ -34,6 +34,36 @@ public class TemplateEngineService
 
         foreach (var templateFile in templateFiles)
         {
+            var fileName = Path.GetFileName(templateFile);
+
+            // Skip conditional templates that don't match the current configuration
+            if (sliceType == "SelectList" && parameters.ContainsKey("selectListModelType"))
+            {
+                var modelType = parameters["selectListModelType"].ToString();
+
+                // Skip SelectOption template if using Custom model
+                if (fileName.Contains("_SelectOption") && modelType != "SelectOption")
+                    continue;
+
+                // Skip Custom model template if using SelectOption
+                if (fileName.Contains("_Custom") && modelType != "Custom")
+                    continue;
+
+                // Skip base template if we have specific templates
+                if (!fileName.Contains("_SelectOption") && !fileName.Contains("_Custom") &&
+                    (File.Exists(templateFile.Replace(".cs", "_SelectOption.cs")) ||
+                     File.Exists(templateFile.Replace(".cs", "_Custom.cs"))))
+                {
+                    // Use the specific template instead
+                    var specificTemplate = modelType == "SelectOption"
+                        ? templateFile.Replace(".cs", "_SelectOption.cs")
+                        : templateFile.Replace(".cs", "_Custom.cs");
+
+                    if (File.Exists(specificTemplate))
+                        continue;
+                }
+            }
+
             var templateContent = await File.ReadAllTextAsync(templateFile, Encoding.UTF8);
             var processedContent = ProcessTemplate(templateContent, parameters);
 
@@ -42,6 +72,9 @@ public class TemplateEngineService
 
             var relativePath = Path.GetRelativePath(templatePath, templateFile);
             var processedFileName = ProcessTemplate(relativePath, parameters);
+
+            // Remove the model type suffix from the output filename
+            processedFileName = processedFileName.Replace("_SelectOption", "").Replace("_Custom", "");
 
             processedFiles[processedFileName] = processedContent;
         }
@@ -132,7 +165,9 @@ public class TemplateEngineService
         string moduleNamespace,
         string projectNamespace,
         string primaryKeyType,
-        string? uiFramework = null)
+        string? uiFramework = null,
+        string? selectListModelType = null,
+        string? selectListDataType = null)
     {
         var pluralizedPrefix = _pluralizationService.Pluralize(componentPrefix);
 
@@ -151,6 +186,19 @@ public class TemplateEngineService
         if (!string.IsNullOrEmpty(uiFramework))
         {
             parameters["UIFramework"] = uiFramework;
+        }
+
+        // Add SelectList parameters if provided
+        if (!string.IsNullOrEmpty(selectListModelType))
+        {
+            parameters["selectListModelType"] = selectListModelType;
+            parameters["SelectListModelType"] = selectListModelType;
+        }
+
+        if (!string.IsNullOrEmpty(selectListDataType))
+        {
+            parameters["selectListDataType"] = selectListDataType;
+            parameters["SelectListDataType"] = selectListDataType;
         }
 
         return parameters;

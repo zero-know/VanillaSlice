@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using {{RootNamespace}}.Framework;
 using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
 
 namespace __projectNamespace__;
 
 [ApiController]
 [Route("api/[controller]")]
-public class __ComponentPrefix__ListingController : ControllerBase
+public class __ComponentPrefix__ListingController : ControllerBase, I__ComponentPrefix__ListingDataService
 {
     private readonly I__ComponentPrefix__ListingDataService _service;
 
@@ -15,10 +16,9 @@ public class __ComponentPrefix__ListingController : ControllerBase
     }
 
     [HttpGet("GetPaginatedItems")]
-    public async Task<IActionResult> GetPaginatedItemsAsync([FromQuery] __ComponentPrefix__FilterBusinessModel filter)
+    public async Task<PagedDataList<__ComponentPrefix__ListingBusinessModel>> GetPaginatedItemsAsync([FromQuery] __ComponentPrefix__FilterBusinessModel filter)
     {
-        var result = await _service.GetPaginatedItemsAsync(filter);
-        return Ok(result);
+        return await _service.GetPaginatedItemsAsync(filter);
     }
 }
 

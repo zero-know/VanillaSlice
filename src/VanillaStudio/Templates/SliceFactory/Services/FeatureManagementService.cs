@@ -75,6 +75,9 @@ public class FeatureManagementService
         string directoryName,
         bool hasForm,
         bool hasListing,
+        bool hasSelectList,
+        string selectListModelType,
+        string selectListDataType,
         List<Project> projects,
         string? profileConfiguration = null,
         string uiFramework = "Bootstrap")
@@ -99,6 +102,9 @@ public class FeatureManagementService
             DirectoryName = directoryName,
             HasForm = hasForm,
             HasListing = hasListing,
+            HasSelectList = hasSelectList,
+            SelectListModelType = selectListModelType,
+            SelectListDataType = selectListDataType,
             UIFramework = uiFramework,
             ProfileConfiguration = profileConfiguration,
             CreatedAt = DateTime.UtcNow
@@ -214,10 +220,13 @@ public class FeatureManagementService
         string directoryName,
         bool hasForm,
         bool hasListing,
+        bool hasSelectList,
+        string selectListModelType,
+        string selectListDataType,
         List<Project> projects)
     {
         var previews = new List<FeatureFilePreview>();
-        var parameters = _templateEngine.CreateParameterDictionary(componentPrefix, moduleNamespace, projectNamespace, primaryKeyType);
+        var parameters = _templateEngine.CreateParameterDictionary(componentPrefix, moduleNamespace, projectNamespace, primaryKeyType, null, selectListModelType, selectListDataType);
 
         foreach (var project in projects)
         {
@@ -248,6 +257,20 @@ public class FeatureManagementService
                 {
                     ProjectType = templateDirectoryName,
                     SliceType = "Form",
+                    FileName = f.Key,
+                    FilePath = Path.Combine(projectPath, f.Key),
+                    DirectoryPath = Path.GetDirectoryName(Path.Combine(projectPath, f.Key)) ?? "",
+                    Content = f.Value
+                }));
+            }
+
+            if (hasSelectList)
+            {
+                var selectListFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "SelectList", projectPath, parameters);
+                previews.AddRange(selectListFiles.Select(f => new FeatureFilePreview
+                {
+                    ProjectType = templateDirectoryName,
+                    SliceType = "SelectList",
                     FileName = f.Key,
                     FilePath = Path.Combine(projectPath, f.Key),
                     DirectoryPath = Path.GetDirectoryName(Path.Combine(projectPath, f.Key)) ?? "",
@@ -339,7 +362,9 @@ public class FeatureManagementService
             feature.ModuleNamespace,
             feature.ProjectNamespace,
             feature.PrimaryKeyType,
-            feature.UIFramework);
+            feature.UIFramework,
+            feature.SelectListModelType,
+            feature.SelectListDataType);
 
         foreach (var project in projects)
         {
@@ -368,6 +393,11 @@ public class FeatureManagementService
             if (feature.HasForm)
             {
                 await GenerateSliceFilesAsync(feature, templateDirectoryName, "Form", projectPath, parameters);
+            }
+
+            if (feature.HasSelectList)
+            {
+                await GenerateSliceFilesAsync(feature, templateDirectoryName, "SelectList", projectPath, parameters);
             }
         }
 

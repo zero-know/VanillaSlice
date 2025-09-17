@@ -167,12 +167,26 @@ public class ObservableBase : INotifyPropertyChanged
     {
         public Task<PagedDataList<TListingModel>> GetPaginatedItems(TFilterModel filterViewModel);
     }
-      
+
     public class PagedDataList<TListViewModel>
     {
         public int TotalRows { get; set; }
-        public int TotalPages { get; set; } 
+        public int TotalPages { get; set; }
         public List<TListViewModel>? Items { get; set; }
+    }
+}",
+                Type = FileType.CSharpCode
+            });
+
+            // ISelectListDataService
+            files.Add(new GeneratedFile
+            {
+                RelativePath = $"{config.ProjectName}.Base/{config.ProjectName}.Framework/Interfaces/ISelectListDataService.cs",
+                Content = @"namespace " + config.ProjectName + @".Framework
+{
+    public interface ISelectListDataService<TSelectModel, TFilterModel>
+    {
+        Task<List<TSelectModel>> GetSelectListAsync(TFilterModel filter);
     }
 }",
                 Type = FileType.CSharpCode

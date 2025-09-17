@@ -33,6 +33,9 @@ public partial class Index
         PkType = string.Empty,
         GenerateForm = true,
         GenerateListing = true,
+        GenerateSelectList = false,
+        SelectListModelType = "SelectOption",
+        SelectListDataType = "string",
         GenerateControllerAndClientService = true
     };
 
@@ -60,6 +63,9 @@ public partial class Index
                     PkType = string.Empty,
                     GenerateForm = true,
                     GenerateListing = true,
+                    GenerateSelectList = false,
+                    SelectListModelType = "SelectOption",
+                    SelectListDataType = "string",
                     GenerateControllerAndClientService = true
                 };
             }
@@ -159,6 +165,9 @@ public partial class Index
                 directoryName: M.DirectoryName ?? "",
                 hasForm: M.GenerateForm,
                 hasListing: M.GenerateListing,
+                hasSelectList: M.GenerateSelectList,
+                selectListModelType: M.SelectListModelType,
+                selectListDataType: M.SelectListDataType,
                 projects: wooqlawProfile.Projects.ToList(),
                 profileConfiguration: JsonSerializer.Serialize(wooqlawProfile),
                 uiFramework: wooqlawProfile.UIFramework ?? "Bootstrap"
@@ -248,6 +257,9 @@ public partial class Index
                     directoryName: M.DirectoryName ?? "",
                     hasForm: M.GenerateForm,
                     hasListing: M.GenerateListing,
+                    hasSelectList: M.GenerateSelectList,
+                    selectListModelType: M.SelectListModelType,
+                    selectListDataType: M.SelectListDataType,
                     projects: wooqlawProfile.Projects.ToList()
                 );
 
@@ -292,7 +304,7 @@ public partial class Index
                !string.IsNullOrEmpty(M.NameSpace) &&
                !string.IsNullOrEmpty(M.ComponentPrefix) &&
                !string.IsNullOrEmpty(M.PkType) &&
-               (M.GenerateForm || M.GenerateListing);
+               (M.GenerateForm || M.GenerateListing || M.GenerateSelectList);
     }
 
 }
@@ -317,6 +329,12 @@ public class FormViewModel
     public bool GenerateControllerAndClientService { get; set; } = true;
 
     public bool GenerateForm { get; set; }
+
+    public bool GenerateSelectList { get; set; }
+
+    public string SelectListModelType { get; set; } = "SelectOption"; // "SelectOption" or "Custom"
+
+    public string SelectListDataType { get; set; } = "string"; // Used when SelectListModelType is "SelectOption"
 
     [Required]
     public string? PkType { get; set; } = "string";

@@ -39,6 +39,15 @@ public class Feature
 
     public bool HasForm { get; set; }
     public bool HasListing { get; set; }
+    public bool HasSelectList { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string SelectListModelType { get; set; } = "SelectOption"; // "SelectOption" or "Custom"
+
+    [Required]
+    [MaxLength(50)]
+    public string SelectListDataType { get; set; } = "string"; // Used when SelectListModelType is "SelectOption"
 
     [MaxLength(50)]
     public string UIFramework { get; set; } = "Bootstrap";

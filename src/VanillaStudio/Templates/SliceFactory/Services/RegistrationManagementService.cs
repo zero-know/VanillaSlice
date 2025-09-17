@@ -110,6 +110,11 @@ public class RegistrationManagementService
             registrations.Add($"            services.AddScoped<ServiceContracts.Features.{moduleNamespace}.I{componentPrefix}FormDataService, Features.{moduleNamespace}.{componentPrefix}FormServerDataService>();");
         }
 
+        if (feature.HasSelectList)
+        {
+            registrations.Add($"            services.AddScoped<ServiceContracts.Features.{moduleNamespace}.I{componentPrefix}SelectListDataService, Features.{moduleNamespace}.{componentPrefix}SelectListServerDataService>();");
+        }
+
         return registrations;
     }
 
@@ -130,6 +135,11 @@ public class RegistrationManagementService
         if (feature.HasForm)
         {
             registrations.Add($"            services.AddScoped<ServiceContracts.Features.{moduleNamespace}.I{componentPrefix}FormDataService, Features.{moduleNamespace}.{componentPrefix}FormClientDataService>();");
+        }
+
+        if (feature.HasSelectList)
+        {
+            registrations.Add($"            services.AddScoped<ServiceContracts.Features.{moduleNamespace}.I{componentPrefix}SelectListDataService, Features.{moduleNamespace}.{componentPrefix}SelectListClientDataService>();");
         }
 
         return registrations;

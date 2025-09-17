@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using {{RootNamespace}}.SliceFactory.Data;
 
@@ -10,9 +11,11 @@ using {{RootNamespace}}.SliceFactory.Data;
 namespace {{RootNamespace}}.SliceFactory.Migrations
 {
     [DbContext(typeof(SliceFactoryDbContext))]
-    partial class SliceFactoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250916000000_AddHasSelectListToFeature")]
+    partial class AddHasSelectListToFeature
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -50,16 +53,6 @@ namespace {{RootNamespace}}.SliceFactory.Migrations
                     b.Property<bool>("HasSelectList")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("SelectListModelType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SelectListDataType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("ModuleNamespace")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -81,6 +74,15 @@ namespace {{RootNamespace}}.SliceFactory.Migrations
                     b.Property<string>("ProjectNamespace")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SelectListDataType")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SelectListModelType")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UIFramework")
