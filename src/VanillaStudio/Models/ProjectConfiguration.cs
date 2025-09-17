@@ -24,6 +24,10 @@ namespace ZKnow.VanillaStudio.Models
         // Platform Selection
         public PlatformType PlatformType { get; set; } = PlatformType.WebOnly;
 
+        // Individual Platform Flags (new checkbox approach)
+        public bool IncludeWebProject { get; set; } = true;
+        public bool IncludeHybridMaui { get; set; } = false;
+
         // Razor Component Strategy
         public ComponentStrategy ComponentStrategy { get; set; } = ComponentStrategy.CommonLibrary;
 

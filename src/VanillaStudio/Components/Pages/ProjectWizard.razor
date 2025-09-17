@@ -132,7 +132,23 @@
                     <div class="small">
                         <div class="mb-2">
                             <i class="bi bi-diagram-3 text-info me-2"></i>
-                            <strong>Platform:</strong> @config.PlatformType.GetDisplayName()
+                            <strong>Platforms:</strong>
+                            @if (config.IncludeWebProject && config.IncludeHybridMaui)
+                            {
+                                <span>Web + MAUI Hybrid</span>
+                            }
+                            else if (config.IncludeWebProject)
+                            {
+                                <span>Web Only</span>
+                            }
+                            else if (config.IncludeHybridMaui)
+                            {
+                                <span>MAUI Hybrid Only</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">None Selected</span>
+                            }
                         </div>
                         <div class="mb-2">
                             <i class="bi bi-puzzle text-warning me-2"></i>
@@ -273,147 +289,150 @@
                             <h4><i class="bi bi-diagram-3-fill"></i> Platform & Architecture</h4>
                         </div>
                         <div class="card-body">
+                            <!-- Platform Selection with Checkboxes -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-4">
                                         <label class="form-label">Platform Selection</label>
-                                        <InputRadioGroup @bind-Value="config.PlatformType">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="card border-dark @(config.PlatformType == PlatformType.WebOnly ? "bg-dark bg-opacity-10" : "")">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <InputRadio id="webOnly" class="form-check-input" Value="@PlatformType.WebOnly" />
-                                                                <label class="form-check-label" for="webOnly">
-                                                                    <strong>Web Application Only</strong>
-                                                                </label>
-                                                            </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Creates a Blazor web application with server and client projects.
-                                                                Perfect for web-focused applications.
-                                                            </p>
+                                        <p class="text-muted small mb-3">Choose which platforms to include in your solution</p>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="card border-primary @(config.IncludeWebProject ? "bg-primary bg-opacity-10" : "")">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <InputCheckbox id="includeWeb" class="form-check-input" @bind-Value="config.IncludeWebProject" @onchange="OnPlatformSelectionChanged" />
+                                                            <label class="form-check-label" for="includeWeb">
+                                                                <strong>Web Project</strong>
+                                                            </label>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="card border-success @(config.PlatformType == PlatformType.WebAndMaui ? "bg-success bg-opacity-10" : "")">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <InputRadio id="webAndMaui" class="form-check-input" Value="@PlatformType.WebAndMaui" />
-                                                                <label class="form-check-label" for="webAndMaui">
-                                                                    <strong>Web + MAUI Mobile App</strong>
-                                                                </label>
+                                                        <p class="small text-muted mt-2">
+                                                            Blazor web application with server and optional client projects
+                                                        </p>
+
+                                                        @if (config.IncludeWebProject)
+                                                        {
+                                                            <hr class="my-2">
+                                                            <div class="small">
+                                                                <label class="form-label small mb-2 fw-semibold">Rendering Mode:</label>
+                                                                <InputRadioGroup @bind-Value="config.RenderingMode">
+                                                                    <div class="d-flex flex-wrap gap-2">
+                                                                        <div class="form-check">
+                                                                            <InputRadio id="autoRenderCompact" class="form-check-input" Value="@RenderingMode.Auto" />
+                                                                            <label class="form-check-label small fw-semibold" for="autoRenderCompact">Auto</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <InputRadio id="serverOnlyCompact" class="form-check-input" Value="@RenderingMode.ServerOnly" />
+                                                                            <label class="form-check-label small fw-semibold" for="serverOnlyCompact">Server</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <InputRadio id="staticSSRCompact" class="form-check-input" Value="@RenderingMode.StaticSSR" />
+                                                                            <label class="form-check-label small fw-semibold" for="staticSSRCompact">Static</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </InputRadioGroup>
+                                                                <div class="text-muted mt-1" style="font-size: 0.7rem;">
+                                                                    @(config.RenderingMode switch
+                                                                    {
+                                                                        RenderingMode.Auto => "Server + WebAssembly hybrid",
+                                                                        RenderingMode.ServerOnly => "Server-side interactive only",
+                                                                        RenderingMode.StaticSSR => "Static server-side rendering",
+                                                                        _ => ""
+                                                                    })
+                                                                </div>
                                                             </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Includes both web application and MAUI mobile app projects
-                                                                with shared components and services.
-                                                            </p>
-                                                        </div>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
-                                        </InputRadioGroup>
+                                            <div class="col-md-4">
+                                                <div class="card border-success @(config.IncludeHybridMaui ? "bg-success bg-opacity-10" : "")">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <InputCheckbox id="includeHybridMaui" class="form-check-input" @bind-Value="config.IncludeHybridMaui" @onchange="OnPlatformSelectionChanged" />
+                                                            <label class="form-check-label" for="includeHybridMaui">
+                                                                <strong>MAUI Hybrid App</strong>
+                                                            </label>
+                                                        </div>
+                                                        <p class="small text-muted mt-2">
+                                                            Cross-platform mobile app with shared Razor components
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border-secondary" style="opacity: 0.6;">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input id="includeNativeMaui" class="form-check-input" type="checkbox" disabled />
+                                                            <label class="form-check-label" for="includeNativeMaui">
+                                                                <strong>MAUI Native App</strong>
+                                                                <span class="badge bg-info text-dark ms-2 small">Coming Soon</span>
+                                                            </label>
+                                                        </div>
+                                                        <p class="small text-muted mt-2">
+                                                            Native mobile app with platform-specific UI
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Component Strategy - Conditional Logic -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-4">
                                         <label class="form-label">Razor Component Strategy</label>
-                                        <InputRadioGroup @bind-Value="config.ComponentStrategy">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="card border-info @(config.ComponentStrategy == ComponentStrategy.CommonLibrary ? "bg-info bg-opacity-10" : "")">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <InputRadio id="commonLibrary" class="form-check-input" Value="@ComponentStrategy.CommonLibrary" />
-                                                                <label class="form-check-label" for="commonLibrary">
-                                                                    <strong>Common Razor Library</strong>
-                                                                </label>
-                                                            </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Creates a separate Razor class library for reusable components
-                                                                across web and mobile projects.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="card border-warning @(config.ComponentStrategy == ComponentStrategy.Embedded ? "bg-warning bg-opacity-10" : "")">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <InputRadio id="embedded" class="form-check-input" Value="@ComponentStrategy.Embedded" />
-                                                                <label class="form-check-label" for="embedded">
-                                                                    <strong>Embedded Components</strong>
-                                                                </label>
-                                                            </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Components are embedded directly in the WebPortal project.
-                                                                Simpler structure for web-only applications.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                        @if (!config.IncludeHybridMaui)
+                                        {
+                                            <p class="text-muted small mb-3">Components will be embedded in the Web Project</p>
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Embedded Components selected:</strong> Since no MAUI Hybrid App is selected, components will be embedded directly in the WebPortal project for optimal simplicity.
                                             </div>
-                                        </InputRadioGroup>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Rendering Mode</label>
-                                        <InputRadioGroup @bind-Value="config.RenderingMode">
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <div class="card border-success @(config.RenderingMode == RenderingMode.Auto ? "bg-success bg-opacity-10" : "")">
-                                                        <div class="card-body text-center">
-                                                            <div class="form-check">
-                                                                <InputRadio id="autoRender" class="form-check-input" Value="@RenderingMode.Auto" />
-                                                                <label class="form-check-label" for="autoRender">
-                                                                    <strong>Auto Render</strong>
-                                                                </label>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted small mb-3">Choose how to organize shared components between Web and MAUI projects</p>
+                                            <InputRadioGroup @bind-Value="config.ComponentStrategy">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="card border-info @(config.ComponentStrategy == ComponentStrategy.CommonLibrary ? "bg-info bg-opacity-10" : "")">
+                                                            <div class="card-body">
+                                                                <div class="form-check">
+                                                                    <InputRadio id="commonLibrary" class="form-check-input" Value="@ComponentStrategy.CommonLibrary" />
+                                                                    <label class="form-check-label" for="commonLibrary">
+                                                                        <strong>Shared Razor Library</strong>
+                                                                    </label>
+                                                                </div>
+                                                                <p class="small text-muted mt-2">
+                                                                    Creates a separate Razor class library for reusable components
+                                                                    across web and mobile projects.
+                                                                </p>
                                                             </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Server + WebAssembly hybrid with separate client project
-                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="card border-warning @(config.ComponentStrategy == ComponentStrategy.Embedded ? "bg-warning bg-opacity-10" : "")">
+                                                            <div class="card-body">
+                                                                <div class="form-check">
+                                                                    <InputRadio id="embedded" class="form-check-input" Value="@ComponentStrategy.Embedded" />
+                                                                    <label class="form-check-label" for="embedded">
+                                                                        <strong>Embedded Components</strong>
+                                                                    </label>
+                                                                </div>
+                                                                <p class="small text-muted mt-2">
+                                                                    Components are embedded in each project individually.
+                                                                    May require manual synchronization.
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <div class="card border-dark @(config.RenderingMode == RenderingMode.ServerOnly ? "bg-dark bg-opacity-10" : "")">
-                                                        <div class="card-body text-center">
-                                                            <div class="form-check">
-                                                                <InputRadio id="serverOnly" class="form-check-input" Value="@RenderingMode.ServerOnly" />
-                                                                <label class="form-check-label" for="serverOnly">
-                                                                    <strong>Server-Only</strong>
-                                                                </label>
-                                                            </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Server-side interactive rendering only
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="card border-secondary @(config.RenderingMode == RenderingMode.StaticSSR ? "bg-secondary bg-opacity-10" : "")">
-                                                        <div class="card-body text-center">
-                                                            <div class="form-check">
-                                                                <InputRadio id="staticSSR" class="form-check-input" Value="@RenderingMode.StaticSSR" />
-                                                                <label class="form-check-label" for="staticSSR">
-                                                                    <strong>Static SSR</strong>
-                                                                </label>
-                                                            </div>
-                                                            <p class="small text-muted mt-2">
-                                                                Static Server-Side Rendering only
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </InputRadioGroup>
+                                            </InputRadioGroup>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -866,6 +885,55 @@
     private string GetStepTitle(int step) => stepTitles.GetValueOrDefault(step, $"Step {step}");
     private string GetStepDescription(int step) => stepDescriptions.GetValueOrDefault(step, "");
 
+    // Platform selection synchronization
+    protected override void OnParametersSet()
+    {
+        SyncPlatformType();
+        SyncComponentStrategyLogic();
+        base.OnParametersSet();
+    }
+
+    private void SyncPlatformType()
+    {
+        // Sync the enum with checkbox values
+        if (config.IncludeWebProject && config.IncludeHybridMaui)
+        {
+            config.PlatformType = PlatformType.WebAndMaui;
+        }
+        else if (config.IncludeWebProject)
+        {
+            config.PlatformType = PlatformType.WebOnly;
+        }
+
+        // Ensure at least one platform is selected
+        if (!config.IncludeWebProject && !config.IncludeHybridMaui)
+        {
+            config.IncludeWebProject = true;
+            config.PlatformType = PlatformType.WebOnly;
+        }
+    }
+
+    private void SyncComponentStrategyLogic()
+    {
+        // Auto-set component strategy based on platform selection
+        if (!config.IncludeHybridMaui)
+        {
+            config.ComponentStrategy = ComponentStrategy.Embedded;
+        }
+        else if (config.ComponentStrategy == ComponentStrategy.Embedded && config.IncludeHybridMaui)
+        {
+            // If they enable MAUI but embedded is selected, suggest shared library
+            config.ComponentStrategy = ComponentStrategy.CommonLibrary;
+        }
+    }
+
+    private void OnPlatformSelectionChanged()
+    {
+        SyncPlatformType();
+        SyncComponentStrategyLogic();
+        StateHasChanged();
+    }
+
     private string GetStepIndicatorClass(int step)
     {
         if (step < currentStep) return "bg-success text-white";
@@ -917,7 +985,7 @@
             1 => !string.IsNullOrWhiteSpace(config.ProjectName) &&
                  !string.IsNullOrWhiteSpace(config.RootNamespace) &&
                  !string.IsNullOrWhiteSpace(config.OutputDirectory),
-            2 => true, // Platform selection always has a default
+            2 => config.IncludeWebProject || config.IncludeHybridMaui, // At least one platform must be selected
             3 => true, // Feature selection is optional
             4 => true, // Review step - ready to generate
             _ => true
@@ -928,7 +996,8 @@
     {
         return !string.IsNullOrWhiteSpace(config.ProjectName) &&
                !string.IsNullOrWhiteSpace(config.RootNamespace) &&
-               !string.IsNullOrWhiteSpace(config.OutputDirectory);
+               !string.IsNullOrWhiteSpace(config.OutputDirectory) &&
+               (config.IncludeWebProject || config.IncludeHybridMaui);
     }
 
     private string GetStepValidationMessage(int step)
@@ -938,6 +1007,7 @@
             return step switch
             {
                 1 => "Please fill in all required fields",
+                2 => "Please select at least one platform",
                 _ => ""
             };
         }
