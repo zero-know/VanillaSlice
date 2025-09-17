@@ -490,8 +490,7 @@ namespace ZKnow.VanillaStudio.Services
         {
             var files = new List<GeneratedFile>();
 
-            // Generate sample Product CRUD as an example
-            files.AddRange(GenerateSampleProductCrud(config));
+            // Sample CRUD components are now generated through the template system
 
             return files;
         }
@@ -586,49 +585,6 @@ namespace Platform.Server.Data.EF
 }}";
         }
 
-        private List<GeneratedFile> GenerateSampleProductCrud(ProjectConfiguration config)
-        {
-            var files = new List<GeneratedFile>();
-
-            // Product business objects
-            files.Add(new GeneratedFile
-            {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Modules/Products/ProductListingBusinessObject.cs",
-                Content = GenerateProductListingBusinessObjectContent(config),
-                Type = FileType.CSharpCode
-            });
-
-            files.Add(new GeneratedFile
-            {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Modules/Products/ProductFilterBusinessObject.cs",
-                Content = GenerateProductFilterBusinessObjectContent(config),
-                Type = FileType.CSharpCode
-            });
-
-            files.Add(new GeneratedFile
-            {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Modules/Products/ProductFormBusinessObject.cs",
-                Content = GenerateProductFormBusinessObjectContent(config),
-                Type = FileType.CSharpCode
-            });
-
-            // Service contracts
-            files.Add(new GeneratedFile
-            {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Modules/Products/IProductListingDataService.cs",
-                Content = GenerateProductListingServiceContractContent(config),
-                Type = FileType.CSharpCode
-            });
-
-            files.Add(new GeneratedFile
-            {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Modules/Products/IProductFormDataService.cs",
-                Content = GenerateProductFormServiceContractContent(config),
-                Type = FileType.CSharpCode
-            });
-
-            return files;
-        }
 
         private List<GeneratedFile> GenerateMainProjectConfigFiles(ProjectConfiguration config)
         {
@@ -637,7 +593,7 @@ namespace Platform.Server.Data.EF
             // appsettings.json for main project
             files.Add(new GeneratedFile
             {
-                RelativePath = $"{config.ProjectName}/WebPortal/{config.ProjectName}.WebPortal/appsettings.json",
+                RelativePath = $"{config.ProjectName}.WebPortal/{config.ProjectName}.WebPortal/appsettings.json",
                 Content = GenerateMainAppSettingsContent(config),
                 Type = FileType.JsonConfig
             });
@@ -645,7 +601,7 @@ namespace Platform.Server.Data.EF
             // launchSettings.json
             files.Add(new GeneratedFile
             {
-                RelativePath = $"{config.ProjectName}/WebPortal/{config.ProjectName}.WebPortal/Properties/launchSettings.json",
+                RelativePath = $"{config.ProjectName}.WebPortal/{config.ProjectName}.WebPortal/Properties/launchSettings.json",
                 Content = GenerateLaunchSettingsContent(config),
                 Type = FileType.JsonConfig
             });
@@ -654,78 +610,6 @@ namespace Platform.Server.Data.EF
         }
 
         // Helper methods for generating specific content
-        private string GenerateProductListingBusinessObjectContent(ProjectConfiguration config)
-        {
-            return $@"namespace {config.RootNamespace}.ServiceContracts.Modules.Products
-{{
-    public class ProductListingBusinessObject
-    {{
-        public int Id {{ get; set; }}
-        public string Name {{ get; set; }} = string.Empty;
-        public string? Description {{ get; set; }}
-        public decimal Price {{ get; set; }}
-        public DateTime CreatedAt {{ get; set; }}
-        public bool IsActive {{ get; set; }}
-    }}
-}}";
-        }
-
-        private string GenerateProductFilterBusinessObjectContent(ProjectConfiguration config)
-        {
-            return $@"using Framework.Core;
-
-namespace {config.RootNamespace}.ServiceContracts.Modules.Products
-{{
-    public class ProductFilterBusinessObject : BaseFilterBusinessObject
-    {{
-        public string? Name {{ get; set; }}
-        public decimal? MinPrice {{ get; set; }}
-        public decimal? MaxPrice {{ get; set; }}
-        public bool? IsActive {{ get; set; }}
-    }}
-}}";
-        }
-
-        private string GenerateProductFormBusinessObjectContent(ProjectConfiguration config)
-        {
-            return $@"namespace {config.RootNamespace}.ServiceContracts.Modules.Products
-{{
-    public class ProductFormBusinessObject
-    {{
-        public int Id {{ get; set; }}
-        public string Name {{ get; set; }} = string.Empty;
-        public string? Description {{ get; set; }}
-        public decimal Price {{ get; set; }}
-        public bool IsActive {{ get; set; }} = true;
-    }}
-}}";
-        }
-
-        private string GenerateProductListingServiceContractContent(ProjectConfiguration config)
-        {
-            return $@"using Framework.Core;
-
-namespace {config.RootNamespace}.ServiceContracts.Modules.Products
-{{
-    public interface IProductListingDataService : IListingDataService<ProductListingBusinessObject, ProductFilterBusinessObject>
-    {{
-        // Add any custom methods here
-    }}
-}}";
-        }
-
-        private string GenerateProductFormServiceContractContent(ProjectConfiguration config)
-        {
-            return $@"using Framework.Core;
-
-namespace {config.RootNamespace}.ServiceContracts.Modules.Products
-{{
-    public interface IProductFormDataService : IFormDataService<ProductFormBusinessObject, int>
-    {{
-        // Add any custom methods here
-    }}
-}}";
-        }
 
         private string GenerateMainAppSettingsContent(ProjectConfiguration config)
         {

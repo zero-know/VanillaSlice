@@ -12,7 +12,7 @@ namespace ZKnow.VanillaStudio.Services
             // BaseHttpClient interface and implementations
             files.Add(new GeneratedFile
             {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/BaseHttpClient.cs",
+                RelativePath = $"{config.ProjectName}.Platform/{config.ProjectName}.ServiceContracts/BaseHttpClient.cs",
                 Content = GenerateBaseHttpClientContent(config),
                 Type = FileType.CSharpCode
             });
@@ -20,7 +20,7 @@ namespace ZKnow.VanillaStudio.Services
             // Authorization models
             files.Add(new GeneratedFile
             {
-                RelativePath = $"{config.ProjectName}/{config.ProjectName}.ServiceContracts/Models/AuthorizationClaimsModel.cs",
+                RelativePath = $"{config.ProjectName}.Platform/{config.ProjectName}.ServiceContracts/Models/AuthorizationClaimsModel.cs",
                 Content = GenerateAuthorizationClaimsModelContent(config),
                 Type = FileType.CSharpCode
             });
