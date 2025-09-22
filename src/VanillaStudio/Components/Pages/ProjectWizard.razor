@@ -348,7 +348,7 @@
                                                 <div class="card border-success @(config.IncludeHybridMaui ? "bg-success bg-opacity-10" : "")">
                                                     <div class="card-body">
                                                         <div class="form-check">
-                                                            <InputCheckbox id="includeHybridMaui" class="form-check-input" @bind-Value="config.IncludeHybridMaui" @onchange="OnPlatformSelectionChanged" />
+                                                            <InputCheckbox id="includeHybridMaui" class="form-check-input" @bind-Value="config.IncludeHybridMaui" @onchange="OnPlatformSelectionChanged" checked="@config.IncludeHybridMaui" />
                                                             <label class="form-check-label" for="includeHybridMaui">
                                                                 <strong>MAUI Hybrid App</strong>
                                                             </label>
@@ -380,59 +380,16 @@
                                 </div>
                             </div>
 
-                            <!-- Component Strategy - Conditional Logic -->
+                            <!-- Component Strategy - Always Shared -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-4">
                                         <label class="form-label">Razor Component Strategy</label>
-                                        @if (!config.IncludeHybridMaui)
-                                        {
-                                            <p class="text-muted small mb-3">Components will be embedded in the Web Project</p>
-                                            <div class="alert alert-info">
-                                                <i class="bi bi-info-circle me-2"></i>
-                                                <strong>Embedded Components selected:</strong> Since no MAUI Hybrid App is selected, components will be embedded directly in the WebPortal project for optimal simplicity.
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <p class="text-muted small mb-3">Choose how to organize shared components between Web and MAUI projects</p>
-                                            <InputRadioGroup @bind-Value="config.ComponentStrategy">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="card border-info @(config.ComponentStrategy == ComponentStrategy.CommonLibrary ? "bg-info bg-opacity-10" : "")">
-                                                            <div class="card-body">
-                                                                <div class="form-check">
-                                                                    <InputRadio id="commonLibrary" class="form-check-input" Value="@ComponentStrategy.CommonLibrary" />
-                                                                    <label class="form-check-label" for="commonLibrary">
-                                                                        <strong>Shared Razor Library</strong>
-                                                                    </label>
-                                                                </div>
-                                                                <p class="small text-muted mt-2">
-                                                                    Creates a separate Razor class library for reusable components
-                                                                    across web and mobile projects.
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="card border-warning @(config.ComponentStrategy == ComponentStrategy.Embedded ? "bg-warning bg-opacity-10" : "")">
-                                                            <div class="card-body">
-                                                                <div class="form-check">
-                                                                    <InputRadio id="embedded" class="form-check-input" Value="@ComponentStrategy.Embedded" />
-                                                                    <label class="form-check-label" for="embedded">
-                                                                        <strong>Embedded Components</strong>
-                                                                    </label>
-                                                                </div>
-                                                                <p class="small text-muted mt-2">
-                                                                    Components are embedded in each project individually.
-                                                                    May require manual synchronization.
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </InputRadioGroup>
-                                        }
+                                        <p class="text-muted small mb-3">Shared components will be generated for optimal reusability</p>
+                                        <div class="alert alert-success">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            <strong>Shared Razor Library selected:</strong> Components will be created in a separate Razor class library for maximum reusability across all projects in your solution.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -701,45 +658,34 @@
                                             <small class="font-monospace">
                                                 @config.ProjectName/<br/>
                                                 ├── @(config.ProjectName).sln<br/>
-                                                ├── Framework/<br/>
-                                                │   ├── Framework.Core/ <span class="text-success">✓ Enhanced</span><br/>
-                                                │   └── SourceGenerator/ <span class="text-success">✓ New</span><br/>
-                                                ├── Platform/<br/>
-                                                │   ├── Platform.Common/<br/>
-                                                @if (config.IncludeDatabase)
+                                                ├── @(config.ProjectName).SliceFactory/<br/>
+                                                ├── @(config.ProjectName).WebAPI/<br/>
+                                                ├── @(config.ProjectName).ServiceDefaults/<br/>
+                                                @if (config.UseAspireOrchestration)
                                                 {
-                                                    <text>│   ├── Platform.Server.Data/<br/></text>
+                                                    <text>├── @(config.ProjectName).AppHost/<br/></text>
                                                 }
-                                                └── @config.ProjectName/<br/>
-                                                    ├── @(config.ProjectName).ServiceContracts/ <span class="text-success">✓ New</span><br/>
-                                                    ├── @(config.ProjectName).Client.Shared/ <span class="text-success">✓ New</span><br/>
-                                                    ├── @(config.ProjectName).Server.DataServices/ <span class="text-success">✓ New</span><br/>
-                                                    ├── WebPortal/<br/>
-                                                    │   ├── @(config.ProjectName).WebPortal/<br/>
-                                                    @if (config.RenderingMode == RenderingMode.Auto)
-                                                    {
-                                                        <text>│   ├── @(config.ProjectName).WebPortal.Client/<br/></text>
-                                                    }
-                                                    @if (config.ComponentStrategy == ComponentStrategy.CommonLibrary)
-                                                    {
-                                                        <text>│   └── @(config.ProjectName).WebPortal.Razor/<br/></text>
-                                                    }
-                                                    @if (config.PlatformType == PlatformType.WebAndMaui)
-                                                    {
-                                                        <text>└── MobileApp/<br/>
-                                                            └── @(config.ProjectName).MauiApp/<br/></text>
-                                                    }
+                                                @if (config.IncludeHybridMaui)
+                                                {
+                                                    <text>├── @(config.ProjectName).HybridApp/<br/></text>
+                                                }
+                                                ├── 📁 @(config.ProjectName).Base/<br/>
+                                                │   └── @(config.ProjectName).Framework/<br/>
+                                                ├── 📁 @(config.ProjectName).Common/<br/>
+                                                │   ├── @(config.ProjectName).Common/<br/>
+                                                │   └── @(config.ProjectName).Server.Data/<br/>
+                                                ├── 📁 @(config.ProjectName).Platform/<br/>
+                                                │   ├── @(config.ProjectName).ServiceContracts/<br/>
+                                                │   ├── @(config.ProjectName).Client.Shared/<br/>
+                                                │   ├── @(config.ProjectName).Server.DataServices/<br/>
+                                                │   └── @(config.ProjectName).Razor/<br/>
+                                                └── 📁 @(config.ProjectName).WebPortal/<br/>
+                                                    ├── @(config.ProjectName).WebPortal/<br/>
+                                                @if (config.RenderingMode == RenderingMode.Auto)
+                                                {
+                                                    <text>    └── @(config.ProjectName).WebPortal.Client/<br/></text>
+                                                }
                                             </small>
-                                            <hr/>
-                                            <h6 class="text-success">✨ Enhanced Features Included:</h6>
-                                            <ul class="list-unstyled small">
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> Complete Framework.Core (ListingBase, FormBase)</li>
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> SourceGenerator with UI</li>
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> BaseHttpClient implementations</li>
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> Sample Product CRUD (working)</li>
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> Server-side services</li>
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> Client-side services</li>
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -915,16 +861,8 @@
 
     private void SyncComponentStrategyLogic()
     {
-        // Auto-set component strategy based on platform selection
-        if (!config.IncludeHybridMaui)
-        {
-            config.ComponentStrategy = ComponentStrategy.Embedded;
-        }
-        else if (config.ComponentStrategy == ComponentStrategy.Embedded && config.IncludeHybridMaui)
-        {
-            // If they enable MAUI but embedded is selected, suggest shared library
-            config.ComponentStrategy = ComponentStrategy.CommonLibrary;
-        }
+        // Always use shared components for optimal reusability
+        config.ComponentStrategy = ComponentStrategy.CommonLibrary;
     }
 
     private void OnPlatformSelectionChanged()

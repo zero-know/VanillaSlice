@@ -3,7 +3,9 @@ using {{ProjectName}}.Client.Shared;
 using {{ProjectName}}.Client.Shared.Extensions;
 using {{ProjectName}}.Framework;
 using {{ProjectName}}.HybridApp.Helpers;
-
+{{#if (eq UIFramework "FluentUI")}}
+using Microsoft.FluentUI.AspNetCore.Components;
+{{/if}}
 namespace {{ProjectName}}.HybridApp
 {
     public static class MauiProgram
@@ -19,24 +21,38 @@ namespace {{ProjectName}}.HybridApp
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Services.AddScoped<TokenHandler>();
             builder.Services.AddClientSideFeatureServices();
             builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
             builder.Services.AddHttpClient<BaseHttpClient, HttpTokenClient>("ServerAPI", client =>
             {
-#if DEBUG
+    #if DEBUG
+                    client.BaseAddress = new Uri("https://localhost:7202");
+    #else
                 client.BaseAddress = new Uri("https://localhost:7202");
-#else
-                client.BaseAddress = new Uri("https://localhost:7202"); 
-#endif
+    #endif
             });
 
-#if DEBUG
-            builder.Services.AddLogging(logging =>
-            {
-                logging.AddDebug();
-            });
-#endif
+    #if DEBUG
+                builder.Services.AddLogging(logging =>
+                {
+                    logging.AddDebug();
+                });
+    #endif
+
+            // UI Framework Services
+            {{#if (eq UIFramework "FluentUI")}}
+            builder.Services.AddFluentUIComponents();
+            {{/if}}
+
+            {{#if (eq UIFramework "MudBlazor")}}
+            builder.Services.AddMudServices();
+            {{/if}}
+
+            {{#if (eq UIFramework "Radzen")}}
+            builder.Services.AddRadzenComponents();
+            {{/if}}
 
             return builder.Build();
         }

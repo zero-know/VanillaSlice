@@ -24,7 +24,8 @@ namespace ZKnow.VanillaStudio.Services
                     ["ProjectName"] = config.ProjectName,
                     ["ProjectNameLower"] = config.ProjectName.ToLower().Replace('.', '_'),
                     ["RootNamespace"] = $"{config.ProjectName}.HybridApp",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = "net9.0",
+                    ["UIFramework"] = config.UIFramework.ToString()
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(

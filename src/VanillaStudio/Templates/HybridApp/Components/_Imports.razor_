@@ -7,3 +7,7 @@
 @using {{ProjectName}}.HybridApp
 @using {{ProjectName}}.HybridApp.Components
 @using {{ProjectName}}.Razor.Features
+{{#if (eq UIFramework "FluentUI")}}
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+{{/if}}

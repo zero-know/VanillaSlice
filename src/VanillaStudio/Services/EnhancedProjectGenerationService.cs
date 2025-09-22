@@ -174,8 +174,8 @@ namespace ZKnow.VanillaStudio.Services
             files.AddRange(webPortalFiles);
             _logger.LogInformation("✅ WebPortal projects generated: {Count} files", webPortalFiles.Count);
 
-            // Generate HybridApp project if Web+MAUI platform
-            if (config.PlatformType == PlatformType.WebAndMaui)
+            // Generate HybridApp project if MAUI is included
+            if (config.IncludeHybridMaui)
             {
                 _logger.LogInformation("📱 Generating HybridApp project...");
                 var hybridAppFiles = await _hybridAppProjectsGenerator.GenerateHybridAppProjectAsync(config);
@@ -309,7 +309,7 @@ namespace ZKnow.VanillaStudio.Services
             sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.Common\", \"{config.ProjectName}.Common\\{config.ProjectName}.Common\\{config.ProjectName}.Common.csproj\", \"{{{commonProjectGuid}}}\"");
             sb.AppendLine("EndProject");
 
-            if (config.PlatformType == PlatformType.WebAndMaui)
+            if (config.IncludeHybridMaui)
             {
                 sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.HybridApp\", \"{config.ProjectName}.HybridApp\\{config.ProjectName}.HybridApp.csproj\", \"{{{Guid.NewGuid().ToString().ToUpper()}}}\"");
                 sb.AppendLine("EndProject");
