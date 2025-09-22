@@ -49,7 +49,7 @@ namespace ZKnow.VanillaStudio.Models
         public UIFramework UIFramework { get; set; } = UIFramework.Bootstrap;
 
         // Advanced Options
-        public bool UseAspireOrchestration { get; set; } = false;
+        public bool UseAspireOrchestration { get; set; } = true;
         public bool IncludeDockerSupport { get; set; } = false;
         public bool IncludeTestProjects { get; set; } = false;
 
