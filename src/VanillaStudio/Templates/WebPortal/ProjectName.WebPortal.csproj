@@ -38,4 +38,34 @@
   </ItemGroup>
   {{/if}}
 
+  <!-- Tailwind CSS Build Configuration -->
+  {{#if (eq UIFramework "TailwindCSS")}}
+  <!--<Target Name="BuildTailwindCSS" BeforeTargets="Build">
+    <Message Text="Building Tailwind CSS..." Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
+    <Exec Command="npm run build-css-prod" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
+  </Target>
+
+  <Target Name="WatchTailwindCSS" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="Build">
+    <Message Text="Starting Tailwind CSS in watch mode for development..." Importance="high" />
+    <Exec Command="npm run build-css" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
+  </Target>-->
+
+  <ItemGroup>
+    <Content Remove="package.json" />
+    <Content Remove="package-lock.json" />
+    <Content Remove="tailwind.config.js" />
+    <Content Remove="postcss.config.js" />
+    <Content Remove="Styles\**" />
+    <Content Remove="node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="package.json" />
+    <None Include="tailwind.config.js" />
+    <None Include="postcss.config.js" />
+    <None Include="Styles\**" />
+  </ItemGroup>
+  {{/if}}
+
 </Project>

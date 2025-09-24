@@ -379,20 +379,7 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Component Strategy - Always Shared -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-4">
-                                        <label class="form-label">Razor Component Strategy</label>
-                                        <p class="text-muted small mb-3">Shared components will be generated for optimal reusability</p>
-                                        <div class="alert alert-success">
-                                            <i class="bi bi-check-circle me-2"></i>
-                                            <strong>Shared Razor Library selected:</strong> Components will be created in a separate Razor class library for maximum reusability across all projects in your solution.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                             
 
                             <div class="row">
                                 <div class="col-md-12">
@@ -401,7 +388,7 @@
                                         <p class="text-muted small mb-3">Choose the UI component library for your application</p>
                                         <InputRadioGroup @bind-Value="config.UIFramework">
                                             <div class="row">
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-4 mb-3">
                                                     <div class="card border-primary @(config.UIFramework == UIFramework.Bootstrap ? "bg-primary bg-opacity-10" : "")">
                                                         <div class="card-body">
                                                             <div class="form-check">
@@ -417,7 +404,23 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="card border-success @(config.UIFramework == UIFramework.TailwindCSS ? "bg-success bg-opacity-10" : "")">
+                                                        <div class="card-body">
+                                                            <div class="form-check">
+                                                                <InputRadio id="tailwindcss" class="form-check-input" Value="@UIFramework.TailwindCSS" />
+                                                                <label class="form-check-label" for="tailwindcss">
+                                                                    <strong>Tailwind CSS</strong>
+                                                                </label>
+                                                            </div>
+                                                            <p class="small text-muted mt-2">
+                                                                Utility-first CSS framework for rapid custom design development
+                                                                with built-in responsive and dark mode support.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
                                                     <div class="card border-info @(config.UIFramework == UIFramework.FluentUI ? "bg-info bg-opacity-10" : "")">
                                                         <div class="card-body">
                                                             <div class="form-check">
@@ -433,7 +436,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-4 mb-3">
                                                     <div class="card border-secondary @(config.UIFramework == UIFramework.MudBlazor ? "bg-secondary bg-opacity-10" : "")" style="opacity: 0.6;">
                                                         <div class="card-body">
                                                             <div class="form-check">
@@ -449,7 +452,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mb-3">
+                                                <div class="col-md-4 mb-3">
                                                     <div class="card border-secondary @(config.UIFramework == UIFramework.Radzen ? "bg-secondary bg-opacity-10" : "")" style="opacity: 0.6;">
                                                         <div class="card-body">
                                                             <div class="form-check">
@@ -465,6 +468,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
                                         </InputRadioGroup>
                                     </div>

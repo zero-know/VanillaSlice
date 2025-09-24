@@ -417,6 +417,168 @@
     </If>
 </div>
 {{/if}}
+
+{{#if (eq UIFramework "TailwindCSS")}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-black">__ComponentPrefix__ Catalog</h2>
+            <p class="text-gray-600 mt-1">Manage your __ComponentPrefixPlural__</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- View Toggle -->
+            <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                <button @onclick="() => SetViewMode(false)" class="@(_isTableView ? "text-gray-600 hover:text-black" : "bg-black text-white shadow-sm") px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    </svg>
+                </button>
+                <button @onclick="() => SetViewMode(true)" class="@(_isTableView ? "bg-black text-white shadow-sm" : "text-gray-600 hover:text-black") px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+            <a class="inline-flex items-center px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors" href="__componentPrefixPlural__/create">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add New __ComponentPrefix__
+            </a>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <div class="flex items-center p-4 bg-red-50 border border-red-200 rounded-lg mb-6" role="alert">
+            <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <span class="text-red-800">@Error</span>
+        </div>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="flex items-center justify-center py-12" role="status" aria-live="polite" aria-busy="true">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
+            <span class="ml-3 text-gray-600">Loading __componentPrefixPlural__...</span>
+        </div>
+    </If>
+
+    <!-- Main Content -->
+    <If Condition="ItemsLoaded && !IsWorking">
+        <!-- Items Display -->
+        <If Condition="Items?.Any() == true">
+            <!-- Card View -->
+            <If Condition="!_isTableView">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <ForEach Items="Items" Context="item">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="text-lg font-semibold text-black truncate">@item.Name</h3>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
+                                        Active
+                                    </span>
+                                </div>
+
+                                <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">@(item.Description.Length > 180 ? item.Description[..180] + "..." : item.Description)</p>
+                                </If>
+                                <If Condition="string.IsNullOrEmpty(item.Description)">
+                                    <p class="text-gray-500 text-sm mb-4 italic">No description available</p>
+                                </If>
+
+                                <div class="flex items-center justify-between">
+                                    <small class="text-gray-500">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        @DateTime.Now.ToString("MMM dd, yyyy")
+                                    </small>
+                                    <a href="@($"__componentPrefixPlural__/edit/{item.Id}")"
+                                       class="px-3 py-1.5 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </ForEach>
+                </div>
+            </If>
+
+            <!-- Table View -->
+            <If Condition="_isTableView">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <ForEach Items="Items" Context="item">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-black">@item.Name</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-600 max-w-xs truncate">@(item.Description ?? "-")</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @DateTime.Now.ToString("MMM dd, yyyy")
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="@($"__componentPrefixPlural__/edit/{item.Id}")"
+                                               class="text-black hover:text-gray-600 font-medium">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </ForEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </If>
+        </If>
+
+        <!-- Empty State -->
+        <If Condition="Items?.Any() != true">
+            <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                <h3 class="text-lg font-medium text-black mb-2">No __ComponentPrefixPlural__ Found</h3>
+                <p class="text-gray-600 mb-4">Get started by creating your first __componentPrefix__.</p>
+                <a href="__componentPrefixPlural__/create"
+                   class="inline-flex items-center px-4 py-2 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Create Your First __ComponentPrefix__
+                </a>
+            </div>
+        </If>
+    </If>
+</div>
+{{/if}}
+
 @code {
     {{#if (eq UIFramework "FluentUI")}}
     private bool isCardView = true;
@@ -431,6 +593,15 @@
     {
         // Implement delete logic here
         return Task.CompletedTask;
+    }
+    {{/if}}
+
+    {{#if (eq UIFramework "TailwindCSS")}}
+    private bool _isTableView = false;
+
+    private void SetViewMode(bool isTableView)
+    {
+        _isTableView = isTableView;
     }
     {{/if}}
 }

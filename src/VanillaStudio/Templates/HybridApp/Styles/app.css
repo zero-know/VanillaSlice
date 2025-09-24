@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom component styles for mobile */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-3 text-base font-medium rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] touch-manipulation;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-600 text-white border-gray-600 hover:bg-gray-700 focus:ring-gray-500 active:bg-gray-800;
+  }
+
+  .form-control {
+    @apply block w-full px-4 py-3 text-base border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px];
+  }
+
+  .form-label {
+    @apply block text-base font-medium text-gray-700 mb-2;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 mx-4 my-2;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  .navbar {
+    @apply bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50;
+  }
+
+  .nav-link {
+    @apply text-gray-600 hover:text-gray-900 px-4 py-3 rounded-lg text-base font-medium transition-colors min-h-[44px] flex items-center touch-manipulation;
+  }
+
+  .nav-link.active {
+    @apply text-blue-600 bg-blue-50;
+  }
+
+  .alert {
+    @apply p-4 rounded-xl border mx-4 my-2;
+  }
+
+  .alert-success {
+    @apply bg-green-50 text-green-800 border-green-200;
+  }
+
+  .alert-danger {
+    @apply bg-red-50 text-red-800 border-red-200;
+  }
+
+  .table {
+    @apply w-full divide-y divide-gray-200 text-sm;
+  }
+
+  .table th {
+    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+  }
+
+  .table td {
+    @apply px-4 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  .list-item {
+    @apply flex items-center p-4 border-b border-gray-200 min-h-[60px] touch-manipulation active:bg-gray-50;
+  }
+
+  .content {
+    @apply flex-1 overflow-y-auto pb-safe;
+  }
+}
+
+/* Mobile-specific utilities */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .text-truncate {
+    @apply truncate;
+  }
+}
+
+/* Dark mode support for mobile apps */
+@media (prefers-color-scheme: dark) {
+  @layer base {
+    body {
+      @apply bg-gray-900 text-gray-100;
+    }
+  }
+
+  @layer components {
+    .card {
+      @apply bg-gray-800 border-gray-700;
+    }
+
+    .navbar {
+      @apply bg-gray-800 border-gray-700;
+    }
+
+    .form-control {
+      @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+    }
+
+    .form-label {
+      @apply text-gray-300;
+    }
+  }
+}

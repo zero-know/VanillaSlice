@@ -1,0 +1,18 @@
+{
+  "name": "{{projectNameLower}}-hybridapp",
+  "version": "1.0.0",
+  "description": "{{ProjectName}} HybridApp - Tailwind CSS build configuration",
+  "scripts": {
+    "build-css": "tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app-tailwind.css --watch",
+    "build-css-prod": "tailwindcss -i ./Styles/app.css -o ./wwwroot/css/app-tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "postcss-cli": "^11.0.0"
+  }
+}

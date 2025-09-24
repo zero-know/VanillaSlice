@@ -19,9 +19,11 @@
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css">
     {{/if}}
 
-    <link rel="stylesheet" href="app.css" />
+    {{#if (eq UIFramework "TailwindCSS")}}
+    <link rel="stylesheet" href="css/app-tailwind.css" />
     <link rel="stylesheet" href="{{ProjectName}}.HybridApp.styles.css" />
     <link rel="icon" href="data:,">
+    {{/if}}
 </head>
 
 <body>

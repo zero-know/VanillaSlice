@@ -121,6 +121,24 @@ public class NavigationManagementService
 
         {{#if (eq UIFramework "Radzen")}}
         <RadzenPanelMenuItem Text='{displayName}' Path='{pluralizedRoute}' Icon='inventory' />
+        {{/if}}
+
+        {{#if (eq UIFramework "TailwindCSS")}}
+        <a href='/{pluralizedRoute}' class='group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 @(IsActive("{pluralizedRoute}") ? "bg-black text-white" : "text-gray-700 hover:text-black hover:bg-gray-100")'>
+            <div class='flex items-center justify-center w-8 h-8 rounded-md @(IsActive("{pluralizedRoute}") ? "bg-white/20" : "bg-gray-100 group-hover:bg-gray-200") mr-3 transition-colors duration-200'>
+                <svg class='w-4 h-4 @(IsActive("{pluralizedRoute}") ? "text-white" : "text-gray-500 group-hover:text-gray-700")' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 10h16M4 14h16M4 18h16'/>
+                </svg>
+            </div>
+            <div class='flex-1'>
+                <p class='font-medium'>{displayName}</p>
+                <p class='text-xs opacity-75'>Manage {pluralizedRoute}</p>
+            </div>
+            @if (IsActive("{pluralizedRoute}"))
+            {{
+                <div class='w-1.5 h-1.5 bg-white rounded-full'></div>
+            }}
+        </a>
         {{/if}}";
     }
 

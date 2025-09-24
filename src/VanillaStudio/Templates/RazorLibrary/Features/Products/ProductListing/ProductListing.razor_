@@ -436,7 +436,232 @@
 </div>
 {{/if}}
 
+{{#if (eq UIFramework "TailwindCSS")}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-black">Product Catalog</h2>
+            <p class="text-gray-600 mt-1">Manage your product inventory</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- View Toggle -->
+            <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                <button @onclick="() => ToggleView(false)" class="@(_isTableView ? "text-gray-600 hover:text-black" : "bg-black text-white shadow-sm") px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    </svg>
+                </button>
+                <button @onclick="() => ToggleView(false)" class="@(_isTableView ? "bg-black text-white shadow-sm" : "text-gray-600 hover:text-black") px-3 py-1.5 text-sm font-medium rounded-md transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+            <a class="inline-flex items-center px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors" href="products/create">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <If Condition="!string.IsNullOrEmpty(Error)">
+        <div class="flex items-center p-4 bg-red-50 border border-red-200 rounded-lg mb-6" role="alert">
+            <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <span class="text-red-800">@Error</span>
+        </div>
+    </If>
+
+    <!-- Loading State -->
+    <If Condition="!ItemsLoaded || IsWorking">
+        <div class="flex items-center justify-center py-12" role="status" aria-live="polite" aria-busy="true">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3 text-gray-600">Loading products...</span>
+        </div>
+    </If>
+
+    <!-- Main Content -->
+    <If Condition="ItemsLoaded && !IsWorking">
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Products</label>
+                    <input @bind="FilterViewModel.SearchKey"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                           placeholder="Search by name or description..." />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select @bind="FilterViewModel.ProductStatus"
+                            class="w-full text-gray-700 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Discontinued">Discontinued</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button @onclick="LoadItemsAsync"
+                            class="w-full px-4 py-2 bg-black text-white font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Products Display -->
+        <If Condition="Items?.Any() == true">
+            <!-- Card View -->
+            <If Condition="!_isTableView">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <ForEach Items="Items" Context="item">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="text-lg font-semibold text-black truncate">@item.Name</h3>
+                                    <span class="@GetTailwindStatusClass(item.ProductStatus) px-2 py-1 text-xs font-medium rounded-full">
+                                        @item.ProductStatus
+                                    </span>
+                                </div>
+
+                                <If Condition="!string.IsNullOrEmpty(item.Description)">
+                                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">@item.Description</p>
+                                </If>
+
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-lg font-bold text-black">@item.Price.ToString("C")</span>
+                                </div>
+
+                                <div class="flex space-x-2">
+                                    <a href="@($"products/edit/{item.Id}")"
+                                       class="flex-1 px-3 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 text-center transition-colors">
+                                        Edit
+                                    </a>
+                                    <button @onclick="() => DeleteProduct(item.Id)"
+                                            class="flex-1 px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ForEach>
+                </div>
+            </If>
+
+            <!-- Table View -->
+            <If Condition="_isTableView">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <ForEach Items="Items" Context="item">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-black">@item.Name</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-600 max-w-xs truncate">@(item.Description ?? "-")</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-black">@item.Price.ToString("C")</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="@GetTailwindStatusClass(item.ProductStatus) px-2 py-1 text-xs font-medium rounded-full">
+                                                @item.ProductStatus
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-end space-x-2">
+                                                <a href="@($"products/edit/{item.Id}")"
+                                                   class="text-black hover:text-gray-600 font-medium">
+                                                    Edit
+                                                </a>
+                                                <button @onclick="() => DeleteProduct(item.Id)"
+                                                        class="text-red-600 hover:text-red-800 font-medium">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ForEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </If>
+        </If>
+
+        <!-- Empty State -->
+        <If Condition="Items?.Any() != true">
+            <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                <h3 class="text-lg font-medium text-black mb-2">No products found</h3>
+                <p class="text-gray-600 mb-4">Get started by creating your first product.</p>
+                <a href="products/create"
+                   class="inline-flex items-center px-4 py-2 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add New Product
+                </a>
+            </div>
+        </If>
+
+    </If>
+</div>
+{{/if}}
+
 @code {
+    {{#if (eq UIFramework "TailwindCSS")}}
+    private bool _isTableView = false;
+
+     private bool isCardView = true;
+
+    private void ToggleView(bool cardView)
+    {
+        isCardView = cardView;
+        StateHasChanged();
+    }
+
+    private Task DeleteProduct(string id)
+    {
+        // Implement delete logic here
+        return Task.CompletedTask;
+    }
+
+    
+
+    private string GetTailwindStatusClass({{ProjectName}}.Common.Enums.ProductStatus status)
+    {
+        return status switch
+        {
+            {{ProjectName}}.Common.Enums.ProductStatus.Active => "bg-green-100 text-green-800",
+            {{ProjectName}}.Common.Enums.ProductStatus.Inactive => "bg-yellow-100 text-yellow-800",
+            {{ProjectName}}.Common.Enums.ProductStatus.Discontinued => "bg-red-100 text-red-800",
+            _ => "bg-gray-100 text-gray-800"
+        };
+    }
+    {{/if}}
+
+
     {{#if (eq UIFramework "Bootstrap")}}
     private string GetStatusBadgeClass({{ProjectName}}.Common.Enums.ProductStatus status)
     {
@@ -451,19 +676,7 @@
     {{/if}}
 
     {{#if (eq UIFramework "FluentUI")}}
-    private bool isCardView = true;
-
-    private void ToggleView(bool cardView)
-    {
-        isCardView = cardView;
-        StateHasChanged();
-    }
-
-    private Task DeleteProduct(string id)
-    {
-        // Implement delete logic here
-        return Task.CompletedTask;
-    }
+   
 
     private Appearance GetFluentStatusAppearance({{ProjectName}}.Common.Enums.ProductStatus status)
     {
@@ -501,5 +714,5 @@
             _ => BadgeStyle.Secondary
         };
     }
-    {{/if}}
+    {{/if}} 
 }

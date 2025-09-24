@@ -120,3 +120,99 @@
 <RadzenDialog />
 <RadzenContextMenu />
 {{/if}}
+
+{{#if (eq UIFramework "TailwindCSS")}}
+<div class="min-h-screen bg-gray-50">
+    <!-- Modern Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="flex items-center justify-between px-6 py-4">
+            <!-- Brand -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-black">{{ProjectName}}</h1>
+                    <p class="text-xs text-gray-500 hidden sm:block">Mobile Application</p>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button @onclick="ToggleMenu" class="lg:hidden p-2.5 rounded-lg text-gray-600 hover:text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@(_menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16")"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Modern Sidebar -->
+        <nav class="@(_menuOpen ? "translate-x-0" : "-translate-x-full") fixed inset-y-0 left-0 z-40 w-72 bg-white shadow-xl border-r border-gray-200 transform transition-all duration-300 ease-out lg:translate-x-0 lg:static">
+            <!-- Mobile Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 lg:hidden">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-black">Navigation</span>
+                </div>
+                <button @onclick="ToggleMenu" class="p-2 rounded-lg text-gray-500 hover:text-black hover:bg-gray-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navigation Content -->
+            <div class="flex-1 overflow-y-auto pt-6 pb-6">
+                <NavMenu />
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-6 border-t border-gray-200">
+                <div class="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
+                    <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-black truncate">User Account</p>
+                        <p class="text-xs text-gray-500 truncate">Welcome back!</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Overlay -->
+        @if (_menuOpen)
+        {
+            <div @onclick="ToggleMenu" class="fixed inset-0 bg-black/20 z-30 lg:hidden transition-opacity duration-300"></div>
+        }
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:pl-0">
+            <div class="min-h-screen">
+                <!-- Content Container -->
+                <div class="max-w-7xl mx-auto px-6 py-8">
+                    @Body
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private bool _menuOpen = false;
+
+    private void ToggleMenu()
+    {
+        _menuOpen = !_menuOpen;
+    }
+}
+{{/if}}
