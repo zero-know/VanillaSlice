@@ -48,6 +48,11 @@ public partial class Index
     private PlacementGuidance? PlacementGuidance;
     private bool ShowPlacementGuidance = false;
 
+    // Success message functionality
+    private bool ShowSuccessMessage = false;
+    private string? SuccessMessage = null;
+    private string? GeneratedFeatureName = null;
+
     public CodeCofig? CodeCofig { get; set; }
 
     public Index()
@@ -173,8 +178,10 @@ public partial class Index
                 uiFramework: wooqlawProfile.UIFramework ?? "Bootstrap"
             );
 
-            // Show success message or redirect to features manager
-            // For now, just hide the preview if it was showing
+            // Show success message
+            GeneratedFeatureName = M.ComponentPrefix;
+            SuccessMessage = $"✅ Successfully generated {M.ComponentPrefix} slice!";
+            ShowSuccessMessage = true;
             ShowFilePreview = false;
             StateHasChanged();
         }
@@ -183,6 +190,35 @@ public partial class Index
             // Handle error - could show a toast or error message
             Console.WriteLine($"Error creating feature: {ex.Message}");
         }
+    }
+
+    public void StartNewSlice()
+    {
+        // Reset form to initial state
+        M = new FormViewModel()
+        {
+            PkType = string.Empty,
+            GenerateForm = true,
+            GenerateListing = true,
+            GenerateSelectList = false,
+            SelectListModelType = "SelectOption",
+            SelectListDataType = "string",
+            GenerateControllerAndClientService = true
+        };
+
+        // Hide success message
+        ShowSuccessMessage = false;
+        ShowFilePreview = false;
+        SuccessMessage = null;
+        GeneratedFeatureName = null;
+
+        StateHasChanged();
+    }
+
+    public void HideSuccessMessage()
+    {
+        ShowSuccessMessage = false;
+        StateHasChanged();
     }
 
     private async Task GenerateSliceFilesWithTemplateEngine(
