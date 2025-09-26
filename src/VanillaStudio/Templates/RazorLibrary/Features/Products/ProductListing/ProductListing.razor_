@@ -1,8 +1,9 @@
 @using {{ProjectName}}.Framework
 @using {{ProjectName}}.ServiceContracts.Features.Products
+@using {{ProjectName}}.ClientShared.Features.Products
 @page "/products"
-@inherits ListingBase<{{ProjectName}}.Razor.Features.Products.ProductListing.ProductListingViewModel, ProductListingBusinessModel,
-                                {{ProjectName}}.Razor.Features.Products.ProductListing.ProductFilterViewModel, ProductFilterBusinessModel, IProductListingDataService>
+@inherits ListingBase<ProductListingViewModel, ProductListingBusinessModel, 
+                        ProductFilterViewModel, ProductFilterBusinessModel, IProductListingDataService>
 
 {{#if (eq UIFramework "Bootstrap")}}
 <div class="container-fluid">

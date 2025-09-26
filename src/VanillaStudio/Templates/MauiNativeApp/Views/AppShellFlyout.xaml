@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="{{ProjectName}}.MauiNativeApp.Views.AppShellFlyout"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:{{ProjectName}}.MauiNativeApp.Views"
+    xmlns:products="clr-namespace:{{ProjectName}}.MauiNativeApp.Views.Products"
+    Title="{{ProjectName}}"
+    Shell.FlyoutBehavior="Flyout">
+
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}" />
+                <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" />
+                <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" />
+                <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
+                <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray200}}" />
+                <Setter Property="Shell.FlyoutBackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" />
+            </Style>
+            <Style BasedOn="{StaticResource BaseStyle}" TargetType="FlyoutItem" />
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeaderTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="{StaticResource Primary}" HeightRequest="200">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Image
+                    Grid.Row="0"
+                    Source="dotnet_bot.png"
+                    Aspect="AspectFit"
+                    HeightRequest="100"
+                    WidthRequest="100" />
+                <Label
+                    Grid.Row="1"
+                    Text="{{ProjectName}}"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    HorizontalOptions="Center"
+                    Margin="0,0,0,20" />
+            </Grid>
+        </DataTemplate>
+    </Shell.FlyoutHeaderTemplate>
+
+    <!-- Home -->
+    <FlyoutItem Title="Home" Icon="home.png">
+        <ShellContent
+            Route="MainPage"
+            ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+
+    <!-- Products -->
+    <FlyoutItem Title="Products" Icon="list.png">
+        <ShellContent
+            Route="ProductListPage"
+            ContentTemplate="{DataTemplate products:ProductListPage}" />
+    </FlyoutItem>
+
+    <!-- About -->
+    <FlyoutItem Title="About" Icon="info.png">
+        <ShellContent
+            Route="AboutPage"
+            ContentTemplate="{DataTemplate local:AboutPage}" />
+    </FlyoutItem>
+
+    <!-- Settings -->
+    <MenuItem Text="Settings" StyleClass="MenuItemLayoutStyle" Clicked="OnSettingsClicked" />
+    <MenuItem Text="Logout" StyleClass="MenuItemLayoutStyle" Clicked="OnLogoutClicked" />
+
+</Shell>

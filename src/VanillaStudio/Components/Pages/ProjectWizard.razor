@@ -133,17 +133,15 @@
                         <div class="mb-2">
                             <i class="bi bi-diagram-3 text-info me-2"></i>
                             <strong>Platforms:</strong>
-                            @if (config.IncludeWebProject && config.IncludeHybridMaui)
-                            {
-                                <span>Web + MAUI Hybrid</span>
+                            @{
+                                var platforms = new List<string>();
+                                if (config.IncludeWebProject) platforms.Add("Web");
+                                if (config.IncludeHybridMaui) platforms.Add("MAUI Hybrid");
+                                if (config.IncludeMauiNative) platforms.Add($"MAUI Native ({config.MauiNavigationType})");
                             }
-                            else if (config.IncludeWebProject)
+                            @if (platforms.Any())
                             {
-                                <span>Web Only</span>
-                            }
-                            else if (config.IncludeHybridMaui)
-                            {
-                                <span>MAUI Hybrid Only</span>
+                                <span>@string.Join(" + ", platforms)</span>
                             }
                             else
                             {
@@ -360,18 +358,46 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
-                                                <div class="card border-secondary" style="opacity: 0.6;">
+                                                <div class="card border-warning @(config.IncludeMauiNative ? "bg-warning bg-opacity-10" : "")">
                                                     <div class="card-body">
                                                         <div class="form-check">
-                                                            <input id="includeNativeMaui" class="form-check-input" type="checkbox" disabled />
-                                                            <label class="form-check-label" for="includeNativeMaui">
+                                                            <InputCheckbox id="includeMauiNative" class="form-check-input" @bind-Value="config.IncludeMauiNative" @onchange="OnPlatformSelectionChanged" />
+                                                            <label class="form-check-label" for="includeMauiNative">
                                                                 <strong>MAUI Native App</strong>
-                                                                <span class="badge bg-info text-dark ms-2 small">Coming Soon</span>
+                                                                <span class="badge bg-success text-white ms-2 small">XAML UI</span>
                                                             </label>
                                                         </div>
                                                         <p class="small text-muted mt-2">
-                                                            Native mobile app with platform-specific UI
+                                                            Native mobile app with XAML UI and shared backend services using MVVM pattern
                                                         </p>
+
+                                                        @if (config.IncludeMauiNative)
+                                                        {
+                                                            <hr class="my-2">
+                                                            <div class="small">
+                                                                <label class="form-label small mb-2 fw-semibold">Navigation Type:</label>
+                                                                <InputRadioGroup @bind-Value="config.MauiNavigationType">
+                                                                    <div class="d-flex flex-wrap gap-2">
+                                                                        <div class="form-check">
+                                                                            <InputRadio id="tabsNavigation" class="form-check-input" Value="@MauiNavigationType.Tabs" />
+                                                                            <label class="form-check-label small fw-semibold" for="tabsNavigation">Tabs</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <InputRadio id="flyoutNavigation" class="form-check-input" Value="@MauiNavigationType.Flyout" />
+                                                                            <label class="form-check-label small fw-semibold" for="flyoutNavigation">Flyout</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </InputRadioGroup>
+                                                                <div class="text-muted mt-1" style="font-size: 0.7rem;">
+                                                                    @(config.MauiNavigationType switch
+                                                                    {
+                                                                        MauiNavigationType.Tabs => "Bottom tab navigation",
+                                                                        MauiNavigationType.Flyout => "Hamburger menu navigation",
+                                                                        _ => ""
+                                                                    })
+                                                                </div>
+                                                            </div>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -673,6 +699,10 @@
                                                 {
                                                     <text>├── @(config.ProjectName).HybridApp/<br/></text>
                                                 }
+                                                @if (config.IncludeMauiNative)
+                                                {
+                                                    <text>├── @(config.ProjectName).MauiNativeApp/<br/></text>
+                                                }
                                                 ├── 📁 @(config.ProjectName).Base/<br/>
                                                 │   └── @(config.ProjectName).Framework/<br/>
                                                 ├── 📁 @(config.ProjectName).Common/<br/>
@@ -845,8 +875,8 @@
 
     private void SyncPlatformType()
     {
-        // Sync the enum with checkbox values
-        if (config.IncludeWebProject && config.IncludeHybridMaui)
+        // Sync the enum with checkbox values - maintain for backward compatibility
+        if (config.IncludeWebProject && (config.IncludeHybridMaui || config.IncludeMauiNative))
         {
             config.PlatformType = PlatformType.WebAndMaui;
         }
@@ -856,7 +886,7 @@
         }
 
         // Ensure at least one platform is selected
-        if (!config.IncludeWebProject && !config.IncludeHybridMaui)
+        if (!config.IncludeWebProject && !config.IncludeHybridMaui && !config.IncludeMauiNative)
         {
             config.IncludeWebProject = true;
             config.PlatformType = PlatformType.WebOnly;
@@ -927,7 +957,7 @@
             1 => !string.IsNullOrWhiteSpace(config.ProjectName) &&
                  !string.IsNullOrWhiteSpace(config.RootNamespace) &&
                  !string.IsNullOrWhiteSpace(config.OutputDirectory),
-            2 => config.IncludeWebProject || config.IncludeHybridMaui, // At least one platform must be selected
+            2 => config.IncludeWebProject || config.IncludeHybridMaui || config.IncludeMauiNative, // At least one platform must be selected
             3 => true, // Feature selection is optional
             4 => true, // Review step - ready to generate
             _ => true
@@ -939,7 +969,7 @@
         return !string.IsNullOrWhiteSpace(config.ProjectName) &&
                !string.IsNullOrWhiteSpace(config.RootNamespace) &&
                !string.IsNullOrWhiteSpace(config.OutputDirectory) &&
-               (config.IncludeWebProject || config.IncludeHybridMaui);
+               (config.IncludeWebProject || config.IncludeHybridMaui || config.IncludeMauiNative);
     }
 
     private string GetStepValidationMessage(int step)

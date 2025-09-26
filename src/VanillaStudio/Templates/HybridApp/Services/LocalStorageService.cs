@@ -1,7 +1,7 @@
 using {{ProjectName}}.Framework;
 using System.Runtime.CompilerServices;
 
-namespace {{ProjectName}}.HybridApp.Helpers;
+namespace {{ProjectName}}.HybridApp.Services;
 
 public class LocalStorageService : ILocalStorageService
 {

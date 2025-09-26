@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using {{ProjectName}}.Client.Shared;
-using {{ProjectName}}.Client.Shared.Extensions;
+using {{ProjectName}}.ClientShared;
+using {{ProjectName}}.ClientShared.Extensions;
 using {{ProjectName}}.Framework;
 using {{ProjectName}}.WebPortal.Client;
 {{#if (eq UIFramework "FluentUI")}}

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\{{ProjectName}}.Base\{{ProjectName}}.Framework\{{ProjectName}}.Framework.csproj" />
+	<ProjectReference Include="..\{{ProjectName}}.Client.Shared\{{ProjectName}}.Client.Shared.csproj" />
     <ProjectReference Include="..\{{ProjectName}}.ServiceContracts\{{ProjectName}}.ServiceContracts.csproj" />
   </ItemGroup>
 

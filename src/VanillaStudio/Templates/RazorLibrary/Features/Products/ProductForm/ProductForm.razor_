@@ -3,9 +3,9 @@
 @using Microsoft.Extensions.DependencyInjection
 @using Microsoft.AspNetCore.Components.Forms
 @using {{ProjectName}}.Common.Enums
-@using {{ProjectName}}.Framework
-@using {{ProjectName}}.Razor.Features.Products
+@using {{ProjectName}}.Framework 
 @using {{ProjectName}}.ServiceContracts.Features.Products
+@using {{ProjectName}}.ClientShared.Features.Products
 @using {{ProjectName}}.ServiceContracts.Models
 
 @inherits FormBase<ProductFormViewModel, ProductFormBusinessModel, string, IProductFormDataService>

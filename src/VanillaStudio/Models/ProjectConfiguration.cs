@@ -27,6 +27,10 @@ namespace ZKnow.VanillaStudio.Models
         // Individual Platform Flags (new checkbox approach)
         public bool IncludeWebProject { get; set; } = true;
         public bool IncludeHybridMaui { get; set; } = true;
+        public bool IncludeMauiNative { get; set; } = false;
+
+        // MAUI Navigation Configuration
+        public MauiNavigationType MauiNavigationType { get; set; } = MauiNavigationType.Tabs;
 
         // Razor Component Strategy
         public ComponentStrategy ComponentStrategy { get; set; } = ComponentStrategy.CommonLibrary;
@@ -130,6 +134,15 @@ namespace ZKnow.VanillaStudio.Models
 
         [Display(Name = "Tailwind CSS")]
         TailwindCSS = 5
+    }
+
+    public enum MauiNavigationType
+    {
+        [Display(Name = "Tab Navigation")]
+        Tabs = 1,
+
+        [Display(Name = "Flyout Navigation")]
+        Flyout = 2
     }
 
     public class ProjectGenerationResult

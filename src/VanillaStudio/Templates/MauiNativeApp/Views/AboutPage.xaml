@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="{{ProjectName}}.MauiNativeApp.Views.AboutPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="About">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="30,0" VerticalOptions="Center">
+
+            <Image
+                Source="dotnet_bot.png"
+                SemanticProperties.Description="Cute dot net bot waving hi to you!"
+                HeightRequest="185"
+                HorizontalOptions="Center" />
+
+            <Label
+                FontSize="32"
+                FontAttributes="Bold"
+                Text="{{ProjectName}}"
+                HorizontalOptions="Center" />
+
+            <Label
+                FontSize="18"
+                Text="This application was generated using the VanillaSlice framework."
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center" />
+
+            <Label
+                FontSize="16"
+                Text="Version 1.0.0"
+                HorizontalOptions="Center" />
+
+            <Label
+                FontSize="14"
+                Text="Built with .NET MAUI and following Clean Architecture principles with Vertical Slices."
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center" />
+
+            <Button
+                Text="Learn More"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Clicked="OnLearnMoreClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

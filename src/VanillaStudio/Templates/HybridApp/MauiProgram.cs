@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
-using {{ProjectName}}.Client.Shared;
-using {{ProjectName}}.Client.Shared.Extensions;
+using {{ProjectName}}.ClientShared;
+using {{ProjectName}}.ClientShared.Extensions;
 using {{ProjectName}}.Framework;
-using {{ProjectName}}.HybridApp.Helpers;
+using {{ProjectName}}.HybridApp.Services;
 {{#if (eq UIFramework "FluentUI")}}
 using Microsoft.FluentUI.AspNetCore.Components;
 {{/if}}

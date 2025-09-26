@@ -29,6 +29,7 @@ builder.Services.AddScoped<ZKnow.VanillaStudio.Services.PlatformProjectsGenerato
 builder.Services.AddScoped<ZKnow.VanillaStudio.Services.InfrastructureProjectsGenerator>();
 builder.Services.AddScoped<ZKnow.VanillaStudio.Services.WebPortalProjectsGenerator>();
 builder.Services.AddScoped<ZKnow.VanillaStudio.Services.HybridAppProjectsGenerator>();
+builder.Services.AddScoped<ZKnow.VanillaStudio.Services.MauiNativeAppProjectsGenerator>();
 builder.Services.AddScoped<ZKnow.VanillaStudio.Services.ProjectValidationService>();
 
 var app = builder.Build();

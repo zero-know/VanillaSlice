@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="{{ProjectName}}.MauiNativeApp.Views.Products.ProductFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodel="clr-namespace:{{ProjectName}}.MauiNativeApp.Features.Products"
+    Title="{Binding Title}"
+    x:DataType="viewmodel:ProductFormPageViewModel">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Command="{Binding SaveProductCommand}"
+            IconImageSource="save.png"
+            Text="Save" />
+        <ToolbarItem
+            Command="{Binding CancelCommand}"
+            IconImageSource="cancel.png"
+            Text="Cancel" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+
+            <!--  Product Name  -->
+            <StackLayout>
+                <Label FontAttributes="Bold" Text="Product Name" />
+                <Entry
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Placeholder="Enter product name"
+                    Text="{Binding Model.Name}" />
+            </StackLayout>
+
+            <!--  Description  -->
+            <StackLayout>
+                <Label FontAttributes="Bold" Text="Description" />
+                <Editor
+                    HeightRequest="100"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Placeholder="Enter product description"
+                    Text="{Binding Model.Description}" />
+            </StackLayout>
+
+            <!--  Price  -->
+            <StackLayout>
+                <Label FontAttributes="Bold" Text="Price" />
+                <Entry
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Keyboard="Numeric"
+                    Placeholder="0.00"
+                    Text="{Binding Model.Price}" />
+            </StackLayout>
+ 
+
+            <!--  Is Active  -->
+            <StackLayout Orientation="Horizontal">
+                <Switch IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" IsToggled="{Binding Product.IsActive}" />
+                <Label
+                    Margin="10,0,0,0"
+                    Text="Is Active"
+                    VerticalOptions="Center" />
+            </StackLayout>
+
+            <!--  Action Buttons  -->
+            <StackLayout
+                Margin="0,30,0,0"
+                HorizontalOptions="Center"
+                Orientation="Horizontal">
+                <Button
+                    Margin="0,0,10,0"
+                    Padding="20,10"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SaveCommand}"
+                    CornerRadius="5"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Text="{Binding IsEditMode, Converter={StaticResource BoolToSaveTextConverter}}"
+                    TextColor="White" />
+
+                <Button
+                    Padding="20,10"
+                    BackgroundColor="Gray"
+                    CornerRadius="5"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Text="Cancel"
+                    TextColor="White" />
+            </StackLayout>
+
+            <!--  Loading Indicator  -->
+            <ActivityIndicator
+                Margin="0,20,0,0"
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{StaticResource Primary}" />
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

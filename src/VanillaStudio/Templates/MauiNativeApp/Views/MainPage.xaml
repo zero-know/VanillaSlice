@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="{{ProjectName}}.MauiNativeApp.Views.MainPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:{{ProjectName}}.MauiNativeApp.ViewModels"
+             x:DataType="viewmodel:MainViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="30,0" VerticalOptions="Center">
+
+            <Image
+                Source="dotnet_bot.png"
+                SemanticProperties.Description="Cute dot net bot waving hi to you!"
+                HeightRequest="200"
+                HorizontalOptions="Center" />
+
+            <Label
+                x:Name="WelcomeLabel"
+                Text="Welcome to {{ProjectName}}!"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="This is a Native MAUI application with XAML UI and MVVM pattern. It uses the shared backend services for data operations."
+                FontSize="18"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center" />
+
+            <Button
+                x:Name="ProductsBtn"
+                Text="View Products"
+                FontAttributes="Bold"
+                Command="{Binding GoToProductsCommand}"
+                HorizontalOptions="Center" />
+
+            <Button
+                x:Name="AboutBtn"
+                Text="About"
+                FontAttributes="Bold"
+                Command="{Binding GoToAboutCommand}"
+                HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

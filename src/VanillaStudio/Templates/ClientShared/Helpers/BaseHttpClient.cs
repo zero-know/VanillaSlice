@@ -5,7 +5,7 @@ using {{ProjectName}}.Framework;
 using {{ProjectName}}.Framework.Utils;
 using {{ProjectName}}.ServiceContracts.Models;
 
-namespace {{ProjectName}}.Client.Shared;
+namespace {{ProjectName}}.ClientShared;
 
 public interface BaseHttpClient
 {

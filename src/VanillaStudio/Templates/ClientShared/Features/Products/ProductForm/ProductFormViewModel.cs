@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using {{ProjectName}}.Common.Enums;
 using {{ProjectName}}.Framework;
 
-namespace {{ProjectName}}.Razor.Features.Products
-{
-    public class ProductFormViewModel : ObservableBase
+namespace {{ProjectName}}.ClientShared.Features.Products;
+
+public class ProductFormViewModel : ObservableBase
 {
     [MaxLength(50)]
     public string? Id { get; set; }
@@ -34,6 +34,5 @@ namespace {{ProjectName}}.Razor.Features.Products
             ProductStatus = value.ToEnum<ProductStatus>();
         }
     }
+}
 
-}
-}

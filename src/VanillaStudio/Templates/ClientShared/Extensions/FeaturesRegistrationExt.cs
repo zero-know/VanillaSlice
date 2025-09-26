@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace {{ProjectName}}.Client.Shared.Extensions
+namespace {{ProjectName}}.ClientShared.Extensions
 {
     public static class FeaturesRegistrationExt
     {

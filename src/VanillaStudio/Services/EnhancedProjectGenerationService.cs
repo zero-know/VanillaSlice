@@ -19,6 +19,7 @@ namespace ZKnow.VanillaStudio.Services
         private readonly InfrastructureProjectsGenerator _infrastructureProjectsGenerator;
         private readonly WebPortalProjectsGenerator _webPortalProjectsGenerator;
         private readonly HybridAppProjectsGenerator _hybridAppProjectsGenerator;
+        private readonly MauiNativeAppProjectsGenerator _mauiNativeAppProjectsGenerator;
         private readonly ProjectValidationService _validationService;
 
         public EnhancedProjectGenerationService(
@@ -32,6 +33,7 @@ namespace ZKnow.VanillaStudio.Services
             InfrastructureProjectsGenerator infrastructureProjectsGenerator,
             WebPortalProjectsGenerator webPortalProjectsGenerator,
             HybridAppProjectsGenerator hybridAppProjectsGenerator,
+            MauiNativeAppProjectsGenerator mauiNativeAppProjectsGenerator,
             ProjectValidationService validationService)
         {
             _environment = environment;
@@ -45,6 +47,7 @@ namespace ZKnow.VanillaStudio.Services
             _infrastructureProjectsGenerator = infrastructureProjectsGenerator;
             _webPortalProjectsGenerator = webPortalProjectsGenerator;
             _hybridAppProjectsGenerator = hybridAppProjectsGenerator;
+            _mauiNativeAppProjectsGenerator = mauiNativeAppProjectsGenerator;
             _validationService = validationService;
         }
 
@@ -174,13 +177,22 @@ namespace ZKnow.VanillaStudio.Services
             files.AddRange(webPortalFiles);
             _logger.LogInformation("✅ WebPortal projects generated: {Count} files", webPortalFiles.Count);
 
-            // Generate HybridApp project if MAUI is included
+            // Generate HybridApp project if MAUI Hybrid is included
             if (config.IncludeHybridMaui)
             {
                 _logger.LogInformation("📱 Generating HybridApp project...");
                 var hybridAppFiles = await _hybridAppProjectsGenerator.GenerateHybridAppProjectAsync(config);
                 files.AddRange(hybridAppFiles);
                 _logger.LogInformation("✅ HybridApp project generated: {Count} files", hybridAppFiles.Count);
+            }
+
+            // Generate MauiNativeApp project if MAUI Native is included
+            if (config.IncludeMauiNative)
+            {
+                _logger.LogInformation("📱 Generating MAUI Native App project...");
+                var mauiNativeAppFiles = await _mauiNativeAppProjectsGenerator.GenerateMauiNativeAppProjectAsync(config);
+                files.AddRange(mauiNativeAppFiles);
+                _logger.LogInformation("✅ MAUI Native App project generated: {Count} files", mauiNativeAppFiles.Count);
             }
 
             // Generate sample CRUD components with working example
@@ -306,9 +318,18 @@ namespace ZKnow.VanillaStudio.Services
             sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.Common\", \"{config.ProjectName}.Common\\{config.ProjectName}.Common\\{config.ProjectName}.Common.csproj\", \"{{{commonProjectGuid}}}\"");
             sb.AppendLine("EndProject");
 
+            var hybridAppGuid = Guid.NewGuid().ToString().ToUpper();
+            var mauiNativeAppGuid = Guid.NewGuid().ToString().ToUpper();
+
             if (config.IncludeHybridMaui)
             {
-                sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.HybridApp\", \"{config.ProjectName}.HybridApp\\{config.ProjectName}.HybridApp.csproj\", \"{{{Guid.NewGuid().ToString().ToUpper()}}}\"");
+                sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.HybridApp\", \"{config.ProjectName}.HybridApp\\{config.ProjectName}.HybridApp.csproj\", \"{{{hybridAppGuid}}}\"");
+                sb.AppendLine("EndProject");
+            }
+
+            if (config.IncludeMauiNative)
+            {
+                sb.AppendLine($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{config.ProjectName}.MauiNativeApp\", \"{config.ProjectName}.MauiNativeApp\\{config.ProjectName}.MauiNativeApp.csproj\", \"{{{mauiNativeAppGuid}}}\"");
                 sb.AppendLine("EndProject");
             }
 
@@ -333,6 +354,16 @@ namespace ZKnow.VanillaStudio.Services
             if (config.UseAspireOrchestration)
             {
                 allProjectGuids = allProjectGuids.Append(appHostGuid).ToArray();
+            }
+
+            if (config.IncludeHybridMaui)
+            {
+                allProjectGuids = allProjectGuids.Append(hybridAppGuid).ToArray();
+            }
+
+            if (config.IncludeMauiNative)
+            {
+                allProjectGuids = allProjectGuids.Append(mauiNativeAppGuid).ToArray();
             }
 
             foreach (var guid in allProjectGuids)
