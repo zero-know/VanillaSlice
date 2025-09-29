@@ -1,6 +1,6 @@
 using {{RootNamespace}}.Framework;
 
-namespace __projectNamespace__;
+namespace {{RootNamespace}}.ServiceContracts.Features.__ComponentPrefix__;
 
 public interface I__ComponentPrefix__ListingDataService :
     IListingDataService<__ComponentPrefix__ListingBusinessModel, __ComponentPrefix__FilterBusinessModel>

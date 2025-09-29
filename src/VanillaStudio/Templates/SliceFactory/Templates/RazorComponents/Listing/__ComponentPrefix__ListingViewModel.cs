@@ -1,11 +1,11 @@
-using {{RootNamespace}}.Framework;
+using {{RootNamespace}}.Common.Enums;
 
-namespace __projectNamespace__;
+namespace {{RootNamespace}}.ClientShared.Features.__ComponentPrefix__;
 
-public class __ComponentPrefix__ListingViewModel : ObservableBase
+public class __ComponentPrefix__ListingViewModel
 {
     public __primaryKeyType__ Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
-    // Add other properties as needed
+    // Add other properties as needed based on your entity
 }

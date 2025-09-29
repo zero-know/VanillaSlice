@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage x:Class="{{ProjectName}}.MauiNativeApp.Views.Products.ProductListPage"
+<ContentPage x:Class="{{ProjectName}}.MauiNativeApp.Views.__ComponentPrefix__.__ComponentPrefix__ListPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodel="clr-namespace:{{ProjectName}}.MauiNativeApp.Features.Products"
-             xmlns:models="clr-namespace:{{ProjectName}}.ClientShared.Features.Products;assembly={{ProjectName}}.Client.Shared"
-             x:DataType="viewmodel:ProductListPageViewModel"
+             xmlns:viewmodel="clr-namespace:{{ProjectName}}.MauiNativeApp.ViewModels.__ComponentPrefix__"
+             xmlns:models="clr-namespace:{{ProjectName}}.ClientShared.Features.__ComponentPrefix__;assembly={{ProjectName}}.Client.Shared"
+             x:DataType="viewmodel:__ComponentPrefix__ListPageViewModel"
              Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add" Command="{Binding AddProductCommand}" IconImageSource="add.png" />
-        <ToolbarItem Text="Refresh" Command="{Binding RefreshProductsCommand}" IconImageSource="refresh.png" />
+        <ToolbarItem Text="Add" Command="{Binding Add__ComponentPrefix__Command}" IconImageSource="add.png" />
+        <ToolbarItem Text="Refresh" Command="{Binding Refresh__ComponentPrefix__sCommand}" IconImageSource="refresh.png" />
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -20,16 +20,16 @@
 
         <!-- Search Bar -->
         <SearchBar Grid.Row="0"
-                   Placeholder="Search products..."
+                   Placeholder="Search __ComponentPrefix__s..."
                    Text="{Binding SearchText}"
-                   SearchCommand="{Binding SearchProductsCommand}"
+                   SearchCommand="{Binding Search__ComponentPrefix__sCommand}"
                    HorizontalOptions="FillAndExpand"
                    Margin="15,10" />
 
-        <!-- Products List -->
+        <!-- __ComponentPrefix__s List -->
         <RefreshView Grid.Row="1"
                      IsRefreshing="{Binding IsRefreshing}"
-                     Command="{Binding RefreshProductsCommand}">
+                     Command="{Binding Refresh__ComponentPrefix__sCommand}">
 
             <CollectionView ItemsSource="{Binding Items}"
                             BackgroundColor="Transparent"
@@ -37,11 +37,11 @@
 
                 <CollectionView.EmptyView>
                     <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
-                        <Label Text="No products found"
+                        <Label Text="No __ComponentPrefix__s found"
                                FontSize="18"
                                FontAttributes="Bold"
                                HorizontalOptions="Center" />
-                        <Label Text="Tap the + button to add your first product"
+                        <Label Text="Tap the + button to add your first __ComponentPrefix__"
                                FontSize="14"
                                TextColor="Gray"
                                HorizontalOptions="Center"
@@ -50,7 +50,7 @@
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:ProductListingViewModel">
+                    <DataTemplate x:DataType="models:__ComponentPrefix__ListingViewModel">
                         <Grid Padding="15,10">
                             <Frame BackgroundColor="White"
                                    HasShadow="True"
@@ -74,16 +74,11 @@
                                                TextColor="Gray"
                                                LineBreakMode="TailTruncation"
                                                MaxLines="2" />
-
-                                        <Label Text="{Binding Price, StringFormat='${0:F2}'}"
-                                               FontSize="16"
-                                               FontAttributes="Bold"
-                                               TextColor="Green" />
                                     </StackLayout>
 
                                     <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center">
                                         <Button Text="Edit"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ProductListPageViewModel}}, Path=EditProductCommand}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:__ComponentPrefix__ListPageViewModel}}, Path=Edit__ComponentPrefix__Command}"
                                                 CommandParameter="{Binding .}"
                                                 BackgroundColor="LightBlue"
                                                 TextColor="DarkBlue"
@@ -92,7 +87,7 @@
                                                 FontSize="12" />
 
                                         <Button Text="Delete"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ProductListPageViewModel}}, Path=DeleteProductCommand}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:__ComponentPrefix__ListPageViewModel}}, Path=Delete__ComponentPrefix__Command}"
                                                 CommandParameter="{Binding .}"
                                                 BackgroundColor="LightCoral"
                                                 TextColor="DarkRed"

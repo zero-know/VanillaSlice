@@ -4,8 +4,7 @@ using {{ProjectName}}.ClientShared.Extensions;
 using {{ProjectName}}.Framework;
 using {{ProjectName}}.MauiNativeApp.Services;
 using {{ProjectName}}.MauiNativeApp.Views;
-using {{ProjectName}}.MauiNativeApp.ViewModels;
-using {{ProjectName}}.MauiNativeApp.ViewModels.Products;
+using {{ProjectName}}.MauiNativeApp.features.Products;
 using CommunityToolkit.Maui;
 
 namespace {{ProjectName}}.MauiNativeApp;
@@ -26,8 +25,8 @@ public static class MauiProgram
 
         // Register ViewModels
         builder.Services.AddTransient<MainViewModel>();
-        builder.Services.AddTransient<ProductListViewModel>();
-        builder.Services.AddTransient<ProductFormViewModel>();
+        builder.Services.AddTransient<ProductListPageViewModel>();
+        builder.Services.AddTransient<ProductFormPageViewModel>();
 
         // Register Views
         builder.Services.AddTransient<MainPage>();

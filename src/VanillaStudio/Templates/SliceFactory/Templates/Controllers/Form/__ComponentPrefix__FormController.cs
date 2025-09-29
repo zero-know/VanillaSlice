@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
+using {{RootNamespace}}.ServiceContracts.Features.__ComponentPrefix__;
 
-namespace __projectNamespace__;
+namespace {{RootNamespace}}.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

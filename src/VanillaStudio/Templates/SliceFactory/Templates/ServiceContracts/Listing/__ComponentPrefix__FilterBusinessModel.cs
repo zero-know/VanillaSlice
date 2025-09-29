@@ -1,6 +1,6 @@
 using {{RootNamespace}}.Framework;
 
-namespace __projectNamespace__;
+namespace {{RootNamespace}}.ServiceContracts.Features.__ComponentPrefix__;
 
 public class __ComponentPrefix__FilterBusinessModel : BaseFilterBusinessObject
 {
