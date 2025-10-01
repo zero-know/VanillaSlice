@@ -2,9 +2,10 @@ using Microsoft.Extensions.Logging;
 using {{ProjectName}}.ClientShared;
 using {{ProjectName}}.ClientShared.Extensions;
 using {{ProjectName}}.Framework;
-using {{ProjectName}}.MauiNativeApp.Services;
+using {{ProjectName}}.NativeMauiApp.Services;
 using {{ProjectName}}.MauiNativeApp.Views;
-using {{ProjectName}}.MauiNativeApp.features.Products;
+using {{ProjectName}}.MauiNativeApp.Features.Products;
+using {{ProjectName}}.MauiNativeApp.ViewModels;
 using CommunityToolkit.Maui;
 
 namespace {{ProjectName}}.MauiNativeApp;
