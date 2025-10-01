@@ -1,9 +1,9 @@
 using {{RootNamespace}}.Framework;
 using {{RootNamespace}}.Framework.Extensions;
-using {{RootNamespace}}.Client.Shared;
+using {{RootNamespace}}.ClientShared;
 using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
 
-namespace {{ProjectName}}.Client.Shared.Features.__moduleNamespace__;
+namespace {{ProjectName}}.ClientShared.Features.__moduleNamespace__;
 
 internal class __ComponentPrefix__ListingClientDataService : I__ComponentPrefix__ListingDataService
 {

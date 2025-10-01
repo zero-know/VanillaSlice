@@ -1,5 +1,6 @@
 @using {{RootNamespace}}.Framework
 @using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__
+@using {{RootNamespace}}.ClientShared.Features.__moduleNamespace__
 @page "/__componentPrefixPlural__"
 @inherits ListingBase<__ComponentPrefix__ListingViewModel, __ComponentPrefix__ListingBusinessModel,
                                 __ComponentPrefix__FilterViewModel, __ComponentPrefix__FilterBusinessModel, I__ComponentPrefix__ListingDataService>

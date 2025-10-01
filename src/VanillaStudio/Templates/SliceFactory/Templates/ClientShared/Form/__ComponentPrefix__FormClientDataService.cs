@@ -1,8 +1,8 @@
-using {{RootNamespace}}.Client.Shared;
+using {{RootNamespace}}.ClientShared;
 using {{RootNamespace}}.Framework;
 using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
 
-namespace {{ProjectName}}.Client.Shared.Features.__moduleNamespace__;
+namespace {{ProjectName}}.ClientShared.Features.__moduleNamespace__;
 
 internal class __ComponentPrefix__FormClientDataService : I__ComponentPrefix__FormDataService
 {

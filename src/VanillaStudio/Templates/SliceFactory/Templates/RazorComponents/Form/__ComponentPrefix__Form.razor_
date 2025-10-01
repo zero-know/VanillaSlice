@@ -3,6 +3,7 @@
 @using Microsoft.Extensions.DependencyInjection
 @using Microsoft.AspNetCore.Components.Forms
 @using {{RootNamespace}}.Framework
+@using {{RootNamespace}}.ClientShared.Features.__moduleNamespace__
 @using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__
 
 @inherits FormBase<__ComponentPrefix__FormViewModel, __ComponentPrefix__FormBusinessModel, __primaryKeyType__, I__ComponentPrefix__FormDataService>
