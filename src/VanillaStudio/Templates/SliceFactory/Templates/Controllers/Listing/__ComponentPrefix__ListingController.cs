@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using {{RootNamespace}}.Framework;
-using {{RootNamespace}}.ServiceContracts.Features.__ComponentPrefix__;
+using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
 
 namespace {{RootNamespace}}.WebAPI.Controllers;
 

@@ -1,6 +1,6 @@
-using {{RootNamespace}}.MauiNativeApp.ViewModels.__ComponentPrefix__;
+using {{RootNamespace}}.MauiNativeApp.ViewModels.__moduleNamespace__;
 
-namespace {{RootNamespace}}.MauiNativeApp.Views.__ComponentPrefix__;
+namespace {{RootNamespace}}.MauiNativeApp.Views.__moduleNamespace__;
 
 public partial class __ComponentPrefix__ListPage : ContentPage
 {

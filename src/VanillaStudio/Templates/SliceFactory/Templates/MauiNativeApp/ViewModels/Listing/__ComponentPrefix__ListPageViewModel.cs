@@ -1,8 +1,8 @@
-using {{RootNamespace}}.ClientShared.Features.__ComponentPrefix__;
+using {{RootNamespace}}.ClientShared.Features.__moduleNamespace__;
 using {{RootNamespace}}.MauiShared;
-using {{RootNamespace}}.ServiceContracts.Features.__ComponentPrefix__;
+using {{RootNamespace}}.ServiceContracts.Features.__moduleNamespace__;
 
-namespace {{RootNamespace}}.MauiNativeApp.ViewModels.__ComponentPrefix__;
+namespace {{RootNamespace}}.MauiNativeApp.ViewModels.__moduleNamespace__;
 
 public partial class __ComponentPrefix__ListPageViewModel : ListingBaseMaui<__ComponentPrefix__ListingViewModel, __ComponentPrefix__ListingBusinessModel,
                                 __ComponentPrefix__FilterViewModel, __ComponentPrefix__FilterBusinessModel, I__ComponentPrefix__ListingDataService>

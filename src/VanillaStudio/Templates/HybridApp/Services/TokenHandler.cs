@@ -1,6 +1,6 @@
 using {{ProjectName}}.Framework;
 
-namespace {{ProjectName}}.HybridApp.Helpers;
+namespace {{ProjectName}}.HybridApp.Services;
 
 public class TokenHandler : DelegatingHandler
 {

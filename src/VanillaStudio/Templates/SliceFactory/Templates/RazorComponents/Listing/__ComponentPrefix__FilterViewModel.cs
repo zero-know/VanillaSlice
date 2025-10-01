@@ -1,6 +1,6 @@
 using {{RootNamespace}}.Framework;
 
-namespace {{RootNamespace}}.ClientShared.Features.__ComponentPrefix__;
+namespace {{RootNamespace}}.ClientShared.Features.__moduleNamespace__;
 
 public class __ComponentPrefix__FilterViewModel : BaseFilterViewModel
 {
