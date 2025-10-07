@@ -5,7 +5,7 @@ VanillaSlice is a .NET-first framework that blends Clean Architecture with Verti
 
 # VanillaStudio
 
-🚀 A comprehensive .NET project generator that creates enterprise-ready applications with multiple platform support, modern UI frameworks, and integrated services. Along with projects, a SliceFactory is generated as per selected options to generated feature slice everytime you need a new featrue. [Access online hosted version here](https://vanillaslice-h9csh5hhhkdvhphn.uaenorth-01.azurewebsites.net/)
+🚀 A comprehensive .NET project generator that creates enterprise-ready applications with multiple platform support, modern UI frameworks, and integrated services. Along with projects, a SliceFactory is generated as per selected options to generated feature slice everytime you need a new featrue. [Access online hosted version here](https://vanillaslice.dev/)
 
 # SliceFactory
 SliceFactory generates end-to-end feature slices—Listing and Form—each containing Razor/XAML UI, ViewModels, business models, a typed client service (via HttpClient), a server-side controller, and a server-side service with the actual business logic and queries. All code is plain C# and SOLID by default: the factory enforces structure through interfaces and generates safe, empty stubs so you focus on domain logic, not plumbing. Everything comes pre-wired (DI, routing, endpoints). Just add fields/properties to your models and UI, implement the query/commands, and your slice is ready.
@@ -51,10 +51,10 @@ SliceFactory generates end-to-end feature slices—Listing and Form—each conta
 | MAUI Native App | ✅ **Fully Implemented**  | Cross-platform mobile support |
 | **UI Frameworks** |
 | Bootstrap 5 | ✅ **Complete** | Default implementation |
-| Microsoft Fluent UI | 🔄 **In Progress** | Blazor integration underway |
+| Microsoft Fluent UI | ✅ **Complete**  | Blazor integration underway |
 | MudBlazor | 🔄 **In Progress** | Material Design components |
 | Radzen Components | 🔄 **In Progress** | Rich UI component library |
-| Tailwind CSS | 🔄 **In Progress** | Utility-first CSS integration |
+| Tailwind CSS | ✅ **Complete**  | Utility-first CSS integration |
 | **Services & Features** |
 | Authentication | ✅ **Complete** | Identity with JWT support |
 | Database Integration | ✅ **Complete** | EF Core with multiple providers |
