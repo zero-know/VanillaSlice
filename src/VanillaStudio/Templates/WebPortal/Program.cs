@@ -58,6 +58,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddServerSideFeatureServices();
 
+// Dialog Service
+builder.Services.AddSingleton<{{ProjectName}}.Framework.Services.DialogService>();
+
 // Add services to the container.
 var controllersAssembly = new AssemblyPart((typeof(FeaturesRegistrationExt)).Assembly);
 builder.Services.AddControllers().PartManager.ApplicationParts.Add(controllersAssembly);

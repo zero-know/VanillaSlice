@@ -216,3 +216,6 @@
     }
 }
 {{/if}}
+
+<!-- Dialog Container - Works with all UI frameworks -->
+<{{ProjectName}}.Framework.Components.DialogContainer />

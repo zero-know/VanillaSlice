@@ -30,6 +30,9 @@ builder.Services.AddRadzenComponents();
 builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
 builder.Services.AddTransient<CookieHandler>();
 
+// Dialog Service
+builder.Services.AddSingleton<{{ProjectName}}.Framework.Services.DialogService>();
+
 builder.Services.AddHttpClient<BaseHttpClient, HttpCookieClient>("ServerAPI", client =>
 {
     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);

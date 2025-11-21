@@ -25,6 +25,9 @@ namespace {{ProjectName}}.HybridApp
             builder.Services.AddScoped<TokenHandler>();
             builder.Services.AddClientSideFeatureServices();
             builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
+
+            // Dialog Service
+            builder.Services.AddSingleton<{{ProjectName}}.Framework.Services.DialogService>();
             builder.Services.AddHttpClient<BaseHttpClient, HttpTokenClient>("ServerAPI", client =>
             {
     #if DEBUG

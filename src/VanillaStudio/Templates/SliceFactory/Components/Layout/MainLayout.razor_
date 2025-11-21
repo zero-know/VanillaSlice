@@ -21,3 +21,6 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">??</span>
 </div>
+
+<!-- Dialog Container -->
+<{{ProjectName}}.Framework.Components.DialogContainer />

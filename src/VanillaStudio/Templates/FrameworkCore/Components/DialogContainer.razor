@@ -1,0 +1,92 @@
+@using {{ProjectName}}.Framework.Services
+@inject DialogService DialogService
+@implements IDisposable
+
+@if (DialogService.Dialogs.Any())
+{
+    @foreach (var dialog in DialogService.Dialogs)
+    {
+        <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: @dialog.ZIndex" @key="dialog.Id">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                 @onclick="() => OnBackdropClick(dialog)"></div>
+
+            <!-- Dialog -->
+            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full @GetWidthClass(dialog) @GetHeightClass(dialog) flex flex-col transform transition-all"
+                 @onclick:stopPropagation="true">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        @dialog.Title
+                    </h3>
+                    <button type="button"
+                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            @onclick="() => CloseDialog(dialog.Id)">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 overflow-y-auto px-6 py-4">
+                    <DynamicComponent Type="@dialog.ComponentType" Parameters="@dialog.Parameters" />
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        DialogService.OnDialogsChanged += StateHasChanged;
+    }
+
+    private void CloseDialog(Guid dialogId)
+    {
+        DialogService.CloseDialog(dialogId);
+    }
+
+    private void OnBackdropClick(DialogOptions dialog)
+    {
+        if (dialog.CloseOnBackdropClick)
+        {
+            CloseDialog(dialog.Id);
+        }
+    }
+
+    private string GetWidthClass(DialogOptions dialog)
+    {
+        if (!string.IsNullOrEmpty(dialog.Width))
+        {
+            // If custom width is provided, use it as a style or class
+            if (dialog.Width.StartsWith("max-w-"))
+            {
+                return dialog.Width; // Tailwind max-width class
+            }
+            return ""; // Will be handled by inline style
+        }
+        return "max-w-2xl"; // Default width
+    }
+
+    private string GetHeightClass(DialogOptions dialog)
+    {
+        if (!string.IsNullOrEmpty(dialog.Height))
+        {
+            // If custom height is provided
+            if (dialog.Height.StartsWith("max-h-"))
+            {
+                return dialog.Height; // Tailwind max-height class
+            }
+            return ""; // Will be handled by inline style
+        }
+        return "max-h-[90vh]"; // Default height
+    }
+
+    public void Dispose()
+    {
+        DialogService.OnDialogsChanged -= StateHasChanged;
+    }
+}
