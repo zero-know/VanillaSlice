@@ -66,9 +66,7 @@ public class FeatureManagementService
     /// Create a new feature and generate its files
     /// </summary>
     public async Task<Feature> CreateFeatureAsync(
-        string name,
         string componentPrefix,
-        string featureSingularName,
         string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
@@ -95,9 +93,7 @@ public class FeatureManagementService
 
         var feature = new Feature
         {
-            Name = name,
             ComponentPrefix = componentPrefix,
-            FeatureSingularName = featureSingularName,
             FeaturePluralName = featurePluralName,
             ModuleNamespace = moduleNamespace,
             ProjectNamespace = projectNamespace,
@@ -128,9 +124,7 @@ public class FeatureManagementService
     /// </summary>
     public async Task<Feature> UpdateFeatureAsync(
         int featureId,
-        string name,
         string componentPrefix,
-        string featureSingularName,
         string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
@@ -149,9 +143,7 @@ public class FeatureManagementService
         }
 
         // Update feature properties
-        feature.Name = name;
         feature.ComponentPrefix = componentPrefix;
-        feature.FeatureSingularName = featureSingularName;
         feature.FeaturePluralName = featurePluralName;
         feature.ModuleNamespace = moduleNamespace;
         feature.ProjectNamespace = projectNamespace;
@@ -221,7 +213,6 @@ public class FeatureManagementService
     /// </summary>
     public async Task<List<FeatureFilePreview>> PreviewFeatureFilesAsync(
         string componentPrefix,
-        string featureSingularName,
         string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
@@ -265,8 +256,8 @@ public class FeatureManagementService
 
             if (hasForm)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeatureSingularNameForm
-                var formPath = Path.Combine(baseFeaturePath, $"{featureSingularName}Form");
+                // Nested path: GivenDirectoryPath/FeaturePluralName/ComponentPrefixForm
+                var formPath = Path.Combine(baseFeaturePath, $"{componentPrefix}Form");
                 var formFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Form", formPath, parameters);
                 previews.AddRange(formFiles.Select(f => new FeatureFilePreview
                 {
@@ -412,8 +403,8 @@ public class FeatureManagementService
 
             if (feature.HasForm)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeatureSingularNameForm
-                var formPath = Path.Combine(baseFeaturePath, $"{feature.FeatureSingularName}Form");
+                // Nested path: GivenDirectoryPath/FeaturePluralName/ComponentPrefixForm
+                var formPath = Path.Combine(baseFeaturePath, $"{feature.ComponentPrefix}Form");
                 await GenerateSliceFilesAsync(feature, templateDirectoryName, "Form", formPath, parameters);
             }
 

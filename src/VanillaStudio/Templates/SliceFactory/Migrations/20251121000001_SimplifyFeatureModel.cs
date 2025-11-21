@@ -5,19 +5,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace {{RootNamespace}}.SliceFactory.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFeatureSingularAndPluralNames : Migration
+    public partial class SimplifyFeatureModel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "FeatureSingularName",
-                table: "Features",
-                type: "TEXT",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
+            // Remove the Name column
+            migrationBuilder.DropColumn(
+                name: "Name",
+                table: "Features");
 
+            // Add FeaturePluralName column
             migrationBuilder.AddColumn<string>(
                 name: "FeaturePluralName",
                 table: "Features",
@@ -30,10 +28,16 @@ namespace {{RootNamespace}}.SliceFactory.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "FeatureSingularName",
-                table: "Features");
+            // Re-add the Name column
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "Features",
+                type: "TEXT",
+                maxLength: 100,
+                nullable: false,
+                defaultValue: "");
 
+            // Remove FeaturePluralName column
             migrationBuilder.DropColumn(
                 name: "FeaturePluralName",
                 table: "Features");

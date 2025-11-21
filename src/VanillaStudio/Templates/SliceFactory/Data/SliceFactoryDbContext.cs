@@ -21,9 +21,7 @@ public class SliceFactoryDbContext : DbContext
         modelBuilder.Entity<Feature>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.ComponentPrefix).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.FeatureSingularName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.FeaturePluralName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.ModuleNamespace).IsRequired().HasMaxLength(100);
             entity.Property(e => e.ProjectNamespace).IsRequired().HasMaxLength(200);

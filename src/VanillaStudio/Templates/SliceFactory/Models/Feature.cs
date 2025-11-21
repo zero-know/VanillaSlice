@@ -11,15 +11,7 @@ public class Feature
 
     [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
     public string ComponentPrefix { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
-    public string FeatureSingularName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(100)]

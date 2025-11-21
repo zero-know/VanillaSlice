@@ -88,8 +88,15 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Component Prefix <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Feature Singular Name <span class="text-danger">*</span></label>
                                 <InputText class="form-control" @bind-Value="M.ComponentPrefix" placeholder="Article" />
+                                <small class="form-text text-muted">Used for Form directories (e.g., ArticleForm)</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Feature Plural Name <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="M.FeaturePluralName" placeholder="Articles" />
+                                <small class="form-text text-muted">Used for Listing directories (e.g., ArticlesListing)</small>
                             </div>
 
                             <div class="col-md-6">

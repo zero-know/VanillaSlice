@@ -18,7 +18,6 @@ public partial class Index
     private bool HasValidationErrors => !string.IsNullOrEmpty(M.DirectoryName) &&
                                        !string.IsNullOrEmpty(M.NameSpace) &&
                                        !string.IsNullOrEmpty(M.ComponentPrefix) &&
-                                       !string.IsNullOrEmpty(M.FeatureSingularName) &&
                                        !string.IsNullOrEmpty(M.FeaturePluralName) &&
                                        !string.IsNullOrEmpty(M.PkType);
 
@@ -163,9 +162,7 @@ public partial class Index
 
             // Create feature using the new feature management system
             var feature = await FeatureService.CreateFeatureAsync(
-                name: M.ComponentPrefix ?? "Unknown",
                 componentPrefix: M.ComponentPrefix ?? "",
-                featureSingularName: M.FeatureSingularName ?? "",
                 featurePluralName: M.FeaturePluralName ?? "",
                 moduleNamespace: M.NameSpace ?? "",
                 projectNamespace: $"{wooqlawProfile.Projects.FirstOrDefault()?.NameSpace}.{M.NameSpace}",
@@ -290,7 +287,6 @@ public partial class Index
                 // Generate file preview
                 PreviewFiles = await FeatureService.PreviewFeatureFilesAsync(
                     componentPrefix: M.ComponentPrefix ?? "",
-                    featureSingularName: M.FeatureSingularName ?? "",
                     featurePluralName: M.FeaturePluralName ?? "",
                     moduleNamespace: M.NameSpace ?? "",
                     projectNamespace: $"{wooqlawProfile.Projects.FirstOrDefault()?.NameSpace}.{M.NameSpace}",
@@ -345,7 +341,6 @@ public partial class Index
         return !string.IsNullOrEmpty(M.DirectoryName) &&
                !string.IsNullOrEmpty(M.NameSpace) &&
                !string.IsNullOrEmpty(M.ComponentPrefix) &&
-               !string.IsNullOrEmpty(M.FeatureSingularName) &&
                !string.IsNullOrEmpty(M.FeaturePluralName) &&
                !string.IsNullOrEmpty(M.PkType) &&
                (M.GenerateForm || M.GenerateListing || M.GenerateSelectList);
@@ -367,9 +362,6 @@ public class FormViewModel
 
     [Required]
     public string? ComponentPrefix { get; set; }
-
-    [Required]
-    public string? FeatureSingularName { get; set; }
 
     [Required]
     public string? FeaturePluralName { get; set; }
