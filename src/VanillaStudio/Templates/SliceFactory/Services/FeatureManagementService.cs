@@ -68,6 +68,8 @@ public class FeatureManagementService
     public async Task<Feature> CreateFeatureAsync(
         string name,
         string componentPrefix,
+        string featureSingularName,
+        string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
         string primaryKeyType,
@@ -95,6 +97,8 @@ public class FeatureManagementService
         {
             Name = name,
             ComponentPrefix = componentPrefix,
+            FeatureSingularName = featureSingularName,
+            FeaturePluralName = featurePluralName,
             ModuleNamespace = moduleNamespace,
             ProjectNamespace = projectNamespace,
             PrimaryKeyType = primaryKeyType,
@@ -126,6 +130,8 @@ public class FeatureManagementService
         int featureId,
         string name,
         string componentPrefix,
+        string featureSingularName,
+        string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
         string primaryKeyType,
@@ -145,6 +151,8 @@ public class FeatureManagementService
         // Update feature properties
         feature.Name = name;
         feature.ComponentPrefix = componentPrefix;
+        feature.FeatureSingularName = featureSingularName;
+        feature.FeaturePluralName = featurePluralName;
         feature.ModuleNamespace = moduleNamespace;
         feature.ProjectNamespace = projectNamespace;
         feature.PrimaryKeyType = primaryKeyType;
@@ -213,6 +221,8 @@ public class FeatureManagementService
     /// </summary>
     public async Task<List<FeatureFilePreview>> PreviewFeatureFilesAsync(
         string componentPrefix,
+        string featureSingularName,
+        string featurePluralName,
         string moduleNamespace,
         string projectNamespace,
         string primaryKeyType,
@@ -234,46 +244,53 @@ public class FeatureManagementService
             if (string.IsNullOrEmpty(templateDirectoryName))
                 continue;
 
-            var projectPath = Path.Combine(basePath, project.Path, directoryName);
+            // Base path: GivenDirectoryPath/FeaturePluralName
+            var baseFeaturePath = Path.Combine(basePath, project.Path, featurePluralName);
 
             if (hasListing)
             {
-                var listingFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Listing", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameListing
+                var listingPath = Path.Combine(baseFeaturePath, $"{featurePluralName}Listing");
+                var listingFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Listing", listingPath, parameters);
                 previews.AddRange(listingFiles.Select(f => new FeatureFilePreview
                 {
                     ProjectType = templateDirectoryName,
                     SliceType = "Listing",
                     FileName = f.Key,
-                    FilePath = Path.Combine(projectPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(projectPath, f.Key)) ?? "",
+                    FilePath = Path.Combine(listingPath, f.Key),
+                    DirectoryPath = Path.GetDirectoryName(Path.Combine(listingPath, f.Key)) ?? "",
                     Content = f.Value
                 }));
             }
 
             if (hasForm)
             {
-                var formFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Form", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeatureSingularNameForm
+                var formPath = Path.Combine(baseFeaturePath, $"{featureSingularName}Form");
+                var formFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Form", formPath, parameters);
                 previews.AddRange(formFiles.Select(f => new FeatureFilePreview
                 {
                     ProjectType = templateDirectoryName,
                     SliceType = "Form",
                     FileName = f.Key,
-                    FilePath = Path.Combine(projectPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(projectPath, f.Key)) ?? "",
+                    FilePath = Path.Combine(formPath, f.Key),
+                    DirectoryPath = Path.GetDirectoryName(Path.Combine(formPath, f.Key)) ?? "",
                     Content = f.Value
                 }));
             }
 
             if (hasSelectList)
             {
-                var selectListFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "SelectList", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameSelectList
+                var selectListPath = Path.Combine(baseFeaturePath, $"{featurePluralName}SelectList");
+                var selectListFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "SelectList", selectListPath, parameters);
                 previews.AddRange(selectListFiles.Select(f => new FeatureFilePreview
                 {
                     ProjectType = templateDirectoryName,
                     SliceType = "SelectList",
                     FileName = f.Key,
-                    FilePath = Path.Combine(projectPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(projectPath, f.Key)) ?? "",
+                    FilePath = Path.Combine(selectListPath, f.Key),
+                    DirectoryPath = Path.GetDirectoryName(Path.Combine(selectListPath, f.Key)) ?? "",
                     Content = f.Value
                 }));
             }
@@ -372,14 +389,15 @@ public class FeatureManagementService
             if (string.IsNullOrEmpty(templateDirectoryName))
                 continue;
 
-            var projectPath = Path.Combine(feature.BasePath, project.Path, feature.DirectoryName);
+            // Base path: GivenDirectoryPath/FeaturePluralName
+            var baseFeaturePath = Path.Combine(feature.BasePath, project.Path, feature.FeaturePluralName);
 
             // Create FeatureProject record
             var featureProject = new FeatureProject
             {
                 FeatureId = feature.Id,
                 ProjectType = project.ProjectType,
-                ProjectPath = projectPath,
+                ProjectPath = baseFeaturePath,
                 ProjectNamespace = project.NameSpace ?? "",
                 CreatedAt = DateTime.UtcNow
             };
@@ -387,17 +405,23 @@ public class FeatureManagementService
 
             if (feature.HasListing)
             {
-                await GenerateSliceFilesAsync(feature, templateDirectoryName, "Listing", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameListing
+                var listingPath = Path.Combine(baseFeaturePath, $"{feature.FeaturePluralName}Listing");
+                await GenerateSliceFilesAsync(feature, templateDirectoryName, "Listing", listingPath, parameters);
             }
 
             if (feature.HasForm)
             {
-                await GenerateSliceFilesAsync(feature, templateDirectoryName, "Form", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeatureSingularNameForm
+                var formPath = Path.Combine(baseFeaturePath, $"{feature.FeatureSingularName}Form");
+                await GenerateSliceFilesAsync(feature, templateDirectoryName, "Form", formPath, parameters);
             }
 
             if (feature.HasSelectList)
             {
-                await GenerateSliceFilesAsync(feature, templateDirectoryName, "SelectList", projectPath, parameters);
+                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameSelectList
+                var selectListPath = Path.Combine(baseFeaturePath, $"{feature.FeaturePluralName}SelectList");
+                await GenerateSliceFilesAsync(feature, templateDirectoryName, "SelectList", selectListPath, parameters);
             }
         }
 

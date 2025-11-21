@@ -19,6 +19,14 @@ public class Feature
 
     [Required]
     [MaxLength(100)]
+    public string FeatureSingularName { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string FeaturePluralName { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
     public string ModuleNamespace { get; set; } = string.Empty;
 
     [Required]
