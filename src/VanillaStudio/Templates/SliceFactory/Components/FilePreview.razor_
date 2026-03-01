@@ -13,60 +13,139 @@
     }
     else if (_flatTree.Any())
     {
+        <!-- Stats bar -->
         <div class="tree-stats-bar px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
-            <span class="text-muted small">
-                <i class="bi bi-files me-1 text-primary"></i>
-                <strong class="text-dark">@PreviewFiles!.Count</strong> files &nbsp;&middot;&nbsp;
-                <strong class="text-dark">@_projectCount</strong> projects
+            <span class="small d-flex align-items-center gap-2">
+                <span class="tree-stat-new">
+                    <i class="bi bi-plus-circle-fill me-1"></i>@_newFileCount new
+                </span>
+                @if (_existingFileCount > 0)
+                {
+                    <span class="tree-stat-sep">&middot;</span>
+                    <span class="tree-stat-existing">
+                        <i class="bi bi-folder2 me-1"></i>@_existingFileCount existing
+                    </span>
+                }
+                <span class="tree-stat-sep">&middot;</span>
+                <span class="tree-stat-projects">@_projectCount projects</span>
             </span>
-            <button class="btn btn-link btn-sm p-0 text-muted" @onclick="CollapseAll" title="Collapse All">
+            <button class="btn btn-link btn-sm p-0 tree-collapse-btn" @onclick="CollapseAll" title="Collapse All">
                 <i class="bi bi-arrows-collapse"></i>
             </button>
         </div>
 
+        <!-- Legend -->
+        <div class="tree-legend">
+            <span class="legend-item">
+                <span class="legend-dot legend-new"></span>New
+            </span>
+            <span class="legend-item">
+                <span class="legend-dot legend-existing"></span>Existing
+            </span>
+        </div>
+
+        <!-- File tree -->
         <div class="file-tree-scroll">
             @foreach (var item in _flatTree)
             {
-                <div class="tree-row @(item.Node.IsFile ? "tree-row-file" : "tree-row-dir")"
+                var isNew = item.Node.HasNewDescendants;
+                var isCollapsed = _collapsedNodes.Contains(item.Node.NodeId);
+
+                <div class="tree-row @(item.Node.IsFile ? "tree-row-file" : "tree-row-dir") @(isNew ? "tree-row-new" : "tree-row-existing")"
                      style="padding-left: calc(@(item.Level * 16)px + 10px)"
                      @onclick="@(() => ToggleNode(item.Node))">
 
+                    @* Expand/collapse chevron *@
                     @if (!item.Node.IsFile)
                     {
                         <span class="tree-chevron me-1">
-                            <i class="bi @(_collapsedNodes.Contains(item.Node.NodeId) ? "bi-chevron-right" : "bi-chevron-down")"></i>
+                            <i class="bi @(isCollapsed ? "bi-chevron-right" : "bi-chevron-down")"></i>
                         </span>
+                    }
+                    else
+                    {
+                        <span class="tree-chevron-spacer me-1"></span>
+                    }
+
+                    @* Icon *@
+                    @if (!item.Node.IsFile)
+                    {
                         @if (item.Level == 0)
                         {
                             <i class="bi bi-box-seam tree-icon-project me-2"></i>
                         }
                         else
                         {
-                            <i class="bi @(_collapsedNodes.Contains(item.Node.NodeId) ? "bi-folder2" : "bi-folder2-open") tree-icon-folder me-2"></i>
+                            <i class="bi @(isCollapsed ? "bi-folder2" : "bi-folder2-open") @(isNew ? "tree-icon-folder-new" : "tree-icon-folder-existing") me-2"></i>
                         }
                     }
                     else
                     {
-                        <span class="tree-chevron-spacer me-1"></span>
-                        <i class="bi @GetFileIcon(item.Node.Name) me-2"></i>
+                        <i class="bi @GetFileIcon(item.Node.Name) @(item.Node.IsNew ? "" : "tree-icon-file-existing") me-2"></i>
                     }
 
-                    <span class="tree-label @(item.Level == 0 ? "tree-label-project" : item.Node.IsFile ? "tree-label-file" : "tree-label-dir")">
+                    @* Label *@
+                    <span class="tree-label @(item.Level == 0 ? "tree-label-project" : item.Node.IsFile ? (item.Node.IsNew ? "tree-label-file-new" : "tree-label-file-existing") : (isNew ? "tree-label-dir-new" : "tree-label-dir-existing"))">
                         @item.Node.Name
                     </span>
 
-                    @if (item.Node.IsFile && item.Node.FileData != null)
-                    {
-                        <span class="ms-auto tree-slice-badge @GetSliceBadgeClass(item.Node.FileData.SliceType)">
-                            @item.Node.FileData.SliceType
-                        </span>
-                    }
-                    @if (!item.Node.IsFile && item.Level == 0)
-                    {
-                        <span class="ms-auto tree-count-badge">
-                            @item.Node.TotalFileCount
-                        </span>
-                    }
+                    @* Right-side badges *@
+                    <span class="ms-auto d-flex align-items-center gap-1 flex-shrink-0">
+
+                        @* NEW slice directory: show + badge + SliceType *@
+                        @if (!item.Node.IsFile && item.Level > 0 && isNew)
+                        {
+                            var sliceType = item.Node.NewSliceType;
+                            @if (!string.IsNullOrEmpty(sliceType))
+                            {
+                                <span class="tree-new-pill">+</span>
+                                <span class="tree-slice-badge @GetSliceBadgeClass(sliceType)">@sliceType</span>
+                            }
+                            else
+                            {
+                                <span class="tree-new-pill">+</span>
+                            }
+                        }
+
+                        @* NEW file: SliceType badge *@
+                        @if (item.Node.IsFile && item.Node.IsNew && !string.IsNullOrEmpty(item.Node.FileData?.SliceType))
+                        {
+                            <span class="tree-slice-badge @GetSliceBadgeClass(item.Node.FileData!.SliceType)">
+                                @item.Node.FileData.SliceType
+                            </span>
+                        }
+
+                        @* EXISTING file: [ModuleNamespace.SliceType] colored badge *@
+                        @if (item.Node.IsFile && !item.Node.IsNew && item.Node.FileData != null)
+                        {
+                            var sliceType = item.Node.FileData.SliceType;
+                            var moduleNs  = item.Node.FileData.ModuleNamespace;
+                            if (!string.IsNullOrEmpty(sliceType))
+                            {
+                                var badgeText = string.IsNullOrEmpty(moduleNs) ? sliceType : $"{moduleNs}.{sliceType}";
+                                <span class="tree-slice-badge @GetSliceBadgeClass(sliceType) tree-badge-existing" title="@badgeText">@badgeText</span>
+                            }
+                        }
+
+                        @* EXISTING directory: [ModuleNamespace.SliceType] colored badge *@
+                        @if (!item.Node.IsFile && item.Level > 0 && !isNew)
+                        {
+                            var existingFile = FindFirstExistingFile(item.Node);
+                            if (existingFile != null && !string.IsNullOrEmpty(existingFile.SliceType))
+                            {
+                                var badgeText = string.IsNullOrEmpty(existingFile.ModuleNamespace)
+                                    ? existingFile.SliceType
+                                    : $"{existingFile.ModuleNamespace}.{existingFile.SliceType}";
+                                <span class="tree-slice-badge @GetSliceBadgeClass(existingFile.SliceType) tree-badge-existing" title="@badgeText">@badgeText</span>
+                            }
+                        }
+
+                        @* Project-level file count *@
+                        @if (!item.Node.IsFile && item.Level == 0)
+                        {
+                            <span class="tree-count-badge">@item.Node.TotalFileCount</span>
+                        }
+                    </span>
                 </div>
             }
         </div>
@@ -75,9 +154,9 @@
     {
         <div class="tree-empty-state d-flex flex-column align-items-center justify-content-center text-muted">
             <i class="bi bi-folder2-open tree-empty-icon mb-3"></i>
-            <p class="small mb-1 fw-semibold">No Preview Available</p>
+            <p class="small mb-1 fw-semibold">No Features Generated Yet</p>
             <p class="small text-center px-3 mb-0" style="font-size: 0.75rem;">
-                Fill in the configuration fields to see the file structure that will be generated
+                Fill in the form to preview and generate your first slice
             </p>
         </div>
     }
@@ -87,24 +166,52 @@
     [Parameter] public List<FeatureFilePreview>? PreviewFiles { get; set; }
     [Parameter] public bool IsLoading { get; set; }
 
+    // ── Tree node model ──────────────────────────────────────────────────────────
     private class FileTreeNode
     {
         public string Name { get; set; } = "";
         public bool IsFile { get; set; }
+        public bool IsNew { get; set; } = true;          // file-level: is this file newly generated?
         public FeatureFilePreview? FileData { get; set; }
         public List<FileTreeNode> Children { get; set; } = new();
         public string NodeId { get; set; } = Guid.NewGuid().ToString("N")[..8];
+
         public int TotalFileCount => IsFile ? 1 : Children.Sum(c => c.TotalFileCount);
+
+        /// <summary>True when this node or any descendant is a newly-generated file.</summary>
+        public bool HasNewDescendants => IsFile ? IsNew : Children.Any(c => c.HasNewDescendants);
+
+        /// <summary>
+        /// The slice type inferred from the first new-file descendant.
+        /// Used to show the "Form / Listing / SelectList" badge on new directory nodes.
+        /// </summary>
+        public string NewSliceType
+        {
+            get
+            {
+                if (IsFile) return IsNew ? (FileData?.SliceType ?? "") : "";
+                foreach (var c in Children)
+                {
+                    var t = c.NewSliceType;
+                    if (!string.IsNullOrEmpty(t)) return t;
+                }
+                return "";
+            }
+        }
     }
 
     private record FlatItem(FileTreeNode Node, int Level);
 
+    // ── State ────────────────────────────────────────────────────────────────────
     private List<FlatItem> _flatTree = new();
     private List<FileTreeNode> _cachedTree = new();
     private HashSet<string> _collapsedNodes = new();
     private List<FeatureFilePreview>? _lastFiles;
     private int _projectCount;
+    private int _newFileCount;
+    private int _existingFileCount;
 
+    // ── Lifecycle ────────────────────────────────────────────────────────────────
     protected override void OnParametersSet()
     {
         if (!ReferenceEquals(_lastFiles, PreviewFiles))
@@ -113,10 +220,18 @@
             _lastFiles = PreviewFiles;
             _cachedTree = BuildTree();
             _projectCount = _cachedTree.Count;
+            _newFileCount = PreviewFiles?.Count(f => f.IsNew) ?? 0;
+            _existingFileCount = PreviewFiles?.Count(f => !f.IsNew) ?? 0;
+
+            // Collapse directory nodes that have NO new descendants (existing-only subtrees).
+            foreach (var node in GetAllDirNodes(_cachedTree).Where(n => !n.HasNewDescendants))
+                _collapsedNodes.Add(node.NodeId);
+
             _flatTree = FlattenTree(_cachedTree, 0).ToList();
         }
     }
 
+    // ── Tree construction ────────────────────────────────────────────────────────
     private List<FileTreeNode> BuildTree()
     {
         if (PreviewFiles == null || !PreviewFiles.Any()) return new();
@@ -126,30 +241,21 @@
         foreach (var projectGroup in PreviewFiles.GroupBy(f => f.ProjectType).OrderBy(g => g.Key))
         {
             var projectNode = new FileTreeNode { Name = GetProjectDisplayName(projectGroup.Key), IsFile = false };
-            var files = projectGroup.OrderBy(f => f.FilePath).ToList();
+            var files = projectGroup.OrderBy(f => f.IsNew ? 0 : 1).ThenBy(f => f.FilePath).ToList();
 
-            // Use the project root stored on each file to determine what to strip.
-            // This preserves all directoryName segments (including n-level paths like
-            // "Admin\Users\Settings") as visible tree nodes instead of hiding them.
             var projectRoot = files[0].ProjectRootPath;
-
-            // Fallback: if ProjectRootPath is not set, compute the deepest common
-            // ancestor that still leaves the directoryName segments intact.
             if (string.IsNullOrEmpty(projectRoot))
                 projectRoot = FallbackCommonRoot(files);
 
-            // Normalise trailing separator so stripping works cleanly.
             var normRoot = projectRoot.TrimEnd('\\', '/');
 
             foreach (var file in files)
             {
-                // Compute directory path relative to the project root.
                 var absDir = file.DirectoryPath;
                 var relativeDir = absDir.Length > normRoot.Length
                     ? absDir.Substring(normRoot.Length).TrimStart('\\', '/')
                     : absDir.TrimStart('\\', '/');
 
-                // Split into segments — each segment becomes a folder node.
                 var segments = string.IsNullOrEmpty(relativeDir)
                     ? Array.Empty<string>()
                     : relativeDir.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -170,6 +276,7 @@
                 {
                     Name = file.FileName,
                     IsFile = true,
+                    IsNew = file.IsNew,
                     FileData = file
                 });
             }
@@ -180,21 +287,15 @@
         return root;
     }
 
-    /// <summary>
-    /// Fallback when ProjectRootPath is not available: find the longest common path
-    /// prefix among all files' DirectoryPaths. Used only for backwards-compatibility.
-    /// </summary>
+    // ── Fallback path helper ─────────────────────────────────────────────────────
     private static string FallbackCommonRoot(List<FeatureFilePreview> files)
     {
         if (files.Count == 1) return "";
-
         var splitPaths = files
             .Select(f => f.DirectoryPath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries))
             .ToList();
-
         var first = splitPaths[0];
         int commonLen = first.Length;
-
         foreach (var parts in splitPaths.Skip(1))
         {
             int max = Math.Min(commonLen, parts.Length);
@@ -207,11 +308,11 @@
                     break;
             }
         }
-
         var sep = files[0].DirectoryPath.Contains('\\') ? '\\' : '/';
         return string.Join(sep.ToString(), first.Take(commonLen));
     }
 
+    // ── Tree iteration ───────────────────────────────────────────────────────────
     private IEnumerable<FlatItem> FlattenTree(List<FileTreeNode> nodes, int level)
     {
         foreach (var node in nodes)
@@ -256,6 +357,62 @@
         }
     }
 
+    // ── Namespace helpers ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Derives the full dotted namespace for a file using its ProjectNamespace and
+    /// the relative path from ProjectRootPath.
+    /// e.g. "MyApp.ServiceContracts" + "Profile\Article\ArticlesListing" →
+    ///      "MyApp.ServiceContracts.Profile.Article.ArticlesListing"
+    /// </summary>
+    private static string GetFullNamespace(FeatureFilePreview file)
+    {
+        if (string.IsNullOrEmpty(file.ProjectNamespace)) return "";
+        var normRoot = file.ProjectRootPath.TrimEnd('\\', '/');
+        var absDir = file.DirectoryPath;
+        var relDir = absDir.Length > normRoot.Length
+            ? absDir.Substring(normRoot.Length).TrimStart('\\', '/').Replace('\\', '.').Replace('/', '.')
+            : "";
+        return string.IsNullOrEmpty(relDir)
+            ? file.ProjectNamespace
+            : $"{file.ProjectNamespace}.{relDir}";
+    }
+
+    /// <summary>
+    /// Short badge text for an existing FILE: the last two namespace segments.
+    /// Full namespace is shown as tooltip.
+    /// </summary>
+    private static string GetNamespaceBadge(FeatureFilePreview file)
+    {
+        var full = GetFullNamespace(file);
+        if (string.IsNullOrEmpty(full)) return Path.GetFileName(file.DirectoryPath);
+        var parts = full.Split('.');
+        // Show last 2 segments: "Article.ArticlesListing"
+        return parts.Length <= 2 ? full : string.Join(".", parts[^2..]);
+    }
+
+    /// <summary>
+    /// Short badge text for an existing DIRECTORY node: derived from the first
+    /// existing file found under it (all files in the same dir share the namespace).
+    /// </summary>
+    private static string GetDirNamespaceBadge(FileTreeNode dirNode)
+    {
+        var file = FindFirstExistingFile(dirNode);
+        return file == null ? "" : GetNamespaceBadge(file);
+    }
+
+    private static FeatureFilePreview? FindFirstExistingFile(FileTreeNode node)
+    {
+        if (node.IsFile && !node.IsNew) return node.FileData;
+        foreach (var child in node.Children)
+        {
+            var found = FindFirstExistingFile(child);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    // ── Display helpers ──────────────────────────────────────────────────────────
     private string GetProjectDisplayName(string projectType) => projectType switch
     {
         "ServiceContracts" => "Service Contracts",
@@ -281,7 +438,7 @@
         };
     }
 
-    private string GetSliceBadgeClass(string sliceType) => sliceType switch
+    private static string GetSliceBadgeClass(string sliceType) => sliceType switch
     {
         "Form" => "badge-form",
         "Listing" => "badge-listing",
@@ -291,6 +448,7 @@
 }
 
 <style>
+    /* ── Panel shell ─────────────────────────────────────────────────────────── */
     .file-tree-panel {
         height: 100%;
         display: flex;
@@ -298,36 +456,64 @@
         background: #1e1e1e;
         border-radius: 0 0 0.375rem 0.375rem;
         overflow: hidden;
+        font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+        font-size: 0.8rem;
     }
 
     .tree-loading-state {
         background: #1e1e1e;
         color: #888 !important;
+        padding: 0.75rem 1rem;
     }
 
+    /* ── Stats bar ───────────────────────────────────────────────────────────── */
     .tree-stats-bar {
         background: #252526;
         border-color: #3c3c3c !important;
         flex-shrink: 0;
     }
 
-    .tree-stats-bar .text-muted {
-        color: #888 !important;
-    }
+    .tree-stat-new    { color: #4ec9b0; font-size: 0.72rem; }
+    .tree-stat-existing { color: #888;  font-size: 0.72rem; }
+    .tree-stat-projects { color: #666;  font-size: 0.72rem; }
+    .tree-stat-sep    { color: #444;    font-size: 0.72rem; }
 
-    .tree-stats-bar .text-dark {
-        color: #ccc !important;
-    }
-
-    .tree-stats-bar .btn-link {
-        color: #888 !important;
+    .tree-collapse-btn {
+        color: #555 !important;
         font-size: 0.8rem;
+        line-height: 1;
+    }
+    .tree-collapse-btn:hover { color: #aaa !important; }
+
+    /* ── Legend ──────────────────────────────────────────────────────────────── */
+    .tree-legend {
+        display: flex;
+        gap: 0.85rem;
+        padding: 0.3rem 0.85rem;
+        background: #252526;
+        border-bottom: 1px solid #2d2d2d;
+        flex-shrink: 0;
     }
 
-    .tree-stats-bar .btn-link:hover {
-        color: #ccc !important;
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.68rem;
+        color: #666;
     }
 
+    .legend-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .legend-new      { background: #4ec9b0; }
+    .legend-existing { background: #555; border: 1px solid #888; }
+
+    /* ── Scroll area ─────────────────────────────────────────────────────────── */
     .file-tree-scroll {
         overflow-y: auto;
         overflow-x: hidden;
@@ -336,19 +522,14 @@
         scrollbar-color: #444 #1e1e1e;
     }
 
-    .file-tree-scroll::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .file-tree-scroll::-webkit-scrollbar-track {
-        background: #1e1e1e;
-    }
-
+    .file-tree-scroll::-webkit-scrollbar { width: 6px; }
+    .file-tree-scroll::-webkit-scrollbar-track { background: #1e1e1e; }
     .file-tree-scroll::-webkit-scrollbar-thumb {
         background-color: #444;
         border-radius: 3px;
     }
 
+    /* ── Tree rows ───────────────────────────────────────────────────────────── */
     .tree-row {
         display: flex;
         align-items: center;
@@ -364,23 +545,23 @@
         min-height: 22px;
     }
 
-    .tree-row-dir {
-        cursor: pointer;
+    .tree-row-dir { cursor: pointer; }
+
+    .tree-row-new:hover {
+        background: rgba(78, 201, 176, 0.06);
+        border-left-color: rgba(78, 201, 176, 0.3);
     }
 
-    .tree-row:hover {
-        background-color: rgba(255, 255, 255, 0.06);
-        border-left-color: rgba(100, 150, 255, 0.35);
+    .tree-row-existing:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-left-color: rgba(255, 255, 255, 0.1);
     }
 
-    .tree-row-dir:hover {
-        background-color: rgba(255, 255, 255, 0.08);
-    }
-
+    /* ── Chevrons ────────────────────────────────────────────────────────────── */
     .tree-chevron {
         width: 14px;
         font-size: 0.6rem;
-        color: #666;
+        color: #555;
         flex-shrink: 0;
         display: inline-flex;
         align-items: center;
@@ -392,86 +573,74 @@
         flex-shrink: 0;
     }
 
-    .tree-icon-project {
-        font-size: 0.85rem;
-        color: #9c9cff;
+    /* ── Icons ───────────────────────────────────────────────────────────────── */
+    .tree-icon-project { font-size: 0.85rem; color: #9c9cff; flex-shrink: 0; }
+
+    .tree-icon-folder-new      { font-size: 0.85rem; color: #dcb44e; flex-shrink: 0; }
+    .tree-icon-folder-existing { font-size: 0.85rem; color: #5a5a3a; flex-shrink: 0; }
+
+    .tree-icon-file-existing { opacity: 0.45; }
+
+    /* ── Labels ──────────────────────────────────────────────────────────────── */
+    .tree-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .tree-label-project        { color: #bbb; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .tree-label-dir-new        { color: #ddd; font-weight: 500; }
+    .tree-label-dir-existing   { color: #666; font-weight: 400; font-style: italic; }
+    .tree-label-file-new       { color: #aaa; }
+    .tree-label-file-existing  { color: #555; }
+
+    /* ── Badges ──────────────────────────────────────────────────────────────── */
+
+    /* + pill on new directories */
+    .tree-new-pill {
+        font-size: 0.6rem;
+        font-weight: 700;
+        background: rgba(78, 201, 176, 0.18);
+        color: #4ec9b0;
+        border: 1px solid rgba(78, 201, 176, 0.35);
+        border-radius: 3px;
+        padding: 0 4px;
+        line-height: 1.6;
         flex-shrink: 0;
     }
 
-    .tree-icon-folder {
-        font-size: 0.85rem;
-        color: #dcb44e;
-        flex-shrink: 0;
-    }
-
-    .bi-file-earmark-code,
-    .bi-filetype-html,
-    .bi-filetype-cs,
-    .bi-filetype-xml,
-    .bi-filetype-css,
-    .bi-filetype-js,
-    .bi-filetype-json,
-    .bi-file-earmark {
-        font-size: 0.8rem;
-        flex-shrink: 0;
-    }
-
-    .tree-label {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 0.8rem;
-    }
-
-    .tree-label-project {
-        color: #ccc;
-        font-weight: 600;
-        font-size: 0.78rem;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-    }
-
-    .tree-label-dir {
-        color: #ddd;
-        font-weight: 500;
-    }
-
-    .tree-label-file {
-        color: #aaa;
-        font-family: 'Cascadia Code', 'Consolas', monospace;
-    }
-
+    /* Slice-type badges (Form / Listing / SelectList) */
     .tree-slice-badge {
         font-size: 0.58rem;
         padding: 1px 5px;
         border-radius: 3px;
         flex-shrink: 0;
-        margin-left: 6px;
         font-weight: 600;
         letter-spacing: 0.02em;
-        opacity: 0.8;
     }
 
-    .badge-form {
-        background-color: #264f78;
-        color: #9cdcfe;
+    .badge-form      { background: #264f78; color: #9cdcfe; }
+    .badge-listing   { background: #1a3a1a; color: #6a9955; }
+    .badge-selectlist { background: #3a2a1a; color: #ce9178; }
+    .badge-default   { background: #3c3c3c; color: #888; }
+
+    /* Existing-file variant: same color but dimmed */
+    .tree-badge-existing { opacity: 0.6; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Namespace badge on existing files/dirs */
+    .tree-ns-badge {
+        font-size: 0.58rem;
+        padding: 1px 5px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        font-weight: 500;
+        background: #2a2a2a;
+        color: #666;
+        border: 1px solid #3c3c3c;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: help;
+        font-family: 'Cascadia Code', 'Consolas', monospace;
     }
 
-    .badge-listing {
-        background-color: #1a3a1a;
-        color: #6a9955;
-    }
-
-    .badge-selectlist {
-        background-color: #3a2a1a;
-        color: #ce9178;
-    }
-
-    .badge-default {
-        background-color: #3c3c3c;
-        color: #888;
-    }
-
+    /* File-count badge on project nodes */
     .tree-count-badge {
         font-size: 0.62rem;
         background: #3c3c3c;
@@ -479,9 +648,9 @@
         border-radius: 10px;
         padding: 1px 6px;
         flex-shrink: 0;
-        margin-left: 6px;
     }
 
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
     .tree-empty-state {
         flex: 1;
         min-height: 200px;
@@ -489,8 +658,5 @@
         color: #555 !important;
     }
 
-    .tree-empty-icon {
-        font-size: 2.5rem;
-        color: #333;
-    }
+    .tree-empty-icon { font-size: 2.5rem; color: #333; }
 </style>

@@ -225,10 +225,10 @@ namespace ZKnow.VanillaStudio.Services
 
         private string GenerateFrameworkCoreProjectFile(ProjectConfiguration config)
         {
-            return @"<Project Sdk=""Microsoft.NET.Sdk.Razor"">
+            return $@"<Project Sdk=""Microsoft.NET.Sdk.Razor"">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -238,10 +238,10 @@ namespace ZKnow.VanillaStudio.Services
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Microsoft.AspNetCore.Components.Web"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.Extensions.DependencyInjection.Abstractions"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.Extensions.Logging.Abstractions"" Version=""9.0.8"" />
+    <PackageReference Include=""Microsoft.AspNetCore.Components.Web"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.Extensions.DependencyInjection.Abstractions"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.Extensions.Logging.Abstractions"" Version=""{config.AspNetCoreVersion}"" />
     <PackageReference Include=""Newtonsoft.Json"" Version=""13.0.3"" />
   </ItemGroup>
 

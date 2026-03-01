@@ -238,6 +238,7 @@ public class FeatureManagementService
             // projectRootPath is the root of this project — everything below it
             // (starting from directoryName segments) becomes visible tree nodes.
             var projectRootPath = Path.Combine(basePath, project.Path ?? "");
+            var projectNs = project.NameSpace ?? "";
 
             // Base path: projectRootPath / directoryName
             var baseFeaturePath = Path.Combine(projectRootPath, directoryName);
@@ -246,48 +247,69 @@ public class FeatureManagementService
             {
                 var listingPath = Path.Combine(baseFeaturePath, $"{featurePluralName}Listing");
                 var listingFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Listing", listingPath, parameters);
-                previews.AddRange(listingFiles.Select(f => new FeatureFilePreview
+                foreach (var f in listingFiles)
                 {
-                    ProjectType = templateDirectoryName,
-                    SliceType = "Listing",
-                    FileName = f.Key,
-                    FilePath = Path.Combine(listingPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(listingPath, f.Key)) ?? "",
-                    ProjectRootPath = projectRootPath,
-                    Content = f.Value
-                }));
+                    var fp = Path.Combine(listingPath, f.Key);
+                    previews.Add(new FeatureFilePreview
+                    {
+                        ProjectType = templateDirectoryName,
+                        SliceType = "Listing",
+                        FileName = f.Key,
+                        FilePath = fp,
+                        DirectoryPath = Path.GetDirectoryName(fp) ?? "",
+                        ProjectRootPath = projectRootPath,
+                        ProjectNamespace = projectNs,
+                        ModuleNamespace = moduleNamespace,
+                        IsNew = true,
+                        Content = f.Value
+                    });
+                }
             }
 
             if (hasForm)
             {
                 var formPath = Path.Combine(baseFeaturePath, $"{componentPrefix}Form");
                 var formFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Form", formPath, parameters);
-                previews.AddRange(formFiles.Select(f => new FeatureFilePreview
+                foreach (var f in formFiles)
                 {
-                    ProjectType = templateDirectoryName,
-                    SliceType = "Form",
-                    FileName = f.Key,
-                    FilePath = Path.Combine(formPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(formPath, f.Key)) ?? "",
-                    ProjectRootPath = projectRootPath,
-                    Content = f.Value
-                }));
+                    var fp = Path.Combine(formPath, f.Key);
+                    previews.Add(new FeatureFilePreview
+                    {
+                        ProjectType = templateDirectoryName,
+                        SliceType = "Form",
+                        FileName = f.Key,
+                        FilePath = fp,
+                        DirectoryPath = Path.GetDirectoryName(fp) ?? "",
+                        ProjectRootPath = projectRootPath,
+                        ProjectNamespace = projectNs,
+                        ModuleNamespace = moduleNamespace,
+                        IsNew = true,
+                        Content = f.Value
+                    });
+                }
             }
 
             if (hasSelectList)
             {
                 var selectListPath = Path.Combine(baseFeaturePath, $"{featurePluralName}SelectList");
                 var selectListFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "SelectList", selectListPath, parameters);
-                previews.AddRange(selectListFiles.Select(f => new FeatureFilePreview
+                foreach (var f in selectListFiles)
                 {
-                    ProjectType = templateDirectoryName,
-                    SliceType = "SelectList",
-                    FileName = f.Key,
-                    FilePath = Path.Combine(selectListPath, f.Key),
-                    DirectoryPath = Path.GetDirectoryName(Path.Combine(selectListPath, f.Key)) ?? "",
-                    ProjectRootPath = projectRootPath,
-                    Content = f.Value
-                }));
+                    var fp = Path.Combine(selectListPath, f.Key);
+                    previews.Add(new FeatureFilePreview
+                    {
+                        ProjectType = templateDirectoryName,
+                        SliceType = "SelectList",
+                        FileName = f.Key,
+                        FilePath = fp,
+                        DirectoryPath = Path.GetDirectoryName(fp) ?? "",
+                        ProjectRootPath = projectRootPath,
+                        ProjectNamespace = projectNs,
+                        ModuleNamespace = moduleNamespace,
+                        IsNew = true,
+                        Content = f.Value
+                    });
+                }
             }
         }
 
@@ -504,6 +526,74 @@ public class FeatureManagementService
             _ => null
         };
     }
+
+    /// <summary>
+    /// Returns previews for ALL previously-generated features from the database,
+    /// so the tree can show the full component landscape even before a new form is filled.
+    /// </summary>
+    public async Task<List<FeatureFilePreview>> GetAllExistingPreviewsAsync()
+    {
+        var result = new List<FeatureFilePreview>();
+
+        var features = await _context.Features
+            .Include(f => f.Files)
+            .Include(f => f.Projects)
+            .ToListAsync();
+
+        foreach (var feature in features)
+        {
+            foreach (var file in feature.Files)
+            {
+                // Match the FeatureProject whose template directory name equals this file's ProjectType
+                var featureProject = feature.Projects.FirstOrDefault(p =>
+                    GetTemplateDirectoryName(p.ProjectType) == file.ProjectType);
+
+                var projectRootPath = string.Empty;
+                var projectNamespace = string.Empty;
+
+                if (featureProject != null)
+                {
+                    // featureProject.ProjectPath = basePath/projectRelPath/directoryName
+                    // Strip directoryName to recover projectRootPath = basePath/projectRelPath
+                    projectRootPath = StripDirectoryNameFromPath(featureProject.ProjectPath, feature.DirectoryName);
+                    projectNamespace = featureProject.ProjectNamespace;
+                }
+
+                result.Add(new FeatureFilePreview
+                {
+                    ProjectType     = file.ProjectType,
+                    SliceType       = file.SliceType,
+                    FileName        = file.FileName,
+                    FilePath        = file.FilePath,
+                    DirectoryPath   = Path.GetDirectoryName(file.FilePath) ?? "",
+                    Content         = string.Empty,
+                    ProjectRootPath = projectRootPath,
+                    IsNew           = false,
+                    ProjectNamespace = projectNamespace,
+                    ModuleNamespace  = feature.ModuleNamespace
+                });
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Strips the feature's directoryName path segments from the end of featurePath
+    /// to recover the project root (basePath + projectRelPath).
+    /// e.g. "C:\Src\App\Profile\Article" with directoryName="Profile\Article" → "C:\Src\App"
+    /// </summary>
+    private static string StripDirectoryNameFromPath(string featurePath, string directoryName)
+    {
+        var normalized = featurePath.TrimEnd('\\', '/');
+        var dirSuffix  = directoryName.TrimEnd('\\', '/');
+        // Normalize separators for reliable comparison
+        var normPath = normalized.Replace('/', '\\');
+        var normDir  = dirSuffix.Replace('/', '\\');
+        if (normPath.EndsWith(normDir, StringComparison.OrdinalIgnoreCase))
+            return normalized[..^dirSuffix.Length].TrimEnd('\\', '/');
+        return normalized;
+    }
 }
 
 /// <summary>
@@ -523,4 +613,21 @@ public class FeatureFilePreview
     /// so that directoryName segments are always visible as tree nodes.
     /// </summary>
     public string ProjectRootPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True for files about to be generated; false for files already on disk.
+    /// </summary>
+    public bool IsNew { get; set; } = true;
+
+    /// <summary>
+    /// Base namespace of the owning project (e.g. "MyApp.ServiceContracts").
+    /// Used to derive the full dotted namespace displayed next to existing files.
+    /// </summary>
+    public string ProjectNamespace { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The feature's module namespace (e.g. "Profile.Article").
+    /// Combined with SliceType for the colored badge shown on existing-file tree nodes.
+    /// </summary>
+    public string ModuleNamespace { get; set; } = string.Empty;
 }

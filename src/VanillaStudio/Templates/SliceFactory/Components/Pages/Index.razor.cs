@@ -44,6 +44,7 @@ public partial class Index
     private bool ShowFilePreview = true;
     private bool IsPreviewLoading = false;
     private List<FeatureFilePreview>? PreviewFiles;
+    private List<FeatureFilePreview> _existingPreviews = new();
     private CancellationTokenSource? _previewDebounceTokenSource;
 
     // Placement guidance functionality
@@ -83,6 +84,10 @@ public partial class Index
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
+        // Load all previously generated features from the DB so the tree is populated immediately.
+        _existingPreviews = await FeatureService.GetAllExistingPreviewsAsync();
+        PreviewFiles = _existingPreviews;
 
         // Check for context parameters from feature creation
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
@@ -285,8 +290,8 @@ public partial class Index
                 // Automatically detect the base path
                 var detectedBasePath = PathDetectionService.GetFeatureGenerationBasePath();
 
-                // Generate file preview
-                PreviewFiles = await FeatureService.PreviewFeatureFilesAsync(
+                // Generate file preview for the new slice being configured
+                var newPreviews = await FeatureService.PreviewFeatureFilesAsync(
                     componentPrefix: M.ComponentPrefix ?? "",
                     featurePluralName: M.FeaturePluralName ?? "",
                     moduleNamespace: M.NameSpace ?? "",
@@ -301,6 +306,17 @@ public partial class Index
                     selectListDataType: M.SelectListDataType,
                     projects: wooqlawProfile.Projects.ToList()
                 );
+
+                // Merge: start from all existing, remove any that the new slice overwrites,
+                // then prepend the new ones so they appear first within their project group.
+                var newFilePaths = newPreviews
+                    .Select(f => f.FilePath)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var merged = _existingPreviews
+                    .Where(f => !newFilePaths.Contains(f.FilePath))
+                    .ToList();
+                merged.InsertRange(0, newPreviews);
+                PreviewFiles = merged;
 
                 // Generate placement guidance
                 if (PreviewFiles != null)
@@ -332,7 +348,7 @@ public partial class Index
     {
         ShowFilePreview = false;
         ShowPlacementGuidance = false;
-        PreviewFiles = null;
+        PreviewFiles = _existingPreviews;
         PlacementGuidance = null;
         StateHasChanged();
     }
@@ -347,8 +363,16 @@ public partial class Index
         try
         {
             await Task.Delay(500, token);
-            if (!token.IsCancellationRequested && IsFormValid())
+            if (token.IsCancellationRequested) return;
+
+            if (IsFormValid())
                 await ShowPreview();
+            else
+            {
+                // Form incomplete — fall back to showing only existing components
+                PreviewFiles = _existingPreviews;
+                StateHasChanged();
+            }
         }
         catch (OperationCanceledException) { }
     }

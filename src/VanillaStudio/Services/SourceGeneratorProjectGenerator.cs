@@ -70,16 +70,16 @@ namespace ZKnow.VanillaStudio.Services
 
         private string GenerateSourceGeneratorProjectFile(ProjectConfiguration config)
         {
-            return @"<Project Sdk=""Microsoft.NET.Sdk.Web"">
+            return $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Microsoft.AspNetCore.Components.WebAssembly.Server"" Version=""9.0.8"" />
+    <PackageReference Include=""Microsoft.AspNetCore.Components.WebAssembly.Server"" Version=""{config.AspNetCoreVersion}"" />
     <PackageReference Include=""MudBlazor"" Version=""7.8.0"" />
     <PackageReference Include=""Newtonsoft.Json"" Version=""13.0.3"" />
   </ItemGroup>

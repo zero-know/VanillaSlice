@@ -407,6 +407,52 @@
                             </div>
                              
 
+                            <!-- .NET Version Selection -->
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">.NET Version</label>
+                                    <p class="text-muted small mb-3">Choose the target .NET runtime for all generated projects</p>
+                                    <InputRadioGroup @bind-Value="config.DotNetVersion">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="card border-success @(config.DotNetVersion == DotNetVersion.Net10 ? "bg-success bg-opacity-10 border-2" : "")">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <InputRadio id="dotnet10" class="form-check-input" Value="@DotNetVersion.Net10" />
+                                                            <label class="form-check-label" for="dotnet10">
+                                                                <strong>.NET 10</strong>
+                                                                <span class="badge bg-success ms-2 small">Recommended</span>
+                                                            </label>
+                                                        </div>
+                                                        <p class="small text-muted mt-2 mb-0">
+                                                            Latest release with the newest language features, performance improvements,
+                                                            and Blazor enhancements. Target framework: <code>net10.0</code>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card border-primary @(config.DotNetVersion == DotNetVersion.Net9 ? "bg-primary bg-opacity-10 border-2" : "")">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <InputRadio id="dotnet9" class="form-check-input" Value="@DotNetVersion.Net9" />
+                                                            <label class="form-check-label" for="dotnet9">
+                                                                <strong>.NET 9</strong>
+                                                                <span class="badge bg-secondary ms-2 small">LTS</span>
+                                                            </label>
+                                                        </div>
+                                                        <p class="small text-muted mt-2 mb-0">
+                                                            Long-term support release, stable and widely deployed.
+                                                            Target framework: <code>net9.0</code>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </InputRadioGroup>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-4">
@@ -626,6 +672,13 @@
                                             <tr>
                                                 <td><strong>Output Directory:</strong></td>
                                                 <td>@config.OutputDirectory</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>.NET Version:</strong></td>
+                                                <td>
+                                                    @config.DotNetVersion.GetDisplayName()
+                                                    <code class="ms-2 small text-muted">@config.TargetFramework</code>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td><strong>Platform Type:</strong></td>

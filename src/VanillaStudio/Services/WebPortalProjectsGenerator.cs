@@ -50,7 +50,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.WebPortal",
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
                     ["RenderingMode"] = config.RenderingMode.ToString(),
                     ["IncludeAuthentication"] = config.IncludeAuthentication,
                     ["UserSecretsId"] = Guid.NewGuid().ToString(),
@@ -82,7 +83,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.WebPortal.Client",
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
                     ["UIFramework"] = config.UIFramework.ToString()
                 };
 

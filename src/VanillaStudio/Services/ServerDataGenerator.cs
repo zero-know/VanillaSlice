@@ -59,21 +59,21 @@ namespace ZKnow.VanillaStudio.Services
 
         private string GenerateServerDataProjectFile(ProjectConfiguration config)
         {
-            var identityPackage = config.IncludeAuthentication 
-                ? "    <PackageReference Include=\"Microsoft.AspNetCore.Identity.EntityFrameworkCore\" Version=\"9.0.8\" />\n"
+            var identityPackage = config.IncludeAuthentication
+                ? $"    <PackageReference Include=\"Microsoft.AspNetCore.Identity.EntityFrameworkCore\" Version=\"{config.AspNetCoreVersion}\" />\n"
                 : "";
 
             return $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-{identityPackage}    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore.SqlServer"" Version=""9.0.8"" />
+{identityPackage}    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.EntityFrameworkCore.SqlServer"" Version=""{config.AspNetCoreVersion}"" />
   </ItemGroup>
 
   <ItemGroup>

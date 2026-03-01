@@ -23,7 +23,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["RootNamespace"] = $"{config.ProjectName}.Common",
                     ["ProjectName"] = config.ProjectName,
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
                     ["IncludeSampleData"] = config.IncludeSampleData
                 };
 

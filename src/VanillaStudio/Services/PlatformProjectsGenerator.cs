@@ -53,7 +53,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.ServiceContracts",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -81,7 +82,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.Server.DataServices",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -109,7 +111,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.Client.Shared",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -137,7 +140,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.Razor",
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
                     ["UIFramework"] = config.UIFramework.ToString()
                 };
 

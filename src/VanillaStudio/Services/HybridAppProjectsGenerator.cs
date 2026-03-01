@@ -24,7 +24,11 @@ namespace ZKnow.VanillaStudio.Services
                     ["ProjectName"] = config.ProjectName,
                     ["ProjectNameLower"] = config.ProjectName.ToLower().Replace('.', '_'),
                     ["RootNamespace"] = $"{config.ProjectName}.HybridApp",
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
+                    ["MauiVersion"] = config.MauiVersion,
+                    ["MauiTargetFrameworks"] = config.MauiTargetFrameworks,
+                    ["MauiWindowsTarget"] = config.MauiWindowsTarget,
                     ["UIFramework"] = config.UIFramework.ToString()
                 };
 

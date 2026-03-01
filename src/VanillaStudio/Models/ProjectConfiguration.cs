@@ -52,10 +52,24 @@ namespace ZKnow.VanillaStudio.Models
         // UI Framework Selection
         public UIFramework UIFramework { get; set; } = UIFramework.Bootstrap;
 
+        // .NET Version
+        public DotNetVersion DotNetVersion { get; set; } = DotNetVersion.Net10;
+
         // Advanced Options
         public bool UseAspireOrchestration { get; set; } = true;
         public bool IncludeDockerSupport { get; set; } = false;
         public bool IncludeTestProjects { get; set; } = false;
+
+        // Computed version strings derived from DotNetVersion
+        public string TargetFramework       => DotNetVersion == DotNetVersion.Net9 ? "net9.0"  : "net10.0";
+        public string AspNetCoreVersion     => DotNetVersion == DotNetVersion.Net9 ? "9.0.8"   : "10.0.0";
+        public string MauiVersion           => DotNetVersion == DotNetVersion.Net9 ? "9.0.10"  : "10.0.0";
+        public string MauiTargetFrameworks  => DotNetVersion == DotNetVersion.Net9
+            ? "net9.0-android;net9.0-ios;net9.0-maccatalyst"
+            : "net10.0-android;net10.0-ios;net10.0-maccatalyst";
+        public string MauiWindowsTarget     => DotNetVersion == DotNetVersion.Net9
+            ? "net9.0-windows10.0.19041.0"
+            : "net10.0-windows10.0.19041.0";
 
         public ProjectConfiguration()
         {
@@ -71,6 +85,15 @@ namespace ZKnow.VanillaStudio.Models
             }
 #endif
         }
+    }
+
+    public enum DotNetVersion
+    {
+        [Display(Name = ".NET 9 (LTS)")]
+        Net9 = 1,
+
+        [Display(Name = ".NET 10 (Latest)")]
+        Net10 = 2
     }
 
     public enum PlatformType

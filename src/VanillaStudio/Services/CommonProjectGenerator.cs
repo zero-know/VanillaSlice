@@ -47,10 +47,10 @@ namespace ZKnow.VanillaStudio.Services
 
         private string GenerateCommonProjectFile(ProjectConfiguration config)
         {
-            return @"<Project Sdk=""Microsoft.NET.Sdk"">
+            return $@"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

@@ -53,7 +53,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.WebAPI",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -81,7 +82,8 @@ namespace ZKnow.VanillaStudio.Services
                 {
                     ["ProjectName"] = config.ProjectName,
                     ["RootNamespace"] = $"{config.ProjectName}.ServiceDefaults",
-                    ["TargetFramework"] = "net9.0"
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion
                 };
 
                 var generatedFiles = await _templateEngine.GenerateFromTemplateAsync(
@@ -111,7 +113,8 @@ namespace ZKnow.VanillaStudio.Services
                     ["ProjectNameUnderScored"] = config.ProjectName.Replace('.','_'),
                     ["ProjectNameHyphened"] = config.ProjectName.Replace('.','-'),
                     ["RootNamespace"] = $"{config.ProjectName}.AppHost",
-                    ["TargetFramework"] = "net9.0",
+                    ["TargetFramework"] = config.TargetFramework,
+                    ["AspNetCoreVersion"] = config.AspNetCoreVersion,
                     ["UserSecretsId"] = Guid.NewGuid().ToString()
                 };
 

@@ -92,18 +92,18 @@ namespace ZKnow.VanillaStudio.Services
             sb.AppendLine(@"<Project Sdk=""Microsoft.NET.Sdk.Web"">");
             sb.AppendLine();
             sb.AppendLine("  <PropertyGroup>");
-            sb.AppendLine("    <TargetFramework>net9.0</TargetFramework>");
+            sb.AppendLine($"    <TargetFramework>{config.TargetFramework}</TargetFramework>");
             sb.AppendLine("    <Nullable>enable</Nullable>");
             sb.AppendLine("    <ImplicitUsings>enable</ImplicitUsings>");
             sb.AppendLine("  </PropertyGroup>");
             sb.AppendLine();
             sb.AppendLine("  <ItemGroup>");
-            sb.AppendLine(@"    <PackageReference Include=""Microsoft.AspNetCore.Components.WebAssembly.Server"" Version=""9.0.8"" />");
+            sb.AppendLine($@"    <PackageReference Include=""Microsoft.AspNetCore.Components.WebAssembly.Server"" Version=""{config.AspNetCoreVersion}"" />");
 
             if (config.IncludeAuthentication)
             {
-                sb.AppendLine(@"    <PackageReference Include=""Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore"" Version=""9.0.8"" />");
-                sb.AppendLine(@"    <PackageReference Include=""Microsoft.AspNetCore.Identity.EntityFrameworkCore"" Version=""9.0.8"" />");
+                sb.AppendLine($@"    <PackageReference Include=""Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore"" Version=""{config.AspNetCoreVersion}"" />");
+                sb.AppendLine($@"    <PackageReference Include=""Microsoft.AspNetCore.Identity.EntityFrameworkCore"" Version=""{config.AspNetCoreVersion}"" />");
             }
 
             if (config.IncludeDatabase)
@@ -111,16 +111,16 @@ namespace ZKnow.VanillaStudio.Services
                 switch (config.DatabaseProvider)
                 {
                     case DatabaseProvider.SqlServer:
-                        sb.AppendLine(@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.SqlServer"" Version=""9.0.8"" />");
+                        sb.AppendLine($@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.SqlServer"" Version=""{config.AspNetCoreVersion}"" />");
                         break;
                     case DatabaseProvider.SQLite:
-                        sb.AppendLine(@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.Sqlite"" Version=""9.0.8"" />");
+                        sb.AppendLine($@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.Sqlite"" Version=""{config.AspNetCoreVersion}"" />");
                         break;
                     case DatabaseProvider.PostgreSQL:
-                        sb.AppendLine(@"    <PackageReference Include=""Npgsql.EntityFrameworkCore.PostgreSQL"" Version=""9.0.8"" />");
+                        sb.AppendLine($@"    <PackageReference Include=""Npgsql.EntityFrameworkCore.PostgreSQL"" Version=""{config.AspNetCoreVersion}"" />");
                         break;
                 }
-                sb.AppendLine(@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.Tools"" Version=""9.0.8"">");
+                sb.AppendLine($@"    <PackageReference Include=""Microsoft.EntityFrameworkCore.Tools"" Version=""{config.AspNetCoreVersion}"">");
                 sb.AppendLine("      <PrivateAssets>all</PrivateAssets>");
                 sb.AppendLine("      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>");
                 sb.AppendLine("    </PackageReference>");

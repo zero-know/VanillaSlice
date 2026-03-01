@@ -446,9 +446,9 @@ namespace ZKnow.VanillaStudio.Services
             files.Add(new GeneratedFile
             {
                 RelativePath = "Platform/Platform.Common/Platform.Common.csproj",
-                Content = @"<Project Sdk=""Microsoft.NET.Sdk"">
+                Content = $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -536,15 +536,15 @@ namespace ZKnow.VanillaStudio.Services
 
             return $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>{config.TargetFramework}</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""9.0.8"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""9.0.8"" />
-    <PackageReference Include=""{dbProvider}"" Version=""9.0.8"" />
+    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""{config.AspNetCoreVersion}"" />
+    <PackageReference Include=""{dbProvider}"" Version=""{config.AspNetCoreVersion}"" />
   </ItemGroup>
 
   <ItemGroup>
