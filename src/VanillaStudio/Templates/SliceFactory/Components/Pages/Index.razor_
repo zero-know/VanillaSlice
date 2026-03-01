@@ -2,277 +2,660 @@
 @using {{RootNamespace}}.SliceFactory.Services
 @using {{RootNamespace}}.SliceFactory.Models
 
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="text-center mb-4">
-        <h1 class="display-5 fw-bold text-primary">
-            <i class="bi bi-code-slash me-3"></i>UI Slice Generator
-        </h1>
-        <p class="lead text-muted">Generate individual Form or Listing components with Bootstrap styling</p>
-        <div class="mt-3">
-            <a href="/features" class="btn btn-outline-primary">
-                <i class="bi bi-diagram-3 me-1"></i>Manage Features
-            </a>
-        </div>
-    </div>
+<div class="sf-page">
 
-    <!-- Success Message -->
+    <!-- Success Banner -->
     @if (ShowSuccessMessage && !string.IsNullOrEmpty(SuccessMessage))
     {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
-            <div class="d-flex align-items-center">
+        <div class="sf-success-banner animate-slide-in">
+            <div class="d-flex align-items-start gap-3">
+                <div class="success-icon-wrap">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
                 <div class="flex-grow-1">
-                    <h5 class="alert-heading mb-2">
-                        <i class="bi bi-check-circle-fill me-2"></i>Slice Generated Successfully!
-                    </h5>
-                    <p class="mb-2">
-                        Your <strong>@GeneratedFeatureName</strong> slice has been generated and is ready to use.
-                        All components, services, and navigation items have been created automatically.
-                    </p>
-                    <div class="d-flex gap-2 mt-3">
-                        <button type="button" class="btn btn-success btn-sm" @onclick="StartNewSlice">
-                            <i class="bi bi-plus-circle me-1"></i>Generate Another Slice
+                    <div class="fw-bold mb-1">
+                        <strong>@GeneratedFeatureName</strong> slice generated successfully
+                    </div>
+                    <div class="text-muted small mb-3">
+                        All components, services, and navigation items have been created.
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-success" @onclick="StartNewSlice">
+                            <i class="bi bi-plus-circle me-1"></i>New Slice
                         </button>
-                        <a href="/features" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-diagram-3 me-1"></i>Manage All Features
+                        <a href="/features" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-diagram-3 me-1"></i>Manage Features
                         </a>
                     </div>
                 </div>
-                <button type="button" class="btn-close" @onclick="HideSuccessMessage" aria-label="Close"></button>
+                <button class="btn-close btn-close-white" @onclick="HideSuccessMessage"></button>
             </div>
         </div>
     }
 
-    <!-- Two Column Layout -->
     @if (!ShowSuccessMessage)
     {
-    <div class="row g-4">
-        <!-- Left Column: Configuration Form -->
-        <div class="col-lg-7">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-gear-fill me-2"></i>Configuration
-                    </h5>
+        <div class="sf-layout">
+            <!-- Left Panel: Configuration -->
+            <div class="sf-config-panel">
+                <div class="sf-panel-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="sf-panel-icon">
+                            <i class="bi bi-sliders2"></i>
+                        </div>
+                        <div>
+                            <div class="sf-panel-title">Slice Configuration</div>
+                            <div class="sf-panel-subtitle">Configure the slice properties below</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    <EditForm Model="M" OnValidSubmit="GenerateDynamicCode">
-                        <DataAnnotationsValidator />
-                          <ValidationSummary class='text-danger'/>
-                       
 
-                        <!-- Project Configuration -->
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary mb-3">
-                                    <i class="bi bi-gear me-2"></i>Project Configuration
-                                </h5>
+                <div class="sf-panel-body">
+                    <EditForm Model="M" OnSubmit="HandleSubmit">
+
+                        <!-- Section: Project -->
+                        <div class="sf-section">
+                            <div class="sf-section-label">
+                                <i class="bi bi-folder-symlink me-1"></i>Project Configuration
                             </div>
 
-                            <div class="col-12">
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    <strong>Automatic Path Detection:</strong> The solution root will be detected automatically
-                                    based on your current SliceFactory location.
+                            <div class="sf-info-note">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Solution root is detected automatically from your SliceFactory location.
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="sf-label">Directory Name <span class="sf-required">*</span></label>
+                                    <input class="form-control sf-input"
+                                           value="@M.DirectoryName"
+                                           @oninput="@(async e => { M.DirectoryName = e.Value?.ToString() ?? ""; await TriggerDebouncedPreview(); })"
+                                           placeholder="Profile\Article" />
+                                    <div class="sf-hint">Relative path within the project (e.g., Profile\Article)</div>
                                 </div>
-                            </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Directory Name <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="M.DirectoryName" placeholder="Profile\Article" />
-                            </div>
+                                <div class="col-md-6">
+                                    <label class="sf-label">Module Namespace <span class="sf-required">*</span></label>
+                                    <input class="form-control sf-input"
+                                           value="@M.NameSpace"
+                                           @oninput="@(async e => { M.NameSpace = e.Value?.ToString() ?? ""; await TriggerDebouncedPreview(); })"
+                                           placeholder="Profile.Article" />
+                                </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Module Namespace <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="M.NameSpace" placeholder="Profile.Article" />
-                            </div>
+                                <div class="col-md-6">
+                                    <label class="sf-label">Feature Name (Singular) <span class="sf-required">*</span></label>
+                                    <input class="form-control sf-input"
+                                           value="@M.ComponentPrefix"
+                                           @oninput="@(async e => { M.ComponentPrefix = e.Value?.ToString() ?? ""; await TriggerDebouncedPreview(); })"
+                                           placeholder="Article" />
+                                    <div class="sf-hint">Used for Form (e.g., <code>ArticleForm</code>)</div>
+                                </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Feature Singular Name <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="M.ComponentPrefix" placeholder="Article" />
-                                <small class="form-text text-muted">Used for Form directories (e.g., ArticleForm)</small>
-                            </div>
+                                <div class="col-md-6">
+                                    <label class="sf-label">Feature Name (Plural) <span class="sf-required">*</span></label>
+                                    <input class="form-control sf-input"
+                                           value="@M.FeaturePluralName"
+                                           @oninput="@(async e => { M.FeaturePluralName = e.Value?.ToString() ?? ""; await TriggerDebouncedPreview(); })"
+                                           placeholder="Articles" />
+                                    <div class="sf-hint">Used for Listing (e.g., <code>ArticlesListing</code>)</div>
+                                </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Feature Plural Name <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="M.FeaturePluralName" placeholder="Articles" />
-                                <small class="form-text text-muted">Used for Listing directories (e.g., ArticlesListing)</small>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Primary Key Type <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="M.PkType" placeholder="string, int, Guid" />
+                                <div class="col-md-6">
+                                    <label class="sf-label">Primary Key Type <span class="sf-required">*</span></label>
+                                    <input class="form-control sf-input"
+                                           value="@M.PkType"
+                                           @oninput="@(async e => { M.PkType = e.Value?.ToString() ?? ""; await TriggerDebouncedPreview(); })"
+                                           placeholder="string" />
+                                    <div class="sf-hint">e.g., <code>string</code>, <code>int</code>, <code>Guid</code></div>
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="my-4" />
-
-                        <!-- Slice Type Selection -->
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <h5 class="text-secondary mb-3">
-                                    <i class="bi bi-puzzle me-2"></i>Slice Type Selection
-                                </h5>
+                        <!-- Section: Slice Types -->
+                        <div class="sf-section">
+                            <div class="sf-section-label">
+                                <i class="bi bi-puzzle me-1"></i>Slice Types
                             </div>
 
-                            <div class="col-12">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <div class="form-check form-check-inline">
-                                            <InputCheckbox class="form-check-input" @bind-Value="M.GenerateForm" id="generateForm" />
-                                            <label class="form-check-label fw-semibold" for="generateForm">
-                                                <i class="bi bi-card-text me-2 text-primary"></i>Generate Form Slice
-                                            </label>
-                                        </div>
+                            <div class="sf-slice-toggles">
+                                <label class="sf-toggle @(M.GenerateForm ? "sf-toggle-active" : "")">
+                                    <input type="checkbox"
+                                           class="visually-hidden"
+                                           checked="@M.GenerateForm"
+                                           @onchange="@(async e => { M.GenerateForm = (bool)(e.Value ?? false); await TriggerDebouncedPreview(); })" />
+                                    <i class="bi bi-card-text sf-toggle-icon"></i>
+                                    <div>
+                                        <div class="sf-toggle-name">Form</div>
+                                        <div class="sf-toggle-desc">Create/Edit form</div>
                                     </div>
+                                    @if (M.GenerateForm)
+                                    {
+                                        <i class="bi bi-check-circle-fill sf-toggle-check ms-auto"></i>
+                                    }
+                                </label>
 
-                                    <div class="col-md-4">
-                                        <div class="form-check form-check-inline">
-                                            <InputCheckbox class="form-check-input" @bind-Value="M.GenerateListing" id="generateListing" />
-                                            <label class="form-check-label fw-semibold" for="generateListing">
-                                                <i class="bi bi-list-ul me-2 text-success"></i>Generate Listing Slice
-                                            </label>
-                                        </div>
+                                <label class="sf-toggle @(M.GenerateListing ? "sf-toggle-active" : "")">
+                                    <input type="checkbox"
+                                           class="visually-hidden"
+                                           checked="@M.GenerateListing"
+                                           @onchange="@(async e => { M.GenerateListing = (bool)(e.Value ?? false); await TriggerDebouncedPreview(); })" />
+                                    <i class="bi bi-list-ul sf-toggle-icon"></i>
+                                    <div>
+                                        <div class="sf-toggle-name">Listing</div>
+                                        <div class="sf-toggle-desc">Data grid &amp; filter</div>
                                     </div>
+                                    @if (M.GenerateListing)
+                                    {
+                                        <i class="bi bi-check-circle-fill sf-toggle-check ms-auto"></i>
+                                    }
+                                </label>
 
-                                    <div class="col-md-4">
-                                        <div class="form-check form-check-inline">
-                                            <InputCheckbox class="form-check-input" @bind-Value="M.GenerateSelectList" id="generateSelectList" />
-                                            <label class="form-check-label fw-semibold" for="generateSelectList">
-                                                <i class="bi bi-list-check me-2 text-info"></i>Generate SelectList Slice
-                                            </label>
-                                        </div>
+                                <label class="sf-toggle @(M.GenerateSelectList ? "sf-toggle-active" : "")">
+                                    <input type="checkbox"
+                                           class="visually-hidden"
+                                           checked="@M.GenerateSelectList"
+                                           @onchange="@(async e => { M.GenerateSelectList = (bool)(e.Value ?? false); await TriggerDebouncedPreview(); })" />
+                                    <i class="bi bi-ui-checks sf-toggle-icon"></i>
+                                    <div>
+                                        <div class="sf-toggle-name">SelectList</div>
+                                        <div class="sf-toggle-desc">Dropdown data source</div>
                                     </div>
+                                    @if (M.GenerateSelectList)
+                                    {
+                                        <i class="bi bi-check-circle-fill sf-toggle-check ms-auto"></i>
+                                    }
+                                </label>
+                            </div>
 
-                                @if (M.GenerateSelectList)
-                                {
-                                    <div class="row g-3 mt-2">
-                                        <div class="col-12">
-                                            <div class="card border-info">
-                                                <div class="card-header bg-info bg-opacity-10">
-                                                    <h6 class="mb-0 text-info">
-                                                        <i class="bi bi-gear me-2"></i>SelectList Configuration
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-semibold">Select Model Type</label>
-                                                            <InputSelect class="form-select" @bind-Value="M.SelectListModelType">
-                                                                <option value="SelectOption">SelectOption&lt;T&gt;</option>
-                                                                <option value="Custom">Custom Model</option>
-                                                            </InputSelect>
-                                                        </div>
-                                                        @if (M.SelectListModelType == "SelectOption")
-                                                        {
-                                                            <div class="col-md-6">
-                                                                <label class="form-label fw-semibold">Data Type</label>
-                                                                <InputText class="form-control" @bind-Value="M.SelectListDataType" placeholder="string, int, Guid" />
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </div>
+                            @if (M.GenerateSelectList)
+                            {
+                                <div class="sf-selectlist-config mt-3">
+                                    <div class="sf-section-label mb-2">
+                                        <i class="bi bi-gear me-1"></i>SelectList Options
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="sf-label">Model Type</label>
+                                            <select class="form-select sf-input"
+                                                    value="@M.SelectListModelType"
+                                                    @onchange="@(async e => { M.SelectListModelType = e.Value?.ToString() ?? "SelectOption"; await TriggerDebouncedPreview(); })">
+                                                <option value="SelectOption">SelectOption&lt;T&gt;</option>
+                                                <option value="Custom">Custom Model</option>
+                                            </select>
+                                        </div>
+                                        @if (M.SelectListModelType == "SelectOption")
+                                        {
+                                            <div class="col-md-6">
+                                                <label class="sf-label">Data Type</label>
+                                                <input class="form-control sf-input"
+                                                       value="@M.SelectListDataType"
+                                                       @oninput="@(async e => { M.SelectListDataType = e.Value?.ToString() ?? "string"; await TriggerDebouncedPreview(); })"
+                                                       placeholder="string" />
                                             </div>
-                                        </div>
+                                        }
                                     </div>
-                                }
                                 </div>
-                            </div>
+                            }
                         </div>
 
-                        <hr class="my-4" />
-
-                        <!-- Action Buttons -->
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="d-grid">
-                                    <button type="button" class="btn btn-outline-info btn-lg" @onclick="ShowPreview" disabled="@(!IsFormValid())">
-                                        <i class="bi bi-eye me-2"></i>Preview Files
-                                    </button>
+                        <!-- Generate Button -->
+                        <div class="sf-action-row">
+                            @if (!IsFormValid())
+                            {
+                                <div class="sf-validation-hint">
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    Fill all required fields and select at least one slice type
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="bi bi-magic me-2"></i>Generate Code
-                                    </button>
-                                </div>
-                            </div>
+                            }
+                            <button type="submit" class="btn sf-generate-btn" disabled="@(!IsFormValid())">
+                                <i class="bi bi-magic me-2"></i>Generate Slice
+                            </button>
                         </div>
+
                     </EditForm>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Column: File Preview -->
-        <div class="col-lg-5">
-            <div class="card shadow-sm border-0 h-100" style="border-left: 3px solid #e9ecef !important;">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-eye me-2"></i>File Preview
-                    </h5>
-                    @if (ShowFilePreview)
-                    {
-                        <div class="d-flex align-items-center">
-                            <small class="text-muted me-2">
-                                @if (PreviewFiles != null)
+            <!-- Right Panel: File Tree Preview -->
+            <div class="sf-preview-panel">
+                <div class="sf-panel-header sf-preview-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <div class="sf-panel-icon sf-panel-icon-dark">
+                            <i class="bi bi-folder-check"></i>
+                        </div>
+                        <div>
+                            <div class="sf-panel-title">File Structure Preview</div>
+                            <div class="sf-panel-subtitle">
+                                @if (IsPreviewLoading)
                                 {
-                                    <text>@PreviewFiles.Count files</text>
+                                    <span class="text-primary"><i class="bi bi-arrow-repeat spin-icon me-1"></i>Updating...</span>
                                 }
-                            </small>
-                            <button class="btn btn-sm btn-outline-secondary" @onclick="HidePreview" title="Clear Preview">
-                                <i class="bi bi-x"></i>
+                                else if (PreviewFiles != null && PreviewFiles.Any())
+                                {
+                                    <span>Live &middot; updates as you type</span>
+                                }
+                                else
+                                {
+                                    <span>Type above to see preview</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (PreviewFiles != null && PreviewFiles.Any())
+                    {
+                        <div class="preview-tabs-header">
+                            <button class="sf-tab @(ActivePreviewTab == "files" ? "sf-tab-active" : "")" @onclick='@(() => ActivePreviewTab = "files")'>
+                                <i class="bi bi-files me-1"></i>Files
+                            </button>
+                            <button class="sf-tab @(ActivePreviewTab == "placement" ? "sf-tab-active" : "")" @onclick='@(() => ActivePreviewTab = "placement")'>
+                                <i class="bi bi-lightbulb me-1"></i>Placement
+                                @if (PlacementGuidance?.HasConflicts == true)
+                                {
+                                    <span class="sf-tab-badge">!</span>
+                                }
                             </button>
                         </div>
                     }
                 </div>
-                <div class="card-body p-0" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
-                    @if (ShowFilePreview)
-                    {
-                        <!-- Preview Tabs -->
-                        <div class="preview-tabs">
-                            <ul class="nav nav-tabs nav-fill" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files-content" type="button" role="tab">
-                                        <i class="bi bi-files me-1"></i>Files
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="guidance-tab" data-bs-toggle="tab" data-bs-target="#guidance-content" type="button" role="tab">
-                                        <i class="bi bi-lightbulb me-1"></i>Placement
-                                        @if (PlacementGuidance?.HasConflicts == true)
-                                        {
-                                            <span class="badge bg-warning text-dark ms-1">!</span>
-                                        }
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
 
-                        <!-- Tab Content -->
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="files-content" role="tabpanel">
-                                <FilePreview PreviewFiles="@PreviewFiles" IsLoading="@IsPreviewLoading" />
-                            </div>
-                            <div class="tab-pane fade" id="guidance-content" role="tabpanel">
-                                <PlacementGuidanceView Guidance="@PlacementGuidance" IsLoading="@IsPreviewLoading" />
-                            </div>
-                        </div>
+                <div class="sf-preview-body">
+                    @if (ActivePreviewTab == "files" || PreviewFiles == null || !PreviewFiles.Any())
+                    {
+                        <FilePreview PreviewFiles="@PreviewFiles" IsLoading="@IsPreviewLoading" />
                     }
                     else
                     {
-                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-                            <div class="text-center py-5">
-                                <i class="bi bi-eye-slash fs-1 mb-3 opacity-50"></i>
-                                <h6 class="mb-2">No Preview Available</h6>
-                                <p class="mb-1">Click "Preview Files" to see what will be generated</p>
-                                <small class="text-muted">Configure your settings on the left, then preview the files that will be created</small>
-                            </div>
-                        </div>
+                        <PlacementGuidanceView Guidance="@PlacementGuidance" IsLoading="@IsPreviewLoading" />
                     }
                 </div>
             </div>
         </div>
-    </div>
     }
 </div>
+
+@code {
+    private string ActivePreviewTab = "files";
+
+    private async Task HandleSubmit()
+    {
+        if (IsFormValid())
+            await GenerateDynamicCode();
+    }
+}
+
+<style>
+    .sf-page {
+        height: calc(100vh - 3.5rem);
+        display: flex;
+        flex-direction: column;
+        background: #f0f2f5;
+        overflow: hidden;
+    }
+
+    /* Success banner */
+    .sf-success-banner {
+        background: linear-gradient(135deg, #0a6640 0%, #0d8a55 100%);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+
+    .success-icon-wrap {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: rgba(255,255,255,0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    /* Main layout */
+    .sf-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Config panel */
+    .sf-config-panel {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-right: 1px solid #e0e0e0;
+        overflow: hidden;
+    }
+
+    .sf-panel-header {
+        padding: 1rem 1.25rem;
+        background: #fff;
+        border-bottom: 1px solid #e8e8e8;
+        flex-shrink: 0;
+    }
+
+    .sf-panel-icon {
+        width: 2rem;
+        height: 2rem;
+        background: #eef2ff;
+        color: #4f46e5;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .sf-panel-icon-dark {
+        background: #252526;
+        color: #9c9cff;
+    }
+
+    .sf-panel-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1a1a2e;
+        line-height: 1.2;
+    }
+
+    .sf-panel-subtitle {
+        font-size: 0.72rem;
+        color: #888;
+        margin-top: 1px;
+    }
+
+    .sf-panel-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.25rem;
+        scrollbar-width: thin;
+        scrollbar-color: #ddd #fff;
+    }
+
+    /* Sections */
+    .sf-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sf-section:last-child {
+        border-bottom: none;
+    }
+
+    .sf-section-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #888;
+        margin-bottom: 0.85rem;
+    }
+
+    .sf-info-note {
+        background: #f0f7ff;
+        border: 1px solid #d0e8ff;
+        border-left: 3px solid #3b82f6;
+        border-radius: 4px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.78rem;
+        color: #1d4ed8;
+        margin-bottom: 1rem;
+    }
+
+    /* Form inputs */
+    .sf-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.35rem;
+        display: block;
+    }
+
+    .sf-required {
+        color: #ef4444;
+    }
+
+    .sf-input {
+        font-size: 0.85rem;
+        border-color: #e5e7eb;
+        border-radius: 6px;
+        padding: 0.45rem 0.75rem;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .sf-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        outline: none;
+    }
+
+    .sf-hint {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+    }
+
+    .sf-hint code {
+        background: #f3f4f6;
+        padding: 0 3px;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        color: #6366f1;
+    }
+
+    /* Slice toggles */
+    .sf-slice-toggles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .sf-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 0.85rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: #fafafa;
+        user-select: none;
+    }
+
+    .sf-toggle:hover {
+        border-color: #c7d2fe;
+        background: #f5f3ff;
+    }
+
+    .sf-toggle-active {
+        border-color: #6366f1;
+        background: #eef2ff;
+    }
+
+    .sf-toggle-icon {
+        font-size: 1rem;
+        color: #9ca3af;
+        width: 1.25rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .sf-toggle-active .sf-toggle-icon {
+        color: #6366f1;
+    }
+
+    .sf-toggle-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+        line-height: 1.2;
+    }
+
+    .sf-toggle-desc {
+        font-size: 0.7rem;
+        color: #9ca3af;
+        line-height: 1.2;
+        margin-top: 1px;
+    }
+
+    .sf-toggle-check {
+        color: #6366f1;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .sf-selectlist-config {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.85rem;
+    }
+
+    /* Action row */
+    .sf-action-row {
+        padding-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .sf-validation-hint {
+        font-size: 0.75rem;
+        color: #f59e0b;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 4px;
+        padding: 0.4rem 0.65rem;
+    }
+
+    .sf-generate-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.15s;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+        width: 100%;
+    }
+
+    .sf-generate-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    .sf-generate-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    /* Preview panel */
+    .sf-preview-panel {
+        display: flex;
+        flex-direction: column;
+        background: #1e1e1e;
+        overflow: hidden;
+    }
+
+    .sf-preview-header {
+        background: #252526;
+        border-bottom: 1px solid #3c3c3c;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .sf-preview-header .sf-panel-title {
+        color: #ccc;
+    }
+
+    .sf-preview-header .sf-panel-subtitle {
+        color: #666;
+    }
+
+    .sf-preview-body {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Preview tabs */
+    .preview-tabs-header {
+        display: flex;
+        gap: 2px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .sf-tab {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: #888;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.65rem;
+        cursor: pointer;
+        transition: all 0.1s;
+        white-space: nowrap;
+    }
+
+    .sf-tab:hover {
+        background: rgba(255,255,255,0.07);
+        color: #ccc;
+    }
+
+    .sf-tab-active {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: rgba(99, 102, 241, 0.4);
+        color: #a5b4fc;
+    }
+
+    .sf-tab-badge {
+        display: inline-block;
+        background: #f59e0b;
+        color: #1e1e1e;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 14px;
+        text-align: center;
+        margin-left: 3px;
+    }
+
+    /* Animations */
+    .animate-slide-in {
+        animation: slideIn 0.25s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from { transform: translateY(-100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .spin-icon {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+</style>

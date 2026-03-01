@@ -235,12 +235,15 @@ public class FeatureManagementService
             if (string.IsNullOrEmpty(templateDirectoryName))
                 continue;
 
-            // Base path: GivenDirectoryPath/FeaturePluralName
-            var baseFeaturePath = Path.Combine(basePath, project.Path, featurePluralName);
+            // projectRootPath is the root of this project — everything below it
+            // (starting from directoryName segments) becomes visible tree nodes.
+            var projectRootPath = Path.Combine(basePath, project.Path ?? "");
+
+            // Base path: projectRootPath / directoryName
+            var baseFeaturePath = Path.Combine(projectRootPath, directoryName);
 
             if (hasListing)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameListing
                 var listingPath = Path.Combine(baseFeaturePath, $"{featurePluralName}Listing");
                 var listingFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Listing", listingPath, parameters);
                 previews.AddRange(listingFiles.Select(f => new FeatureFilePreview
@@ -250,13 +253,13 @@ public class FeatureManagementService
                     FileName = f.Key,
                     FilePath = Path.Combine(listingPath, f.Key),
                     DirectoryPath = Path.GetDirectoryName(Path.Combine(listingPath, f.Key)) ?? "",
+                    ProjectRootPath = projectRootPath,
                     Content = f.Value
                 }));
             }
 
             if (hasForm)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/ComponentPrefixForm
                 var formPath = Path.Combine(baseFeaturePath, $"{componentPrefix}Form");
                 var formFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "Form", formPath, parameters);
                 previews.AddRange(formFiles.Select(f => new FeatureFilePreview
@@ -266,13 +269,13 @@ public class FeatureManagementService
                     FileName = f.Key,
                     FilePath = Path.Combine(formPath, f.Key),
                     DirectoryPath = Path.GetDirectoryName(Path.Combine(formPath, f.Key)) ?? "",
+                    ProjectRootPath = projectRootPath,
                     Content = f.Value
                 }));
             }
 
             if (hasSelectList)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameSelectList
                 var selectListPath = Path.Combine(baseFeaturePath, $"{featurePluralName}SelectList");
                 var selectListFiles = await GetTemplateFilesPreviewAsync(templateDirectoryName, "SelectList", selectListPath, parameters);
                 previews.AddRange(selectListFiles.Select(f => new FeatureFilePreview
@@ -282,6 +285,7 @@ public class FeatureManagementService
                     FileName = f.Key,
                     FilePath = Path.Combine(selectListPath, f.Key),
                     DirectoryPath = Path.GetDirectoryName(Path.Combine(selectListPath, f.Key)) ?? "",
+                    ProjectRootPath = projectRootPath,
                     Content = f.Value
                 }));
             }
@@ -381,7 +385,7 @@ public class FeatureManagementService
                 continue;
 
             // Base path: GivenDirectoryPath/FeaturePluralName
-            var baseFeaturePath = Path.Combine(feature.BasePath, project.Path, feature.FeaturePluralName);
+            var baseFeaturePath = Path.Combine(feature.BasePath, project.Path, feature.DirectoryName);
 
             // Create FeatureProject record
             var featureProject = new FeatureProject
@@ -513,4 +517,10 @@ public class FeatureFilePreview
     public string FilePath { get; set; } = string.Empty;
     public string DirectoryPath { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The project root path (basePath + project.Path). The tree strips this prefix
+    /// so that directoryName segments are always visible as tree nodes.
+    /// </summary>
+    public string ProjectRootPath { get; set; } = string.Empty;
 }

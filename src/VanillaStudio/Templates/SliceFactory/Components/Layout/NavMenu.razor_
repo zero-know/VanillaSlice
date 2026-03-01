@@ -1,25 +1,65 @@
-<div class="top-row ps-3 navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">{{ProjectName}}.ZKnow.VanillaStudio</a>
+<div class="sf-sidebar">
+    <!-- Brand -->
+    <div class="sf-brand">
+        <div class="sf-brand-logo">
+            <i class="bi bi-cpu-fill"></i>
+        </div>
+        <div class="sf-brand-text">
+            <div class="sf-brand-name">SliceFactory</div>
+            <div class="sf-brand-sub">{{ProjectName}}</div>
+        </div>
     </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+    <!-- Nav toggle for mobile -->
+    <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable bg-dark" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-code-slash" aria-hidden="true"></span> Generator
+    <div class="sf-nav-body" onclick="document.querySelector('.navbar-toggler').click()">
+
+        <!-- Main Tools -->
+        <div class="sf-nav-section">
+            <div class="sf-nav-section-label">TOOLS</div>
+
+            <NavLink class="sf-nav-link" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-magic sf-nav-icon"></i>
+                <div class="sf-nav-link-content">
+                    <span class="sf-nav-link-name">Generator</span>
+                    <span class="sf-nav-link-desc">Create new slices</span>
+                </div>
             </NavLink>
+
+            <NavLink class="sf-nav-link" href="features">
+                <i class="bi bi-diagram-3 sf-nav-icon"></i>
+                <div class="sf-nav-link-content">
+                    <span class="sf-nav-link-name">Features</span>
+                    <span class="sf-nav-link-desc">Manage all features</span>
+                </div>
+            </NavLink>
+
+            @* ##MenuItem## *@
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="features">
-                <span class="bi bi-diagram-3" aria-hidden="true"></span> Features Manager
-            </NavLink>
+        <!-- Slice Types Reference -->
+        <div class="sf-nav-section">
+            <div class="sf-nav-section-label">SLICE TYPES</div>
+            <div class="sf-nav-ref-item">
+                <i class="bi bi-card-text sf-ref-icon" style="color: #9cdcfe;"></i>
+                <span>Form</span>
+            </div>
+            <div class="sf-nav-ref-item">
+                <i class="bi bi-list-ul sf-ref-icon" style="color: #6a9955;"></i>
+                <span>Listing</span>
+            </div>
+            <div class="sf-nav-ref-item">
+                <i class="bi bi-ui-checks sf-ref-icon" style="color: #ce9178;"></i>
+                <span>SelectList</span>
+            </div>
         </div>
+    </div>
 
-        @* ##MenuItem## *@
-    </nav>
+    <!-- Footer -->
+    <div class="sf-sidebar-footer">
+        <div class="sf-version-badge">
+            <i class="bi bi-patch-check me-1"></i> v1.0
+        </div>
+    </div>
 </div>

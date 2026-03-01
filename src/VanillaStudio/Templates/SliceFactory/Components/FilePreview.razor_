@@ -1,63 +1,84 @@
 @using {{RootNamespace}}.SliceFactory.Models
 @using {{RootNamespace}}.SliceFactory.Services
-<div class="file-preview-container">
+
+<div class="file-tree-panel">
     @if (IsLoading)
     {
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading preview...</span>
+        <div class="tree-loading-state d-flex align-items-center text-muted p-3">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2 text-muted">Generating file preview...</p>
+            <span class="small fst-italic">Analyzing file structure...</span>
         </div>
     }
-    else if (PreviewFiles != null && PreviewFiles.Any())
+    else if (_flatTree.Any())
     {
-        <div class="preview-header mb-3">
-            <h5 class="mb-1">
-                <i class="bi bi-eye me-2"></i>Files to be Generated
-            </h5>
-            <p class="text-muted mb-0">
-                @PreviewFiles.Count files will be created across @PreviewFiles.GroupBy(f => f.ProjectType).Count() project types
-            </p>
+        <div class="tree-stats-bar px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+            <span class="text-muted small">
+                <i class="bi bi-files me-1 text-primary"></i>
+                <strong class="text-dark">@PreviewFiles!.Count</strong> files &nbsp;&middot;&nbsp;
+                <strong class="text-dark">@_projectCount</strong> projects
+            </span>
+            <button class="btn btn-link btn-sm p-0 text-muted" @onclick="CollapseAll" title="Collapse All">
+                <i class="bi bi-arrows-collapse"></i>
+            </button>
         </div>
 
-        <div class="preview-content mt-3">
-            <div class="list-preview">
-                @foreach (var projectGroup in PreviewFiles.GroupBy(f => f.ProjectType))
-                {
-                    <div class="project-group mb-4">
-                        <h6 class="text-primary mb-2">
-                            <i class="bi bi-box-fill me-2"></i>@projectGroup.Key
-                        </h6>
-                        <div class="file-list">
-                            @foreach (var sliceGroup in projectGroup.GroupBy(f => f.SliceType))
-                            {
-                                <div class="slice-group mb-3">
-                                    <div class="slice-header">
-                                        <span class="badge bg-secondary me-2">@sliceGroup.Key</span>
-                                        <small class="text-muted">@sliceGroup.Count() files</small>
-                                    </div>
-                                    @foreach (var file in sliceGroup)
-                                    {
-                                        <div class="file-item">
-                                            <i class="bi @GetFileIcon(file.FileName) me-2"></i>
-                                            <span class="file-name">@file.FileName</span>
-                                            <small class="text-muted ms-auto">@FormatFileSize(file.Content.Length)</small>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
+        <div class="file-tree-scroll">
+            @foreach (var item in _flatTree)
+            {
+                <div class="tree-row @(item.Node.IsFile ? "tree-row-file" : "tree-row-dir")"
+                     style="padding-left: calc(@(item.Level * 16)px + 10px)"
+                     @onclick="@(() => ToggleNode(item.Node))">
+
+                    @if (!item.Node.IsFile)
+                    {
+                        <span class="tree-chevron me-1">
+                            <i class="bi @(_collapsedNodes.Contains(item.Node.NodeId) ? "bi-chevron-right" : "bi-chevron-down")"></i>
+                        </span>
+                        @if (item.Level == 0)
+                        {
+                            <i class="bi bi-box-seam tree-icon-project me-2"></i>
+                        }
+                        else
+                        {
+                            <i class="bi @(_collapsedNodes.Contains(item.Node.NodeId) ? "bi-folder2" : "bi-folder2-open") tree-icon-folder me-2"></i>
+                        }
+                    }
+                    else
+                    {
+                        <span class="tree-chevron-spacer me-1"></span>
+                        <i class="bi @GetFileIcon(item.Node.Name) me-2"></i>
+                    }
+
+                    <span class="tree-label @(item.Level == 0 ? "tree-label-project" : item.Node.IsFile ? "tree-label-file" : "tree-label-dir")">
+                        @item.Node.Name
+                    </span>
+
+                    @if (item.Node.IsFile && item.Node.FileData != null)
+                    {
+                        <span class="ms-auto tree-slice-badge @GetSliceBadgeClass(item.Node.FileData.SliceType)">
+                            @item.Node.FileData.SliceType
+                        </span>
+                    }
+                    @if (!item.Node.IsFile && item.Level == 0)
+                    {
+                        <span class="ms-auto tree-count-badge">
+                            @item.Node.TotalFileCount
+                        </span>
+                    }
+                </div>
+            }
         </div>
     }
     else if (!IsLoading)
     {
-        <div class="text-center text-muted py-4">
-            <i class="bi bi-file-x fs-1"></i>
-            <p class="mt-2">No files to preview. Check your configuration and try again.</p>
+        <div class="tree-empty-state d-flex flex-column align-items-center justify-content-center text-muted">
+            <i class="bi bi-folder2-open tree-empty-icon mb-3"></i>
+            <p class="small mb-1 fw-semibold">No Preview Available</p>
+            <p class="small text-center px-3 mb-0" style="font-size: 0.75rem;">
+                Fill in the configuration fields to see the file structure that will be generated
+            </p>
         </div>
     }
 </div>
@@ -66,62 +87,410 @@
     [Parameter] public List<FeatureFilePreview>? PreviewFiles { get; set; }
     [Parameter] public bool IsLoading { get; set; }
 
+    private class FileTreeNode
+    {
+        public string Name { get; set; } = "";
+        public bool IsFile { get; set; }
+        public FeatureFilePreview? FileData { get; set; }
+        public List<FileTreeNode> Children { get; set; } = new();
+        public string NodeId { get; set; } = Guid.NewGuid().ToString("N")[..8];
+        public int TotalFileCount => IsFile ? 1 : Children.Sum(c => c.TotalFileCount);
+    }
 
+    private record FlatItem(FileTreeNode Node, int Level);
 
+    private List<FlatItem> _flatTree = new();
+    private List<FileTreeNode> _cachedTree = new();
+    private HashSet<string> _collapsedNodes = new();
+    private List<FeatureFilePreview>? _lastFiles;
+    private int _projectCount;
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(_lastFiles, PreviewFiles))
+        {
+            _collapsedNodes.Clear();
+            _lastFiles = PreviewFiles;
+            _cachedTree = BuildTree();
+            _projectCount = _cachedTree.Count;
+            _flatTree = FlattenTree(_cachedTree, 0).ToList();
+        }
+    }
+
+    private List<FileTreeNode> BuildTree()
+    {
+        if (PreviewFiles == null || !PreviewFiles.Any()) return new();
+
+        var root = new List<FileTreeNode>();
+
+        foreach (var projectGroup in PreviewFiles.GroupBy(f => f.ProjectType).OrderBy(g => g.Key))
+        {
+            var projectNode = new FileTreeNode { Name = GetProjectDisplayName(projectGroup.Key), IsFile = false };
+            var files = projectGroup.OrderBy(f => f.FilePath).ToList();
+
+            // Use the project root stored on each file to determine what to strip.
+            // This preserves all directoryName segments (including n-level paths like
+            // "Admin\Users\Settings") as visible tree nodes instead of hiding them.
+            var projectRoot = files[0].ProjectRootPath;
+
+            // Fallback: if ProjectRootPath is not set, compute the deepest common
+            // ancestor that still leaves the directoryName segments intact.
+            if (string.IsNullOrEmpty(projectRoot))
+                projectRoot = FallbackCommonRoot(files);
+
+            // Normalise trailing separator so stripping works cleanly.
+            var normRoot = projectRoot.TrimEnd('\\', '/');
+
+            foreach (var file in files)
+            {
+                // Compute directory path relative to the project root.
+                var absDir = file.DirectoryPath;
+                var relativeDir = absDir.Length > normRoot.Length
+                    ? absDir.Substring(normRoot.Length).TrimStart('\\', '/')
+                    : absDir.TrimStart('\\', '/');
+
+                // Split into segments — each segment becomes a folder node.
+                var segments = string.IsNullOrEmpty(relativeDir)
+                    ? Array.Empty<string>()
+                    : relativeDir.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                var current = projectNode.Children;
+                foreach (var segment in segments)
+                {
+                    var existing = current.FirstOrDefault(n => !n.IsFile && n.Name == segment);
+                    if (existing == null)
+                    {
+                        existing = new FileTreeNode { Name = segment, IsFile = false };
+                        current.Add(existing);
+                    }
+                    current = existing.Children;
+                }
+
+                current.Add(new FileTreeNode
+                {
+                    Name = file.FileName,
+                    IsFile = true,
+                    FileData = file
+                });
+            }
+
+            root.Add(projectNode);
+        }
+
+        return root;
+    }
+
+    /// <summary>
+    /// Fallback when ProjectRootPath is not available: find the longest common path
+    /// prefix among all files' DirectoryPaths. Used only for backwards-compatibility.
+    /// </summary>
+    private static string FallbackCommonRoot(List<FeatureFilePreview> files)
+    {
+        if (files.Count == 1) return "";
+
+        var splitPaths = files
+            .Select(f => f.DirectoryPath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries))
+            .ToList();
+
+        var first = splitPaths[0];
+        int commonLen = first.Length;
+
+        foreach (var parts in splitPaths.Skip(1))
+        {
+            int max = Math.Min(commonLen, parts.Length);
+            commonLen = 0;
+            for (int i = 0; i < max; i++)
+            {
+                if (string.Equals(first[i], parts[i], StringComparison.OrdinalIgnoreCase))
+                    commonLen = i + 1;
+                else
+                    break;
+            }
+        }
+
+        var sep = files[0].DirectoryPath.Contains('\\') ? '\\' : '/';
+        return string.Join(sep.ToString(), first.Take(commonLen));
+    }
+
+    private IEnumerable<FlatItem> FlattenTree(List<FileTreeNode> nodes, int level)
+    {
+        foreach (var node in nodes)
+        {
+            yield return new FlatItem(node, level);
+            if (!node.IsFile && !_collapsedNodes.Contains(node.NodeId))
+            {
+                foreach (var child in FlattenTree(node.Children, level + 1))
+                    yield return child;
+            }
+        }
+    }
+
+    private void ToggleNode(FileTreeNode node)
+    {
+        if (node.IsFile) return;
+        if (_collapsedNodes.Contains(node.NodeId))
+            _collapsedNodes.Remove(node.NodeId);
+        else
+            _collapsedNodes.Add(node.NodeId);
+        _flatTree = FlattenTree(_cachedTree, 0).ToList();
+    }
+
+    private void CollapseAll()
+    {
+        _collapsedNodes.Clear();
+        foreach (var node in GetAllDirNodes(_cachedTree))
+            _collapsedNodes.Add(node.NodeId);
+        _flatTree = FlattenTree(_cachedTree, 0).ToList();
+    }
+
+    private IEnumerable<FileTreeNode> GetAllDirNodes(List<FileTreeNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (!node.IsFile)
+            {
+                yield return node;
+                foreach (var child in GetAllDirNodes(node.Children))
+                    yield return child;
+            }
+        }
+    }
+
+    private string GetProjectDisplayName(string projectType) => projectType switch
+    {
+        "ServiceContracts" => "Service Contracts",
+        "ServerSideServices" => "Server Services",
+        "Controllers" => "Controllers",
+        "RazorComponents" => "Razor Components",
+        "ClientShared" => "Client Shared",
+        _ => projectType
+    };
 
     private string GetFileIcon(string fileName)
     {
-        var extension = Path.GetExtension(fileName).ToLower();
-        return extension switch
+        var ext = Path.GetExtension(fileName).ToLower();
+        return ext switch
         {
-            ".razor" => "bi-file-earmark-code text-danger",
+            ".razor" => "bi-filetype-html text-danger",
             ".cs" => "bi-file-earmark-code text-warning",
-            ".js" => "bi-file-earmark-code text-info",
-            ".css" => "bi-file-earmark-code text-primary",
-            _ => "bi-file-earmark text-secondary"
+            ".xaml" => "bi-filetype-xml text-info",
+            ".css" => "bi-filetype-css text-primary",
+            ".js" => "bi-filetype-js text-warning",
+            ".json" => "bi-filetype-json text-secondary",
+            _ => "bi-file-earmark text-muted"
         };
     }
 
-    private string FormatFileSize(int bytes)
+    private string GetSliceBadgeClass(string sliceType) => sliceType switch
     {
-        if (bytes < 1024) return $"{bytes} B";
-        if (bytes < 1024 * 1024) return $"{bytes / 1024:F1} KB";
-        return $"{bytes / (1024 * 1024):F1} MB";
-    }
-
-
+        "Form" => "badge-form",
+        "Listing" => "badge-listing",
+        "SelectList" => "badge-selectlist",
+        _ => "badge-default"
+    };
 }
 
 <style>
-    .file-preview-container {
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        background-color: #fff;
+    .file-tree-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #1e1e1e;
+        border-radius: 0 0 0.375rem 0.375rem;
+        overflow: hidden;
     }
 
-    .preview-header {
-        padding: 1rem 1rem 0;
+    .tree-loading-state {
+        background: #1e1e1e;
+        color: #888 !important;
     }
 
-    .preview-content {
-        padding: 1rem;
+    .tree-stats-bar {
+        background: #252526;
+        border-color: #3c3c3c !important;
+        flex-shrink: 0;
     }
 
-    .file-item {
+    .tree-stats-bar .text-muted {
+        color: #888 !important;
+    }
+
+    .tree-stats-bar .text-dark {
+        color: #ccc !important;
+    }
+
+    .tree-stats-bar .btn-link {
+        color: #888 !important;
+        font-size: 0.8rem;
+    }
+
+    .tree-stats-bar .btn-link:hover {
+        color: #ccc !important;
+    }
+
+    .file-tree-scroll {
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+        scrollbar-width: thin;
+        scrollbar-color: #444 #1e1e1e;
+    }
+
+    .file-tree-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .file-tree-scroll::-webkit-scrollbar-track {
+        background: #1e1e1e;
+    }
+
+    .file-tree-scroll::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 3px;
+    }
+
+    .tree-row {
         display: flex;
         align-items: center;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        padding-right: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        cursor: default;
+        user-select: none;
+        border-left: 2px solid transparent;
+        transition: background 0.08s, border-color 0.08s;
+        min-height: 22px;
     }
 
-    .slice-header {
-        display: flex;
+    .tree-row-dir {
+        cursor: pointer;
+    }
+
+    .tree-row:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-left-color: rgba(100, 150, 255, 0.35);
+    }
+
+    .tree-row-dir:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .tree-chevron {
+        width: 14px;
+        font-size: 0.6rem;
+        color: #666;
+        flex-shrink: 0;
+        display: inline-flex;
         align-items: center;
-        margin-bottom: 0.5rem;
     }
 
-    .project-group {
-        border-left: 3px solid #0d6efd;
-        padding-left: 1rem;
+    .tree-chevron-spacer {
+        display: inline-block;
+        width: 14px;
+        flex-shrink: 0;
+    }
+
+    .tree-icon-project {
+        font-size: 0.85rem;
+        color: #9c9cff;
+        flex-shrink: 0;
+    }
+
+    .tree-icon-folder {
+        font-size: 0.85rem;
+        color: #dcb44e;
+        flex-shrink: 0;
+    }
+
+    .bi-file-earmark-code,
+    .bi-filetype-html,
+    .bi-filetype-cs,
+    .bi-filetype-xml,
+    .bi-filetype-css,
+    .bi-filetype-js,
+    .bi-filetype-json,
+    .bi-file-earmark {
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .tree-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.8rem;
+    }
+
+    .tree-label-project {
+        color: #ccc;
+        font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .tree-label-dir {
+        color: #ddd;
+        font-weight: 500;
+    }
+
+    .tree-label-file {
+        color: #aaa;
+        font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    .tree-slice-badge {
+        font-size: 0.58rem;
+        padding: 1px 5px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        margin-left: 6px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        opacity: 0.8;
+    }
+
+    .badge-form {
+        background-color: #264f78;
+        color: #9cdcfe;
+    }
+
+    .badge-listing {
+        background-color: #1a3a1a;
+        color: #6a9955;
+    }
+
+    .badge-selectlist {
+        background-color: #3a2a1a;
+        color: #ce9178;
+    }
+
+    .badge-default {
+        background-color: #3c3c3c;
+        color: #888;
+    }
+
+    .tree-count-badge {
+        font-size: 0.62rem;
+        background: #3c3c3c;
+        color: #888;
+        border-radius: 10px;
+        padding: 1px 6px;
+        flex-shrink: 0;
+        margin-left: 6px;
+    }
+
+    .tree-empty-state {
+        flex: 1;
+        min-height: 200px;
+        background: #1e1e1e;
+        color: #555 !important;
+    }
+
+    .tree-empty-icon {
+        font-size: 2.5rem;
+        color: #333;
     }
 </style>

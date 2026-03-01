@@ -41,9 +41,10 @@ public partial class Index
     };
 
     // Preview functionality
-    private bool ShowFilePreview = false;
+    private bool ShowFilePreview = true;
     private bool IsPreviewLoading = false;
     private List<FeatureFilePreview>? PreviewFiles;
+    private CancellationTokenSource? _previewDebounceTokenSource;
 
     // Placement guidance functionality
     private PlacementGuidance? PlacementGuidance;
@@ -334,6 +335,22 @@ public partial class Index
         PreviewFiles = null;
         PlacementGuidance = null;
         StateHasChanged();
+    }
+
+    public async Task TriggerDebouncedPreview()
+    {
+        _previewDebounceTokenSource?.Cancel();
+        _previewDebounceTokenSource?.Dispose();
+        _previewDebounceTokenSource = new CancellationTokenSource();
+        var token = _previewDebounceTokenSource.Token;
+
+        try
+        {
+            await Task.Delay(500, token);
+            if (!token.IsCancellationRequested && IsFormValid())
+                await ShowPreview();
+        }
+        catch (OperationCanceledException) { }
     }
 
     private bool IsFormValid()
