@@ -11,31 +11,25 @@ main {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0 !important;
+    padding: 0;
 }
 
-.sidebar {
-    background: #1a1a2e;
-    flex-shrink: 0;
+.sf-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    width: 100%;
 }
 
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 215px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
+@media (max-width: 768px) {
+    .sf-container {
+        padding: 1rem;
     }
 }
 
