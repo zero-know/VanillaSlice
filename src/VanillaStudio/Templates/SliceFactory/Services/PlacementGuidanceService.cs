@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using {{RootNamespace}}.SliceFactory.Models;
 using {{RootNamespace}}.SliceFactory.Data;
 
@@ -6,12 +5,12 @@ namespace {{RootNamespace}}.SliceFactory.Services;
 
 public class PlacementGuidanceService
 {
-    private readonly SliceFactoryDbContext _context;
+    private readonly JsonFeatureStore _store;
     private readonly FeatureManagementService _featureService;
 
-    public PlacementGuidanceService(SliceFactoryDbContext context, FeatureManagementService featureService)
+    public PlacementGuidanceService(JsonFeatureStore store, FeatureManagementService featureService)
     {
-        _context = context;
+        _store = store;
         _featureService = featureService;
     }
 
@@ -28,10 +27,9 @@ public class PlacementGuidanceService
         };
 
         // Get existing features for conflict analysis
-        var existingFeatures = await _context.Features
-            .Include(f => f.Files)
+        var existingFeatures = _store.Features
             .Where(f => f.ModuleNamespace == moduleNamespace || f.ComponentPrefix == componentPrefix)
-            .ToListAsync();
+            .ToList();
 
         // Analyze conflicts
         await AnalyzeConflicts(guidance, componentPrefix, moduleNamespace, existingFeatures, newFiles);

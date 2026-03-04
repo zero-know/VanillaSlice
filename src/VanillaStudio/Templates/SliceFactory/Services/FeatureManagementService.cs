@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using {{RootNamespace}}.SliceFactory.Data;
 using {{RootNamespace}}.SliceFactory.Models;
 using {{RootNamespace}}.SliceFactory.Components.Pages;
@@ -8,58 +7,54 @@ namespace {{RootNamespace}}.SliceFactory.Services;
 
 public class FeatureManagementService
 {
-    private readonly SliceFactoryDbContext _context;
+    private readonly JsonFeatureStore _store;
     private readonly TemplateEngineService _templateEngine;
     private readonly RegistrationManagementService _registrationService;
     private readonly NavigationManagementService _navigationService;
 
     public FeatureManagementService(
-        SliceFactoryDbContext context,
+        JsonFeatureStore store,
         TemplateEngineService templateEngine,
         RegistrationManagementService registrationService,
         NavigationManagementService navigationService)
     {
-        _context = context;
+        _store = store;
         _templateEngine = templateEngine;
         _registrationService = registrationService;
         _navigationService = navigationService;
     }
 
     /// <summary>
-    /// Get all features with their files and projects
+    /// Get all features ordered by module then component prefix
     /// </summary>
-    public async Task<List<Feature>> GetAllFeaturesAsync()
+    public Task<List<Feature>> GetAllFeaturesAsync()
     {
-        return await _context.Features
-            .Include(f => f.Files)
-            .Include(f => f.Projects)
+        var result = _store.Features
             .OrderBy(f => f.ModuleNamespace)
             .ThenBy(f => f.ComponentPrefix)
-            .ToListAsync();
+            .ToList();
+        return Task.FromResult(result);
     }
 
     /// <summary>
     /// Get feature by ID with all related data
     /// </summary>
-    public async Task<Feature?> GetFeatureByIdAsync(int id)
+    public Task<Feature?> GetFeatureByIdAsync(string id)
     {
-        return await _context.Features
-            .Include(f => f.Files)
-            .Include(f => f.Projects)
-            .FirstOrDefaultAsync(f => f.Id == id);
+        var feature = _store.Features.FirstOrDefault(f => f.Id == id);
+        return Task.FromResult(feature);
     }
 
     /// <summary>
     /// Get features by module namespace
     /// </summary>
-    public async Task<List<Feature>> GetFeaturesByModuleAsync(string moduleNamespace)
+    public Task<List<Feature>> GetFeaturesByModuleAsync(string moduleNamespace)
     {
-        return await _context.Features
-            .Include(f => f.Files)
-            .Include(f => f.Projects)
+        var result = _store.Features
             .Where(f => f.ModuleNamespace == moduleNamespace)
             .OrderBy(f => f.ComponentPrefix)
-            .ToListAsync();
+            .ToList();
+        return Task.FromResult(result);
     }
 
     /// <summary>
@@ -83,8 +78,8 @@ public class FeatureManagementService
         string uiFramework = "Bootstrap")
     {
         // Check if feature already exists
-        var existingFeature = await _context.Features
-            .FirstOrDefaultAsync(f => f.ModuleNamespace == moduleNamespace && f.ComponentPrefix == componentPrefix);
+        var existingFeature = _store.Features
+            .FirstOrDefault(f => f.ModuleNamespace == moduleNamespace && f.ComponentPrefix == componentPrefix);
 
         if (existingFeature != null)
         {
@@ -110,11 +105,13 @@ public class FeatureManagementService
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Features.Add(feature);
-        await _context.SaveChangesAsync();
+        _store.Features.Add(feature);
 
         // Generate files for each project
         await GenerateFeatureFilesAsync(feature, projects);
+
+        // Save persists the feature plus all generated file/project records
+        await _store.SaveAsync();
 
         return feature;
     }
@@ -123,7 +120,7 @@ public class FeatureManagementService
     /// Update an existing feature and regenerate files if needed
     /// </summary>
     public async Task<Feature> UpdateFeatureAsync(
-        int featureId,
+        string featureId,
         string componentPrefix,
         string featurePluralName,
         string moduleNamespace,
@@ -156,27 +153,19 @@ public class FeatureManagementService
 
         if (regenerateFiles)
         {
-            // Remove old files from database (but not from disk)
-            _context.FeatureFiles.RemoveRange(feature.Files);
-            _context.FeatureProjects.RemoveRange(feature.Projects);
-
-            await _context.SaveChangesAsync();
-
-            // Generate new files
+            feature.Files.Clear();
+            feature.Projects.Clear();
             await GenerateFeatureFilesAsync(feature, projects);
         }
-        else
-        {
-            await _context.SaveChangesAsync();
-        }
 
+        await _store.SaveAsync();
         return feature;
     }
 
     /// <summary>
     /// Delete a feature and optionally remove generated files
     /// </summary>
-    public async Task DeleteFeatureAsync(int featureId, bool deleteFiles = false)
+    public async Task DeleteFeatureAsync(string featureId, bool deleteFiles = false)
     {
         var feature = await GetFeatureByIdAsync(featureId);
         if (feature == null)
@@ -186,26 +175,22 @@ public class FeatureManagementService
 
         if (deleteFiles)
         {
-            // Delete physical files
             foreach (var file in feature.Files.Where(f => f.Exists))
             {
                 try
                 {
                     if (File.Exists(file.FilePath))
-                    {
                         File.Delete(file.FilePath);
-                    }
                 }
                 catch (Exception ex)
                 {
-                    // Log error but continue with deletion
                     Console.WriteLine($"Error deleting file {file.FilePath}: {ex.Message}");
                 }
             }
         }
 
-        _context.Features.Remove(feature);
-        await _context.SaveChangesAsync();
+        _store.Features.Remove(feature);
+        await _store.SaveAsync();
     }
 
     /// <summary>
@@ -235,12 +220,8 @@ public class FeatureManagementService
             if (string.IsNullOrEmpty(templateDirectoryName))
                 continue;
 
-            // projectRootPath is the root of this project — everything below it
-            // (starting from directoryName segments) becomes visible tree nodes.
             var projectRootPath = Path.Combine(basePath, project.Path ?? "");
             var projectNs = project.NameSpace ?? "";
-
-            // Base path: projectRootPath / directoryName
             var baseFeaturePath = Path.Combine(projectRootPath, directoryName);
 
             if (hasListing)
@@ -260,6 +241,7 @@ public class FeatureManagementService
                         ProjectRootPath = projectRootPath,
                         ProjectNamespace = projectNs,
                         ModuleNamespace = moduleNamespace,
+                        ComponentPrefix = componentPrefix,
                         IsNew = true,
                         Content = f.Value
                     });
@@ -283,6 +265,7 @@ public class FeatureManagementService
                         ProjectRootPath = projectRootPath,
                         ProjectNamespace = projectNs,
                         ModuleNamespace = moduleNamespace,
+                        ComponentPrefix = componentPrefix,
                         IsNew = true,
                         Content = f.Value
                     });
@@ -306,6 +289,7 @@ public class FeatureManagementService
                         ProjectRootPath = projectRootPath,
                         ProjectNamespace = projectNs,
                         ModuleNamespace = moduleNamespace,
+                        ComponentPrefix = componentPrefix,
                         IsNew = true,
                         Content = f.Value
                     });
@@ -324,10 +308,7 @@ public class FeatureManagementService
         var features = await GetAllFeaturesAsync();
         var tree = new List<FeatureTreeNode>();
 
-        // Group by module namespace
-        var moduleGroups = features.GroupBy(f => f.ModuleNamespace);
-
-        foreach (var moduleGroup in moduleGroups)
+        foreach (var moduleGroup in features.GroupBy(f => f.ModuleNamespace))
         {
             var moduleNode = new FeatureTreeNode
             {
@@ -338,7 +319,6 @@ public class FeatureManagementService
                 IsExpanded = false
             };
 
-            // Add features under each module
             foreach (var feature in moduleGroup)
             {
                 var featureNode = new FeatureTreeNode
@@ -350,9 +330,7 @@ public class FeatureManagementService
                     IsExpanded = false
                 };
 
-                // Add project types under each feature
-                var projectGroups = feature.Files.GroupBy(f => f.ProjectType);
-                foreach (var projectGroup in projectGroups)
+                foreach (var projectGroup in feature.Files.GroupBy(f => f.ProjectType))
                 {
                     var projectNode = new FeatureTreeNode
                     {
@@ -363,18 +341,16 @@ public class FeatureManagementService
                         IsExpanded = false
                     };
 
-                    // Add files under each project type
                     foreach (var file in projectGroup)
                     {
-                        var fileNode = new FeatureTreeNode
+                        projectNode.Children.Add(new FeatureTreeNode
                         {
                             Id = $"file_{file.Id}",
                             Name = $"{file.FileName} ({file.SliceType})",
                             Type = "File",
                             File = file,
                             Feature = feature
-                        };
-                        projectNode.Children.Add(fileNode);
+                        });
                     }
 
                     featureNode.Children.Add(projectNode);
@@ -406,48 +382,39 @@ public class FeatureManagementService
             if (string.IsNullOrEmpty(templateDirectoryName))
                 continue;
 
-            // Base path: GivenDirectoryPath/FeaturePluralName
             var baseFeaturePath = Path.Combine(feature.BasePath, project.Path, feature.DirectoryName);
 
-            // Create FeatureProject record
-            var featureProject = new FeatureProject
+            feature.Projects.Add(new FeatureProject
             {
                 FeatureId = feature.Id,
                 ProjectType = project.ProjectType,
-                ProjectPath = baseFeaturePath,
+                // Store relative to solution root so paths are portable across machines
+                ProjectPath = Path.GetRelativePath(feature.BasePath, baseFeaturePath),
                 ProjectNamespace = project.NameSpace ?? "",
                 CreatedAt = DateTime.UtcNow
-            };
-            _context.FeatureProjects.Add(featureProject);
+            });
 
             if (feature.HasListing)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameListing
                 var listingPath = Path.Combine(baseFeaturePath, $"{feature.FeaturePluralName}Listing");
                 await GenerateSliceFilesAsync(feature, templateDirectoryName, "Listing", listingPath, parameters);
             }
 
             if (feature.HasForm)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/ComponentPrefixForm
                 var formPath = Path.Combine(baseFeaturePath, $"{feature.ComponentPrefix}Form");
                 await GenerateSliceFilesAsync(feature, templateDirectoryName, "Form", formPath, parameters);
             }
 
             if (feature.HasSelectList)
             {
-                // Nested path: GivenDirectoryPath/FeaturePluralName/FeaturePluralNameSelectList
                 var selectListPath = Path.Combine(baseFeaturePath, $"{feature.FeaturePluralName}SelectList");
                 await GenerateSliceFilesAsync(feature, templateDirectoryName, "SelectList", selectListPath, parameters);
             }
         }
 
-        await _context.SaveChangesAsync();
-
-        // Update service registrations after generating files
+        // Update service registrations and navigation menus after generating files
         await _registrationService.UpdateRegistrationsForFeatureAsync(feature, projects);
-
-        // Update navigation menus after generating files
         await _navigationService.UpdateNavigationForFeatureAsync(feature, projects);
     }
 
@@ -468,33 +435,29 @@ public class FeatureManagementService
                 var directory = Path.GetDirectoryName(fullPath);
 
                 if (!Directory.Exists(directory))
-                {
                     Directory.CreateDirectory(directory!);
-                }
 
                 // Normalize line endings to CRLF for Windows compatibility
                 var normalizedContent = file.Value.Replace("\r\n", "\n").Replace("\n", "\r\n");
                 await File.WriteAllTextAsync(fullPath, normalizedContent, System.Text.Encoding.UTF8);
 
-                // Create FeatureFile record
-                var featureFile = new FeatureFile
+                feature.Files.Add(new FeatureFile
                 {
                     FeatureId = feature.Id,
-                    FilePath = fullPath,
+                    // Store relative to solution root so paths are portable across machines
+                    FilePath = Path.GetRelativePath(feature.BasePath, fullPath),
                     FileName = file.Key,
                     ProjectType = projectType,
                     SliceType = sliceType,
                     FileSize = System.Text.Encoding.UTF8.GetByteCount(file.Value),
                     CreatedAt = DateTime.UtcNow,
                     Exists = true
-                };
-                _context.FeatureFiles.Add(featureFile);
+                });
             }
         }
         catch (DirectoryNotFoundException)
         {
-            // Template directory doesn't exist for this project type/slice combination
-            // This is expected for some combinations, so we can safely ignore
+            // Template directory doesn't exist for this project type/slice combination — expected for some combinations
         }
     }
 
@@ -528,23 +491,17 @@ public class FeatureManagementService
     }
 
     /// <summary>
-    /// Returns previews for ALL previously-generated features from the database,
-    /// so the tree can show the full component landscape even before a new form is filled.
+    /// Returns previews for ALL previously-generated features so the tree is populated immediately.
+    /// Relative file paths stored in JSON are reconstructed to absolute using <paramref name="basePath"/>.
     /// </summary>
-    public async Task<List<FeatureFilePreview>> GetAllExistingPreviewsAsync()
+    public Task<List<FeatureFilePreview>> GetAllExistingPreviewsAsync(string basePath)
     {
         var result = new List<FeatureFilePreview>();
 
-        var features = await _context.Features
-            .Include(f => f.Files)
-            .Include(f => f.Projects)
-            .ToListAsync();
-
-        foreach (var feature in features)
+        foreach (var feature in _store.Features)
         {
             foreach (var file in feature.Files)
             {
-                // Match the FeatureProject whose template directory name equals this file's ProjectType
                 var featureProject = feature.Projects.FirstOrDefault(p =>
                     GetTemplateDirectoryName(p.ProjectType) == file.ProjectType);
 
@@ -553,43 +510,46 @@ public class FeatureManagementService
 
                 if (featureProject != null)
                 {
-                    // featureProject.ProjectPath = basePath/projectRelPath/directoryName
-                    // Strip directoryName to recover projectRootPath = basePath/projectRelPath
-                    projectRootPath = StripDirectoryNameFromPath(featureProject.ProjectPath, feature.DirectoryName);
+                    // ProjectPath is stored relative to basePath — reconstruct absolute
+                    var absoluteProjectPath = Path.Combine(basePath, featureProject.ProjectPath);
+                    projectRootPath = StripDirectoryNameFromPath(absoluteProjectPath, feature.DirectoryName);
                     projectNamespace = featureProject.ProjectNamespace;
                 }
 
+                // FilePath stored relative to basePath — reconstruct absolute
+                var absoluteFilePath = Path.Combine(basePath, file.FilePath);
+                var absoluteDir = Path.GetDirectoryName(absoluteFilePath) ?? "";
+
                 result.Add(new FeatureFilePreview
                 {
-                    ProjectType     = file.ProjectType,
-                    SliceType       = file.SliceType,
-                    FileName        = file.FileName,
-                    FilePath        = file.FilePath,
-                    DirectoryPath   = Path.GetDirectoryName(file.FilePath) ?? "",
-                    Content         = string.Empty,
+                    ProjectType = file.ProjectType,
+                    SliceType = file.SliceType,
+                    FileName = file.FileName,
+                    FilePath = absoluteFilePath,
+                    DirectoryPath = absoluteDir,
+                    Content = string.Empty,
                     ProjectRootPath = projectRootPath,
-                    IsNew           = false,
+                    IsNew = false,
                     ProjectNamespace = projectNamespace,
-                    ModuleNamespace  = feature.ModuleNamespace
+                    ModuleNamespace = feature.ModuleNamespace,
+                    ComponentPrefix = feature.ComponentPrefix
                 });
             }
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 
     /// <summary>
     /// Strips the feature's directoryName path segments from the end of featurePath
     /// to recover the project root (basePath + projectRelPath).
-    /// e.g. "C:\Src\App\Profile\Article" with directoryName="Profile\Article" → "C:\Src\App"
     /// </summary>
     private static string StripDirectoryNameFromPath(string featurePath, string directoryName)
     {
         var normalized = featurePath.TrimEnd('\\', '/');
-        var dirSuffix  = directoryName.TrimEnd('\\', '/');
-        // Normalize separators for reliable comparison
+        var dirSuffix = directoryName.TrimEnd('\\', '/');
         var normPath = normalized.Replace('/', '\\');
-        var normDir  = dirSuffix.Replace('/', '\\');
+        var normDir = dirSuffix.Replace('/', '\\');
         if (normPath.EndsWith(normDir, StringComparison.OrdinalIgnoreCase))
             return normalized[..^dirSuffix.Length].TrimEnd('\\', '/');
         return normalized;
@@ -621,13 +581,25 @@ public class FeatureFilePreview
 
     /// <summary>
     /// Base namespace of the owning project (e.g. "MyApp.ServiceContracts").
-    /// Used to derive the full dotted namespace displayed next to existing files.
     /// </summary>
     public string ProjectNamespace { get; set; } = string.Empty;
 
     /// <summary>
     /// The feature's module namespace (e.g. "Profile.Article").
-    /// Combined with SliceType for the colored badge shown on existing-file tree nodes.
     /// </summary>
     public string ModuleNamespace { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The feature's component prefix (e.g. "Article").
+    /// Used by the tree picker to pre-populate the Component Prefix input.
+    /// </summary>
+    public string ComponentPrefix { get; set; } = string.Empty;
 }
+
+/// <summary>
+/// Context passed to the form when the user picks an existing tree node as a sibling template.
+/// </summary>
+/// <param name="DirectoryName">Feature directory path relative to project root (e.g. "Profile\Article").</param>
+/// <param name="ModuleNamespace">Module namespace (e.g. "Profile.Article").</param>
+/// <param name="ComponentPrefix">Set when a file node is clicked; null for directory picks.</param>
+public record PickerContext(string DirectoryName, string ModuleNamespace, string? ComponentPrefix);

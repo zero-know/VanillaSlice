@@ -90,6 +90,7 @@ namespace {{ProjectName}}.Framework;
         {
             ItemsLoaded = true;
             IsWorking = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -107,5 +108,11 @@ namespace {{ProjectName}}.Framework;
     protected override async Task OnInitializedAsync()
     {
         await LoadItemsAsync();
+    }
+
+    public override void OnDialogClosed()
+    {
+        _ = LoadItemsAsync();
+        base.OnDialogClosed();
     }
 }

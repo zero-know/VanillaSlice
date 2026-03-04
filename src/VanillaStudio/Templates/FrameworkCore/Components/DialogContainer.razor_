@@ -1,4 +1,5 @@
 @using {{ProjectName}}.Framework.Services
+@using Microsoft.AspNetCore.Components.Web
 @inject DialogService DialogService
 @implements IDisposable
 
@@ -6,13 +7,13 @@
 {
     @foreach (var dialog in DialogService.Dialogs)
     {
-        <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: @dialog.ZIndex" @key="dialog.Id">
+        <div class="fixed inset-0 flex items-center justify-center p-4" style="z-index: @dialog.ZIndex"  >
             <!-- Backdrop -->
             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                 @onclick="() => OnBackdropClick(dialog)"></div>
+                 @onclick="() => DialogService.CloseDialog(dialog.DialogId)"></div>
 
             <!-- Dialog -->
-            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full @GetWidthClass(dialog) @GetHeightClass(dialog) flex flex-col transform transition-all"
+            <div class="relative bg-white dark:bg-gray-800 border rounded-lg shadow-2xl w-full @GetWidthClass(dialog) @GetHeightClass(dialog) flex flex-col transform transition-all"
                  @onclick:stopPropagation="true">
 
                 <!-- Header -->
@@ -21,8 +22,7 @@
                         @dialog.Title
                     </h3>
                     <button type="button"
-                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                            @onclick="() => CloseDialog(dialog.Id)">
+                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" @onclick="() => DialogService.CloseDialog(dialog.DialogId)">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -42,20 +42,7 @@
     protected override void OnInitialized()
     {
         DialogService.OnDialogsChanged += StateHasChanged;
-    }
-
-    private void CloseDialog(Guid dialogId)
-    {
-        DialogService.CloseDialog(dialogId);
-    }
-
-    private void OnBackdropClick(DialogOptions dialog)
-    {
-        if (dialog.CloseOnBackdropClick)
-        {
-            CloseDialog(dialog.Id);
-        }
-    }
+    } 
 
     private string GetWidthClass(DialogOptions dialog)
     {

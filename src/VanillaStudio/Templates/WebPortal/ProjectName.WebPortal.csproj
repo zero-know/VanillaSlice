@@ -40,7 +40,7 @@
 
   <!-- Tailwind CSS Build Configuration -->
   {{#if (eq UIFramework "TailwindCSS")}}
-  <!--<Target Name="BuildTailwindCSS" BeforeTargets="Build">
+  <Target Name="BuildTailwindCSS" BeforeTargets="Build">
     <Message Text="Building Tailwind CSS..." Importance="high" />
     <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
     <Exec Command="npm run build-css-prod" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
@@ -49,7 +49,7 @@
   <Target Name="WatchTailwindCSS" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="Build">
     <Message Text="Starting Tailwind CSS in watch mode for development..." Importance="high" />
     <Exec Command="npm run build-css" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
-  </Target>-->
+  </Target>
 
   <ItemGroup>
     <Content Remove="package.json" />

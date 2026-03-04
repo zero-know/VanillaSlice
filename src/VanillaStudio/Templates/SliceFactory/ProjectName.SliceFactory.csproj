@@ -9,11 +9,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.TemplateEngine.Edge" Version="8.0.100" />
 		<PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="8.0.100" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="{{AspNetCoreVersion}}">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="{{AspNetCoreVersion}}" />
 	</ItemGroup>
 
 

@@ -1,55 +1,34 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using {{RootNamespace}}.SliceFactory.Components.Pages;
-using {{RootNamespace}}.SliceFactory.Services;
 
 namespace {{RootNamespace}}.SliceFactory.Models;
+
 public class Feature
 {
-    [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    [Required]
-    [MaxLength(100)]
     public string ComponentPrefix { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
     public string FeaturePluralName { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
     public string ModuleNamespace { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(200)]
     public string ProjectNamespace { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(50)]
     public string PrimaryKeyType { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(500)]
+    /// <summary>
+    /// Solution root at generation time. Not persisted — reconstructed at runtime
+    /// via PathDetectionService so paths stay portable across machines.
+    /// </summary>
+    [JsonIgnore]
     public string BasePath { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(200)]
     public string DirectoryName { get; set; } = string.Empty;
 
     public bool HasForm { get; set; }
     public bool HasListing { get; set; }
     public bool HasSelectList { get; set; }
 
-    [Required]
-    [MaxLength(50)]
     public string SelectListModelType { get; set; } = "SelectOption"; // "SelectOption" or "Custom"
-
-    [Required]
-    [MaxLength(50)]
     public string SelectListDataType { get; set; } = "string"; // Used when SelectListModelType is "SelectOption"
 
-    [MaxLength(50)]
     public string UIFramework { get; set; } = "Bootstrap";
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -60,15 +39,8 @@ public class Feature
     /// </summary>
     public string? ProfileConfiguration { get; set; }
 
-    /// <summary>
-    /// Navigation property for generated files
-    /// </summary>
-    public virtual ICollection<FeatureFile> Files { get; set; } = new List<FeatureFile>();
-
-    /// <summary>
-    /// Navigation property for feature projects
-    /// </summary>
-    public virtual ICollection<FeatureProject> Projects { get; set; } = new List<FeatureProject>();
+    public List<FeatureFile> Files { get; set; } = new();
+    public List<FeatureProject> Projects { get; set; } = new();
 }
 
 /// <summary>
@@ -76,26 +48,12 @@ public class Feature
 /// </summary>
 public class FeatureFile
 {
-    [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string FeatureId { get; set; } = string.Empty;
 
-    [Required]
-    public int FeatureId { get; set; }
-
-    [Required]
-    [MaxLength(500)]
     public string FilePath { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(200)]
     public string FileName { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(100)]
     public string ProjectType { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(50)]
     public string SliceType { get; set; } = string.Empty; // Form or Listing
 
     public long FileSize { get; set; }
@@ -106,12 +64,6 @@ public class FeatureFile
     /// Whether the file still exists on disk
     /// </summary>
     public bool Exists { get; set; } = true;
-
-    /// <summary>
-    /// Navigation property back to feature
-    /// </summary>
-    [ForeignKey(nameof(FeatureId))]
-    public virtual Feature Feature { get; set; } = null!;
 }
 
 /// <summary>
@@ -119,30 +71,14 @@ public class FeatureFile
 /// </summary>
 public class FeatureProject
 {
-    [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string FeatureId { get; set; } = string.Empty;
 
-    [Required]
-    public int FeatureId { get; set; }
-
-    [Required]
     public ProjectType ProjectType { get; set; }
-
-    [Required]
-    [MaxLength(500)]
     public string ProjectPath { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(200)]
     public string ProjectNamespace { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    /// <summary>
-    /// Navigation property back to feature
-    /// </summary>
-    [ForeignKey(nameof(FeatureId))]
-    public virtual Feature Feature { get; set; } = null!;
 }
 
 /// <summary>

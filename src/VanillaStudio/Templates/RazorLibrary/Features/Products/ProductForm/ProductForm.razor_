@@ -95,7 +95,7 @@
 
                         <!-- Form Actions -->
                         <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
-                            <a class="btn btn-outline-secondary px-4" href="/products">
+                            <a class="btn btn-outline-secondary px-4" href="#" @onclick="CloseMe">
                                 <i class="bi bi-x-circle me-2"></i>Cancel
                             </a>
                             <button type="submit" class="btn btn-dark px-4">
@@ -313,7 +313,7 @@
         <MudCardActions>
             <MudButton Variant="Variant.Outlined"
                      Color="Color.Default"
-                     Href="/products">
+                     href="#" @onclick="CloseMe">
                 <MudIcon Icon="Icons.Material.Filled.Cancel" />
                 Cancel
             </MudButton>
@@ -531,7 +531,7 @@
                             }
                         </button>
 
-                        <a href="/products"
+                        <a href="#" @onclick="CloseMe"
                            class="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-center">
                             Cancel
                         </a>
@@ -561,10 +561,23 @@
 
     public override Task OnAfterSaveAsync(string key)
     {
-        if (!string.IsNullOrEmpty(key))
+        if(key != null)
+        {
+            CloseMe();
+        };
+       
+        return Task.CompletedTask;
+    }
+
+    private void CloseMe()
+    {
+        if (DialogId != null)
+        {
+            CloseDialog();
+        }
+        else
         {
             NavigationManager.NavigateTo("/products");
         }
-        return Task.CompletedTask;
     }
 }

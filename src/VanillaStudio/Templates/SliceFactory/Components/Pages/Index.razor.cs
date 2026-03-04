@@ -17,8 +17,6 @@ public partial class Index
 
     private bool HasValidationErrors => !string.IsNullOrEmpty(M.DirectoryName) &&
                                        !string.IsNullOrEmpty(M.NameSpace) &&
-                                       !string.IsNullOrEmpty(M.ComponentPrefix) &&
-                                       !string.IsNullOrEmpty(M.FeaturePluralName) &&
                                        !string.IsNullOrEmpty(M.PkType);
 
     const string __projectNamespace__ = "__projectNamespace__";
@@ -85,8 +83,9 @@ public partial class Index
     {
         await base.OnInitializedAsync();
 
-        // Load all previously generated features from the DB so the tree is populated immediately.
-        _existingPreviews = await FeatureService.GetAllExistingPreviewsAsync();
+        // Load all previously generated features so the tree is populated immediately.
+        var basePath = PathDetectionService.GetFeatureGenerationBasePath();
+        _existingPreviews = await FeatureService.GetAllExistingPreviewsAsync(basePath);
         PreviewFiles = _existingPreviews;
 
         // Check for context parameters from feature creation
@@ -117,31 +116,19 @@ public partial class Index
                 M.NameSpace = moduleNamespace;
             }
 
-            if (!string.IsNullOrEmpty(suggestedPrefix))
-            {
-                M.ComponentPrefix = suggestedPrefix;
-            }
-
             // BasePath is now automatically detected, no need to set it manually
 
             // Set intelligent defaults based on context type
             switch (contextType)
             {
                 case "Module":
-                    // Creating at module level - suggest new feature
-                    M.DirectoryName = $"{suggestedPrefix}Feature";
-                    break;
-
                 case "Feature":
-                    // Creating sibling to existing feature
-                    M.DirectoryName = $"{suggestedPrefix}Feature";
-                    break;
-
                 case "Project":
-                    // Creating at project level - inherit parent settings
                     M.DirectoryName = $"{suggestedPrefix}Feature";
                     break;
             }
+
+            AutoDeriveFromDirectoryName();
 
             // Automatically show preview for context-aware creation
             await ShowPreview();
@@ -185,12 +172,18 @@ public partial class Index
                 uiFramework: wooqlawProfile.UIFramework ?? "Bootstrap"
             );
 
-            // Show success message
+            // Show success message (auto-hides after 5 s)
             GeneratedFeatureName = M.ComponentPrefix;
-            SuccessMessage = $"✅ Successfully generated {M.ComponentPrefix} slice!";
+            SuccessMessage = $"Successfully generated {M.ComponentPrefix} slice!";
             ShowSuccessMessage = true;
             ShowFilePreview = false;
             StateHasChanged();
+
+            _ = Task.Delay(5000).ContinueWith(_ => InvokeAsync(() =>
+            {
+                ShowSuccessMessage = false;
+                StateHasChanged();
+            }));
         }
         catch (Exception ex)
         {
@@ -226,6 +219,32 @@ public partial class Index
     {
         ShowSuccessMessage = false;
         StateHasChanged();
+    }
+
+    private void AutoDeriveFromDirectoryName()
+    {
+        if (string.IsNullOrEmpty(M.DirectoryName)) return;
+        var segments = M.DirectoryName.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0) return;
+        var last = segments[^1];
+        M.ComponentPrefix = last;
+        M.FeaturePluralName = last + "s";
+    }
+
+    public async Task HandlePicker(PickerContext ctx)
+    {
+        M.DirectoryName = ctx.DirectoryName;
+        M.NameSpace = ctx.ModuleNamespace;
+        AutoDeriveFromDirectoryName();
+
+        if (!string.IsNullOrEmpty(ctx.ComponentPrefix))
+        {
+            M.ComponentPrefix = ctx.ComponentPrefix;
+            M.FeaturePluralName = ctx.ComponentPrefix + "s";
+        }
+
+        StateHasChanged();
+        await TriggerDebouncedPreview();
     }
 
     private async Task GenerateSliceFilesWithTemplateEngine(
@@ -381,8 +400,6 @@ public partial class Index
     {
         return !string.IsNullOrEmpty(M.DirectoryName) &&
                !string.IsNullOrEmpty(M.NameSpace) &&
-               !string.IsNullOrEmpty(M.ComponentPrefix) &&
-               !string.IsNullOrEmpty(M.FeaturePluralName) &&
                !string.IsNullOrEmpty(M.PkType) &&
                (M.GenerateForm || M.GenerateListing || M.GenerateSelectList);
     }

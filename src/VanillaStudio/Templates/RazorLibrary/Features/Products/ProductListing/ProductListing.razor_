@@ -195,7 +195,7 @@
 
                                 <div class="card-actions">
                                     <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Edit())"
-                                                  OnClick="@(() => NavigationManager.NavigateTo($"/products/edit/{item.Id}"))"> 
+                                                  OnClick='() => ShowDialog<ProductForm.ProductForm, string>("Edit Product", item.Id)'> 
                                         Edit
                                     </FluentButton>
                                     <FluentButton Appearance="Appearance.Neutral" IconStart="@(new Icons.Regular.Size16.Delete())"
@@ -541,7 +541,7 @@
                                 </div>
 
                                 <div class="flex space-x-2">
-                                    <a href="@($"products/edit/{item.Id}")"
+                                    <a @onclick='() => ShowDialog<ProductForm.ProductForm, string>("Edit Product", item.Id)'
                                        class="flex-1 px-3 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 text-center transition-colors">
                                         Edit
                                     </a>
@@ -589,7 +589,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
-                                                <a href="@($"products/edit/{item.Id}")"
+                                                <a @onclick='() => ShowDialog<ProductForm.ProductForm, string>("Edit Product", item.Id)'
                                                    class="text-black hover:text-gray-600 font-medium">
                                                     Edit
                                                 </a>

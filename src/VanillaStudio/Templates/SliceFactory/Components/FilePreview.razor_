@@ -1,5 +1,6 @@
 @using {{RootNamespace}}.SliceFactory.Models
 @using {{RootNamespace}}.SliceFactory.Services
+@inject IJSRuntime JS
 
 <div class="file-tree-panel">
     @if (IsLoading)
@@ -51,9 +52,9 @@
                 var isNew = item.Node.HasNewDescendants;
                 var isCollapsed = _collapsedNodes.Contains(item.Node.NodeId);
 
-                <div class="tree-row @(item.Node.IsFile ? "tree-row-file" : "tree-row-dir") @(isNew ? "tree-row-new" : "tree-row-existing")"
+                <div class="tree-row @(item.Node.IsFile ? "tree-row-file" : "tree-row-dir") @(isNew ? "tree-row-new" : "tree-row-existing") @(item.Node.IsFile && !isNew ? "tree-row-pickable" : "")"
                      style="padding-left: calc(@(item.Level * 16)px + 10px)"
-                     @onclick="@(() => ToggleNode(item.Node))">
+                     @onclick="@(async () => await HandleRowClickAsync(item.Node))">
 
                     @* Expand/collapse chevron *@
                     @if (!item.Node.IsFile)
@@ -165,6 +166,7 @@
 @code {
     [Parameter] public List<FeatureFilePreview>? PreviewFiles { get; set; }
     [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<PickerContext> OnPick { get; set; }
 
     // ── Tree node model ──────────────────────────────────────────────────────────
     private class FileTreeNode
@@ -326,14 +328,61 @@
         }
     }
 
-    private void ToggleNode(FileTreeNode node)
+    private async Task HandleRowClickAsync(FileTreeNode node)
     {
-        if (node.IsFile) return;
-        if (_collapsedNodes.Contains(node.NodeId))
-            _collapsedNodes.Remove(node.NodeId);
-        else
-            _collapsedNodes.Add(node.NodeId);
-        _flatTree = FlattenTree(_cachedTree, 0).ToList();
+        // Always toggle directories
+        if (!node.IsFile)
+        {
+            if (_collapsedNodes.Contains(node.NodeId))
+                _collapsedNodes.Remove(node.NodeId);
+            else
+                _collapsedNodes.Add(node.NodeId);
+            _flatTree = FlattenTree(_cachedTree, 0).ToList();
+        }
+
+        // Offer picker for existing file nodes only
+        if (node.IsFile && !node.HasNewDescendants && OnPick.HasDelegate)
+        {
+            var ctx = BuildPickerContext(node);
+            if (ctx == null) return;
+
+            var msg = node.IsFile
+                ? $"Use this location as a sibling template?\n\nDirectory:  {ctx.DirectoryName}\nNamespace:  {ctx.ModuleNamespace}\nComponent:  {ctx.ComponentPrefix}"
+                : $"Use this location as a sibling template?\n\nDirectory:  {ctx.DirectoryName}\nNamespace:  {ctx.ModuleNamespace}";
+
+            var confirmed = await JS.InvokeAsync<bool>("confirm", msg);
+            if (confirmed)
+                await OnPick.InvokeAsync(ctx);
+        }
+    }
+
+    /// <summary>
+    /// Derives picker context from an existing tree node.
+    /// DirectoryName = all segments of the relative dir path except the final slice-type subdirectory.
+    /// </summary>
+    private PickerContext? BuildPickerContext(FileTreeNode node)
+    {
+        var file = node.IsFile ? node.FileData : FindFirstExistingFile(node);
+        if (file == null) return null;
+
+        var normRoot = file.ProjectRootPath.TrimEnd('\\', '/');
+        var absDir = file.DirectoryPath;
+
+        var relDir = absDir.Length > normRoot.Length
+            ? absDir.Substring(normRoot.Length).TrimStart('\\', '/')
+            : absDir.TrimStart('\\', '/');
+
+        // Strip the slice-type leaf folder (e.g. "ArticlesListing", "ArticleForm") to get the feature directory
+        var segments = relDir.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+        var directoryName = segments.Length > 1
+            ? string.Join("\\", segments[..^1])
+            : relDir;
+
+        return new PickerContext(
+            DirectoryName: directoryName,
+            ModuleNamespace: file.ModuleNamespace,
+            ComponentPrefix: node.IsFile ? file.ComponentPrefix : null
+        );
     }
 
     private void CollapseAll()
@@ -511,7 +560,7 @@
     }
 
     .legend-new      { background: #4ec9b0; }
-    .legend-existing { background: #555; border: 1px solid #888; }
+    .legend-existing { background: #777; border: 1px solid #aaa; }
 
     /* ── Scroll area ─────────────────────────────────────────────────────────── */
     .file-tree-scroll {
@@ -577,18 +626,18 @@
     .tree-icon-project { font-size: 0.85rem; color: #9c9cff; flex-shrink: 0; }
 
     .tree-icon-folder-new      { font-size: 0.85rem; color: #dcb44e; flex-shrink: 0; }
-    .tree-icon-folder-existing { font-size: 0.85rem; color: #5a5a3a; flex-shrink: 0; }
+    .tree-icon-folder-existing { font-size: 0.85rem; color: #888; flex-shrink: 0; }
 
-    .tree-icon-file-existing { opacity: 0.45; }
+    .tree-icon-file-existing { opacity: 0.7; }
 
     /* ── Labels ──────────────────────────────────────────────────────────────── */
     .tree-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .tree-label-project        { color: #bbb; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
     .tree-label-dir-new        { color: #ddd; font-weight: 500; }
-    .tree-label-dir-existing   { color: #666; font-weight: 400; font-style: italic; }
-    .tree-label-file-new       { color: #aaa; }
-    .tree-label-file-existing  { color: #555; }
+    .tree-label-dir-existing   { color: #aaa; font-weight: 400; }
+    .tree-label-file-new       { color: #ccc; }
+    .tree-label-file-existing  { color: #aaa; }
 
     /* ── Badges ──────────────────────────────────────────────────────────────── */
 
@@ -620,8 +669,12 @@
     .badge-selectlist { background: #3a2a1a; color: #ce9178; }
     .badge-default   { background: #3c3c3c; color: #888; }
 
-    /* Existing-file variant: same color but dimmed */
-    .tree-badge-existing { opacity: 0.6; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+    /* Existing-file variant: same color but slightly dimmed */
+    .tree-badge-existing { opacity: 0.75; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Existing nodes are clickable to pick as sibling template */
+    .tree-row-pickable { cursor: pointer; }
+    .tree-row-pickable:hover { background: rgba(170, 170, 170, 0.07) !important; border-left-color: rgba(170, 170, 170, 0.25) !important; }
 
     /* Namespace badge on existing files/dirs */
     .tree-ns-badge {
